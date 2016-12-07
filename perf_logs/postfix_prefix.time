@@ -1,0 +1,18 @@
+Executing 10 iterations of kepler
+Execution Time in Milliseconds
+spin():
+   Func     Avg      Min      Max      Std   Calls
+    total  237.87   68.67    473.79   107.06   120
+    coeff   5.29     5.14    11.55     0.31   1690
+      ang   3.95     3.87     8.63     0.26   1690
+      vep   3.38     2.63     7.27     0.25   1690
+      rad   1.42     1.38     3.13     0.11   1690
+   metric   1.39     1.34     3.1      0.1    1690
+    alpha   1.09     0.15    91.12     2.2    1690
+rho_gamma   3.2      3.1      4.28     0.25    120
+       pn   0.21     0.2      0.32     0.02    120
+mass_radius():
+  min: 3.012384
+  max: 3.860196
+  avg: 3.10580663333
+  std: 0.088644593974

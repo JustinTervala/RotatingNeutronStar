@@ -253,7 +253,7 @@ double legendre(int n, double x) {
     p_1 = x;
 
     if(n >= 2) { 
-        for(i=2; i<=n; i++){
+        for(i=2; i<=n; ++i){
             p = (x*(2.0*i-1.0)*p_1 - (i-1.0)*p_2)/i;
             p_2 = p_1;
             p_1 = p;
@@ -283,7 +283,7 @@ double plgndr(int l, int m, double x) {
     if(m > 0) {
         somx2 = sqrt((1.0-x)*(1.0+x));
         fact = 1.0;
-        for(i=1; i<=m; i++) {
+        for(i=1; i<=m; ++i) {
             pmm *= -fact*somx2;
             fact += 2.0;
         }
@@ -330,7 +330,7 @@ double rtsec_G(double (*func)(double, double),
     }
 
  
-    for(j=1; j<=MAXIT; j++) {
+    for(j=1; j<=MAXIT; ++j) {
         dx = (xl-rts)*f/(f-fl);
         xl = rts;
         fl = f;

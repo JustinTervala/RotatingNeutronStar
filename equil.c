@@ -46,7 +46,7 @@ void make_grid(double s_gp[SDIV+1],
                double mu[MDIV+1]) { 
     int m, s;                         /* counters */
     
-    for(s = 1; s <= SDIV; s++) {
+    for(s = 1; s <= SDIV; ++s) {
         s_gp[s] = SMAX*(s-1.0)/(SDIV-1.0);
     }
     /* s_gp[1] = 0.0     corresponds to the center of the star
@@ -54,7 +54,7 @@ void make_grid(double s_gp[SDIV+1],
 
     /* SMAX is defined in the file consts.h */
 
-    for(m = 1; m<= MDIV; m++) { 
+    for(m = 1; m<= MDIV; ++m) { 
          mu[m] = (m-1.0)/(MDIV-1.0);
     }
     /* mu[1] = 0.0    corresponds to the plane of the equator 
@@ -99,7 +99,7 @@ void load_eos(char eos_file[],
 
     /* READ EOS, H, N0 AND MAKE THEM DIMENSIONLESS */
  
-    for(i = 1; i <= (*n_tab); i++) {  
+    for(i = 1; i <= (*n_tab); ++i) {  
         fscanf(f_eos,"%lf %lf %lf %lf\n",&rho,&p,&h,&n0) ;
         log_e_tab[i] = log10(rho*C*C*KSCALE);     /* multiply by C^2 to get */ 
         log_p_tab[i] = log10(p*KSCALE);           /* energy density. */
@@ -268,7 +268,7 @@ void mass_radius(double s_gp[SDIV+1],
     
     double rho_0[SDIV+1][MDIV+1];
     std::array<std::array<double, MDIV+1>, SDIV+1> velocity = {{0.0}};
-    for(s = 1; s <= SDIV; s++) {               
+    for(s = 1; s <= SDIV; ++s) {               
         gama_mu_0[s]=gama[s][1];                   
         rho_mu_0[s]=rho[s][1];                                                    
     }
@@ -294,8 +294,8 @@ void mass_radius(double s_gp[SDIV+1],
    /* CALCULATE THE REST MASS DENSITY */
     if(strcmp(eos_type, "tab") == 0) {
         n_nearest = n_tab/2;
-        for(s=1; s<=SDIV; s++) {
-            for(m=1; m<=MDIV; m++) {
+        for(s=1; s<=SDIV; ++s) {
+            for(m=1; m<=MDIV; ++m) {
                 if(energy[s][m] > e_surface) {
                     rho_0[s][m] = n0_at_e(energy[s][m], log_n0_tab, log_e_tab, n_tab,
                                              &n_nearest)*MB*KSCALE*SQ(C);
@@ -305,14 +305,14 @@ void mass_radius(double s_gp[SDIV+1],
             }
         }       
     } else {
-        for(s=1; s<=SDIV; s++) {
-            for(m=1; m<=MDIV; m++) {
+        for(s=1; s<=SDIV; ++s) {
+            for(m=1; m<=MDIV; ++m) {
                 rho_0[s][m] = (energy[s][m]+pressure[s][m])*exp(-enthalpy[s][m]);
             }
         }
     }
 
-    for(s=1; s<=SDIV; s++) {
+    for(s=1; s<=SDIV; ++s) {
         D_m[s] = 0.0;           /* initialize */
         D_m_0[s] = 0.0;
         D_J[s] = 0.0;
@@ -401,7 +401,7 @@ void mass_radius(double s_gp[SDIV+1],
   /* Compute the velocities of co-rotating and counter-rotating particles
     with respect to a ZAMO     */
 
-    for(s=1+(SDIV-1)/2; s<=SDIV; s++) {
+    for(s=1+(SDIV-1)/2; s<=SDIV; ++s) {
         s1 = s_gp[s]*(1.0-s_gp[s]);
         s_1 = 1.0-s_gp[s];
         
@@ -428,7 +428,7 @@ void mass_radius(double s_gp[SDIV+1],
 
     /* Kepler angular velocity */
 
-    for(s=1; s<=SDIV; s++) { 
+    for(s=1; s<=SDIV; ++s) { 
         d_o_e[s] = deriv_s<double, SDIV+1, MDIV+1>(omega, s, 1);
         d_g_e[s] = deriv_s<double, SDIV+1, MDIV+1>(gama, s, 1);
         d_r_e[s] = deriv_s<double, SDIV+1, MDIV+1>(rho, s, 1);
@@ -605,7 +605,7 @@ void TOV(int    i_check,
             r_gp[i] = r;
             m_gp[i] = m;
             e_d_gp[i] = e_d; 
-            i++;   
+            ++i;   
             r_is_check += dr_is_save;
         }    
        
@@ -672,7 +672,7 @@ void TOV(int    i_check,
         nu_s = log((1.0-(*m_final)/(2.0*(*r_is_final)))/(1.0+(*m_final)/
                (2.0*(*r_is_final))));
 
-        for(i=1; i<=RDIV; i++) {
+        for(i=1; i<=RDIV; ++i) {
             r_is_gp[i] *= k_rescale;
  
             if(i == 1) {
@@ -751,7 +751,7 @@ void sphere(double s_gp[SDIV+1],
         nu_gp, &r_is_final, &r_final, &m_final);
 
     n_nearest = RDIV/2;
-    for(s=1; s<=SDIV; s++) {
+    for(s=1; s<=SDIV; ++s) {
         r_is_s = r_is_final*(s_gp[s]/(1.0-s_gp[s]));
 
         if(r_is_s < r_is_final) {
@@ -765,7 +765,7 @@ void sphere(double s_gp[SDIV+1],
         gama[s][1] = nu_s+lambda_s;
         rho[s][1] = nu_s-lambda_s;
 
-        for(m=1; m<=MDIV; m++) {
+        for(m=1; m<=MDIV; ++m) {
             gama[s][m] = gama[s][1];        
             rho[s][m] = rho[s][1];
             alpha[s][m] = (gama[s][1]-rho[s][1])/2.0;
@@ -895,17 +895,17 @@ void spin(double s_gp[SDIV+1],
     struct timespec rho_gamma_start, rho_gamma_stop;
     clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
 
-    for(n=0; n<=LMAX; n++) {
-        for(i=2; i<=SDIV; i++) {
+    for(n=0; n<=LMAX; ++n) {
+        for(i=2; i<=SDIV; ++i) {
             f2n[n+1][i] = pow((1.0-s_gp[i])/s_gp[i], 2.0*n);
         }
     }
 
     if(SMAX != 1.0) {
 
-        for(j=2; j<=SDIV; j++) {
-            for(n=1; n<=LMAX; n++) {
-                for(k=2; k<=SDIV; k++) {
+        for(j=2; j<=SDIV; ++j) {
+            for(n=1; n<=LMAX; ++n) {
+                for(k=2; k<=SDIV; ++k) {
                     sk = s_gp[k];
                     sj = s_gp[j];
                     sk1 = 1.0-sk;
@@ -924,44 +924,44 @@ void spin(double s_gp[SDIV+1],
         j = 1;
  
         n = 0; 
-        for(k=2; k<=SDIV; k++) {
+        for(k=2; k<=SDIV; ++k) {
             sk = s_gp[k];
             f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
         }
 
         n = 1;
-        for(k=2; k<=SDIV; k++) {
+        for(k=2; k<=SDIV; ++k) {
             sk = s_gp[k];
             sk1 = 1.0-sk;         
             f_rho[j][n+1][k] = 0.0;
             f_gama[j][n+1][k] = 1.0/(sk*sk1);
         }
 
-        for(n=2; n<=LMAX; n++) {
-            for(k=1; k<=SDIV; k++) {
+        for(n=2; n<=LMAX; ++n) {
+            for(k=1; k<=SDIV; ++k) {
                 f_rho[j][n+1][k] = 0.0;
                 f_gama[j][n+1][k] = 0.0;
             }
         }
 
         k = 1;
-
+        //Chache inefficient
         n = 0;
-        for(j=1; j<=SDIV; j++) {
+        for(j=1; j<=SDIV; ++j) {
             f_rho[j][n+1][k] = 0.0;
         }
-
-        for(j=1; j<=SDIV; j++) {
-            for(n=1; n<=LMAX; n++) {
+        //cache inefficent
+        for(j=1; j<=SDIV; ++j) {
+            for(n=1; n<=LMAX; ++n) {
                 f_rho[j][n+1][k] = 0.0;
                 f_gama[j][n+1][k] = 0.0;
             }
         }
 
-
+        //cache inefficent
         n = 0;
-        for(j=2; j<=SDIV; j++) {
-            for(k=2; k<=SDIV; k++) {
+        for(j=2; j<=SDIV; ++j) {
+            for(k=2; k<=SDIV; ++k) {
                 sk = s_gp[k];
                 sj = s_gp[j];
                 sk1 = 1.0-sk;
@@ -976,9 +976,9 @@ void spin(double s_gp[SDIV+1],
         }         
 
     } else {      
-        for(j=2; j<=SDIV-1; j++) {
-            for(n=1; n<=LMAX; n++) {
-                for(k=2; k<=SDIV-1; k++) {
+        for(j=2; j<=SDIV-1; ++j) {
+            for(n=1; n<=LMAX; ++n) {
+                for(k=2; k<=SDIV-1; ++k) {
                     sk = s_gp[k];
                     sj = s_gp[j];
                     sk1 = 1.0-sk;
@@ -999,21 +999,21 @@ void spin(double s_gp[SDIV+1],
         j = 1;
  
         n = 0; 
-        for(k=2; k<=SDIV-1; k++) {
+        for(k=2; k<=SDIV-1; ++k) {
             sk = s_gp[k];
             f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
         }
 
         n = 1;
-        for(k=2; k<=SDIV-1; k++) {
+        for(k=2; k<=SDIV-1; ++k) {
             sk = s_gp[k];
             sk1 = 1.0-sk;         
             f_rho[j][n+1][k] = 0.0;
             f_gama[j][n+1][k] = 1.0/(sk*sk1);
         }
 
-        for(n=2; n<=LMAX; n++) {
-            for(k=1; k<=SDIV-1; k++) {
+        for(n=2; n<=LMAX; ++n) {
+            for(k=1; k<=SDIV-1; ++k) {
                 f_rho[j][n+1][k] = 0.0;
                 f_gama[j][n+1][k] = 0.0;
              }
@@ -1021,20 +1021,24 @@ void spin(double s_gp[SDIV+1],
 
         k = 1;
  
+        //cache inefficient
         n = 0;
-        for(j=1; j<=SDIV-1; j++) {
+        for(j=1; j<=SDIV-1; ++j) {
             f_rho[j][n+1][k]=0.0;
         }
-        for(j=1; j<=SDIV-1; j++) {
-            for(n=1; n<=LMAX; n++) {
+
+        //cache inefficent
+        for(j=1; j<=SDIV-1; ++j) {
+            for(n=1; n<=LMAX; ++n) {
                 f_rho[j][n+1][k] = 0.0;
                 f_gama[j][n+1][k] = 0.0;
             }
         }
  
+        //cache inefficient
         n = 0;
-        for(j=2; j<=SDIV-1; j++) {
-            for(k=2; k<=SDIV-1; k++) {
+        for(j=2; j<=SDIV-1; ++j) {
+            for(k=2; k<=SDIV-1; ++k) {
                 sk = s_gp[k];
                 sj = s_gp[j];
                 sk1 = 1.0-sk;
@@ -1049,16 +1053,17 @@ void spin(double s_gp[SDIV+1],
         }
  
         j = SDIV;
-        for(n=1; n<=LMAX; n++) {
-            for(k=1; k<=SDIV; k++) {
+        for(n=1; n<=LMAX; ++n) {
+            for(k=1; k<=SDIV; ++k) {
                 f_rho[j][n+1][k] = 0.0;
                 f_gama[j][n+1][k] = 0.0;
             }
         }
 
+        //cache inefficient
         k = SDIV;
-        for(j=1; j<=SDIV; j++) {
-            for(n=1; n<=LMAX; n++) {
+        for(j=1; j<=SDIV; ++j) {
+            for(n=1; n<=LMAX; ++n) {
                 f_rho[j][n+1][k] = 0.0;
                 f_gama[j][n+1][k] = 0.0;
             }
@@ -1069,19 +1074,20 @@ void spin(double s_gp[SDIV+1],
     struct timespec pn_start, pn_stop;
     clock_gettime(CLOCK_MONOTONIC, &pn_start);
 
+    //cache inefficient
     n = 0;
-    for(i=1; i<=MDIV; i++) {
+    for(i=1; i<=MDIV; ++i) {
         P_2n[i][n+1] = legendre(2*n, mu[i]);
     }
 
-    for(i=1; i<=MDIV; i++) {
-        for(n=1;n<=LMAX;n++) {
+    for(i=1; i<=MDIV; ++i) {
+        for(n=1;n<=LMAX;++n) {
             P_2n[i][n+1] = legendre(2*n, mu[i]);
             P1_2n_1[i][n+1] = plgndr(2*n-1, 1, mu[i]);
         }
     }
 
-    for(m=1; m<=MDIV; m++) { 
+    for(m=1; m<=MDIV; ++m) { 
         sin_theta[m] = sqrt(1.0-mu[m]*mu[m]);  
         theta[m] = asin(sin_theta[m]);
     }
@@ -1101,8 +1107,8 @@ void spin(double s_gp[SDIV+1],
         | the equatorial and polar directions.
         */        
 
-        for(s=1; s<=SDIV; s++) {
-            for(m=1; m<=MDIV; m++) {
+        for(s=1; s<=SDIV; ++s) {
+            for(m=1; m<=MDIV; ++m) {
                 rho[s][m] /= SQ(r_e);
                 gama[s][m] /= SQ(r_e); 
                 alpha[s][m] /= SQ(r_e);
@@ -1155,10 +1161,10 @@ void spin(double s_gp[SDIV+1],
  
         n_nearest = n_tab/2; 
 
-        for(s=1; s<=SDIV; s++) {
+        for(s=1; s<=SDIV; ++s) {
             sgp = s_gp[s];
 
-            for(m=1; m<=MDIV; m++) {
+            for(m=1; m<=MDIV; ++m) {
                 rsm = rho[s][m];
             
                 if(r_ratio == 1.0) {
@@ -1210,8 +1216,8 @@ void spin(double s_gp[SDIV+1],
         double S_rho[SDIV+1][MDIV+1];
         double S_omega[SDIV+1][MDIV+1];
 
-        for(s=1; s<=SDIV; s++) {
-            for(m=1; m<=MDIV; m++) {
+        for(s=1; s<=SDIV; ++s) {
+            for(m=1; m<=MDIV; ++m) {
                 rsm = rho[s][m];
                 gsm = gama[s][m];
                 omsm = omega[s][m];
@@ -1276,7 +1282,7 @@ void spin(double s_gp[SDIV+1],
         double D1_gama[LMAX+2][SDIV+1];
         double D1_omega[LMAX+2][SDIV+1];
         n = 0;
-        for(k=1; k<=SDIV; k++) {      
+        for(k=1; k<=SDIV; ++k) {      
             for(m=1; m<=MDIV-2; m+=2) {
                 sum_rho += (DM/3.0)*(P_2n[m][n+1]*S_rho[k][m]
                            + 4.0*P_2n[m+1][n+1]*S_rho[k][m+1] 
@@ -1289,8 +1295,8 @@ void spin(double s_gp[SDIV+1],
             sum_rho = 0.0;
         }
 
-        for(n=1; n<=LMAX; n++) {
-            for(k=1; k<=SDIV; k++) {      
+        for(n=1; n<=LMAX; ++n) {
+            for(k=1; k<=SDIV; ++k) {      
                 for(m=1; m<=MDIV-2; m+=2) {
 
                     sum_rho += (DM/3.0)*(P_2n[m][n+1]*S_rho[k][m]
@@ -1326,7 +1332,7 @@ void spin(double s_gp[SDIV+1],
 
 
         n = 0;
-        for(s=1; s<=SDIV; s++) {
+        for(s=1; s<=SDIV; ++s) {
             for(k=1; k<=SDIV-2; k+=2) { 
                 sum_rho += (DS/3.0)*( f_rho[s][n+1][k]*D1_rho[n+1][k] 
                            + 4.0*f_rho[s][n+1][k+1]*D1_rho[n+1][k+1]
@@ -1338,8 +1344,8 @@ void spin(double s_gp[SDIV+1],
             sum_rho = 0.0;
         }  
  
-        for(s=1; s<=SDIV; s++) {
-            for(n=1; n<=LMAX; n++) {
+        for(s=1; s<=SDIV; ++s) {
+            for(n=1; n<=LMAX; ++n) {
                 for(k=1; k<=SDIV-2; k+=2) { 
                     sum_rho += (DS/3.0)*( f_rho[s][n+1][k]*D1_rho[n+1][k] 
                                + 4.0*f_rho[s][n+1][k+1]*D1_rho[n+1][k+1]
@@ -1381,8 +1387,8 @@ void spin(double s_gp[SDIV+1],
         struct timespec coeff_start, coeff_stop;
         clock_gettime(CLOCK_MONOTONIC, &coeff_start);
 
-        for(s=1; s<=SDIV; s++) {
-            for(m=1; m<=MDIV; m++) {
+        for(s=1; s<=SDIV; ++s) {
+            for(m=1; m<=MDIV; ++m) {
 
                 gsm = gama[s][m];
                 rsm = rho[s][m];
@@ -1393,7 +1399,7 @@ void spin(double s_gp[SDIV+1],
 
                 sum_rho += -e_gsm*P_2n[m][0+1]*D2_rho[s][0+1]; 
 
-                for(n=1; n<=LMAX; n++) {
+                for(n=1; n<=LMAX; ++n) {
 
                     sum_rho += -e_gsm*P_2n[m][n+1]*D2_rho[s][n+1]; 
 
@@ -1433,8 +1439,8 @@ void spin(double s_gp[SDIV+1],
         /* TREAT SPHERICAL CASE */
       
         if(r_ratio == 1.0) {
-            for(s=1; s<=SDIV; s++) {
-                for(m=1; m<=MDIV; m++) {
+            for(s=1; s<=SDIV; ++s) {
+                for(m=1; m<=MDIV; ++m) {
                     rho[s][m] = rho[s][1];
                     gama[s][m] = gama[s][1];
                     omega[s][m] = 0.0;          
@@ -1446,7 +1452,7 @@ void spin(double s_gp[SDIV+1],
         /* TREAT INFINITY WHEN SMAX=1.0 */
 
         if(SMAX == 1.0) {
-            for(m=1; m<=MDIV; m++) {
+            for(m=1; m<=MDIV; ++m) {
                 rho[SDIV][m] = 0.0;
                 gama[SDIV][m] = 0.0;
                 omega[SDIV][m] = 0.0;
@@ -1461,8 +1467,8 @@ void spin(double s_gp[SDIV+1],
         std::array<std::array<double, MDIV+1>, SDIV+1> dgds = {{0.0}};
         std::array<std::array<double, MDIV+1>, SDIV+1> dgdm = {{0.0}};
  
-        for(s=1;s<=SDIV;s++) {
-            for(m=1; m<=MDIV; m++) {
+        for(s=1;s<=SDIV;++s) {
+            for(m=1; m<=MDIV; ++m) {
                 dgds[s][m] = deriv_s<double, SDIV+1, MDIV+1>(gama, s, m);
                 dgdm[s][m] = deriv_m<double, SDIV+1, MDIV+1>(gama, s, m);
             }
@@ -1472,14 +1478,14 @@ void spin(double s_gp[SDIV+1],
         /* ALPHA */
  
         if(r_ratio == 1.0) {
-            for(s=1; s<=SDIV; s++) {
-                for(m=1; m<=MDIV; m++) {
+            for(s=1; s<=SDIV; ++s) {
+                for(m=1; m<=MDIV; ++m) {
                      da_dm[s][m] = 0.0; 
                 }
             }
         } else {
-            for(s=2; s<=SDIV; s++) {
-                for(m=1; m<=MDIV; m++) {
+            for(s=2; s<=SDIV; ++s) {
+                for(m=1; m<=MDIV; ++m) {
 
                     da_dm[1][m] = 0.0; 
        
@@ -1525,15 +1531,15 @@ void spin(double s_gp[SDIV+1],
             }
         }
 
-        for(s=1; s<=SDIV; s++) {
+        for(s=1; s<=SDIV; ++s) {
             alpha[s][1] = 0.0;
-            for(m=1; m<=MDIV-1; m++) { 
+            for(m=1; m<=MDIV-1; ++m) { 
                 alpha[s][m+1] = alpha[s][m]+0.5*DM*(da_dm[s][m+1]+da_dm[s][m]);
             }
         } 
  
-        for(s=1; s<=SDIV; s++) {
-            for(m=1; m<=MDIV; m++) {     
+        for(s=1; s<=SDIV; ++s) {
+            for(m=1; m<=MDIV; ++m) {     
                 alpha[s][m] += -alpha[s][MDIV]+0.5*(gama[s][MDIV]-rho[s][MDIV]);
 
                 if(alpha[s][m] >= 300.0) {
@@ -1545,7 +1551,7 @@ void spin(double s_gp[SDIV+1],
         } 
 
         if(SMAX == 1.0) {
-            for(m=1; m<=MDIV; m++) {     
+            for(m=1; m<=MDIV; ++m) {     
                 alpha[SDIV][m] = 0.0;
             }
         }
