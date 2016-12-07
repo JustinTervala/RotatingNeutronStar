@@ -38,8 +38,8 @@ kepler -f eosA -e 1e15
 *                                                                         *
 **************************************************************************/
 #include "consts.h"
-#include "nrutil.h"
 #include "equil.h"
+#include "equil_util.h"
 #include <stdio.h>
 #include <string.h> 
 #include <math.h>
@@ -461,19 +461,19 @@ int main(int argc,                    /* Number of command line arguments */
                 break;
             }
            
-            if(SIGN(fm, fnew) != fm) {
+            if(sgn<float>(fm, fnew) != fm) {
                 xl = xm;
                 fl = fm;
                 xh = ans;
                 fh = fnew;
-            } else if(SIGN(fl, fnew) != fl) {
+            } else if(sgn<float>(fl, fnew) != fl) {
                 xh = ans;
                 fh = fnew;
-            } else if(SIGN(fh, fnew) != fh) {
+            } else if(sgn<float>(fh, fnew) != fh) {
                 xl = ans;
                 fl = fnew;
             } else {
-                nrerror("never get here.");
+                print_error("never get here.");
             }
             if(fabs(xh-xl) <= xacc) {
                 r_ratio = ans;
@@ -484,7 +484,7 @@ int main(int argc,                    /* Number of command line arguments */
         if(fh == 0.0){
             r_ratio +=dr;
         }
-        nrerror("root must be bracketed in zriddr.");
+        print_error("root must be bracketed in zriddr.");
     }
  
     /* THE RIDDER ZERO-FINDING ROUTINE HAS FOUND THE VALUE

@@ -1,25 +1,12 @@
 #include <array>
+#include <string>
 #include "consts.h"
-template <class T, size_t size_x, size_t size_y>
-std::array<std::array<T, size_y>, size_x> copy_from_nr(T** in) {
-    std::array<std::array<T, size_y>, size_x> tmp;
-    for (size_t ii = 0; ii < size_x; ++ii) {
-        for (size_t jj = 0; jj < size_y; ++jj) {
-            tmp[ii][jj] = in[ii+1][jj+1];    
-        }
-    }
-    return tmp;
-}
 
-template<class T, size_t size_x, size_t size_y>
-void copy_to_nr(std::array<std::array<T, size_y>, size_x> in, T** out) {
-    for (size_t ii = 0; ii < size_x; ++ii) {
-        for (size_t jj = 0; jj < size_y; ++jj) {
-            out[ii+1][jj+1] = in[ii][jj];    
-        }
-    }
-}
+#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 
+template <typename T> int sgn(T val, T& out) {
+    out = (T(0) < val) - (val < T(0));
+}
 
 void hunt(double xx[], int n, double x, int *jlo);
 
@@ -129,3 +116,4 @@ double rtsec_G(double (*func)(double, double),
                double xacc,
                double ee);
 
+void print_error(const std::string& error);

@@ -27,7 +27,6 @@
 
 #include "equil_util.h"
 #include "consts.h"
-#include "nrutil.h"
 #include "equil.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -232,8 +231,8 @@ void mass_radius(double s_gp[SDIV+1],
         n_nearest;
 
  
-    double **rho_0, /*rest mass density*/
-           **velocity,
+    double //**rho_0, /*rest mass density*/
+           //**velocity,
            gama_equator,              /* gama at equator */
            rho_equator,               /* rho at equator */
            omega_equator,             /* omega at equator */
@@ -266,10 +265,9 @@ void mass_radius(double s_gp[SDIV+1],
     r_p = r_ratio*r_e;                              /* radius at pole */
     s_p = r_p/(r_p+r_e);                            /* s-coordinate at pole */
     s_e = 0.5;
-
-    rho_0 = dmatrix(1, SDIV, 1, MDIV);
-    velocity = dmatrix(1, SDIV, 1, MDIV);
-
+    
+    double rho_0[SDIV+1][MDIV+1];
+    std::array<std::array<double, MDIV+1>, SDIV+1> velocity = {{0.0}};
     for(s = 1; s <= SDIV; s++) {               
         gama_mu_0[s]=gama[s][1];                   
         rho_mu_0[s]=rho[s][1];                                                    
@@ -434,7 +432,7 @@ void mass_radius(double s_gp[SDIV+1],
         d_o_e[s] = deriv_s<double, SDIV+1, MDIV+1>(omega, s, 1);
         d_g_e[s] = deriv_s<double, SDIV+1, MDIV+1>(gama, s, 1);
         d_r_e[s] = deriv_s<double, SDIV+1, MDIV+1>(rho, s, 1);
-        d_v_e[s] = deriv_s(velocity, s, 1);
+        d_v_e[s] = deriv_s<double, SDIV+1, MDIV+1>(velocity, s, 1);
         /* Value of omega on the equatorial plane*/
         omega_mu_0[s] = omega[s][1];
     }
@@ -461,10 +459,6 @@ void mass_radius(double s_gp[SDIV+1],
     } else { 
         (*Omega_K) = omega_equator + vek*exp(rho_equator)/r_e;
     }
-
-    free_dmatrix(velocity, 1, SDIV, 1, MDIV);
-    free_dmatrix(rho_0, 1, SDIV, 1, MDIV);
-
 }
 
 /**************************************************************************/
@@ -829,14 +823,6 @@ void spin(double s_gp[SDIV+1],
         i,
         j;
 
-    double **D2_rho,
-           **D2_gama,
-           **D2_omega;
-
-    float  ***f_rho,
-           ***f_gama;
-
- 
     double sum_rho = 0.0,         /* intermediate sum in eqn for rho */
            sum_gama = 0.0,        /* intermediate sum in eqn for gama */
            sum_omega=0.0,       /* intermediate sum in eqn for omega */
@@ -891,18 +877,6 @@ void spin(double s_gp[SDIV+1],
            rho_mu_0[SDIV+1],             /* rho at \mu=0 */
            omega_mu_0[SDIV+1],           /* omega at \mu=0 */
            s_e = 0.5,
-         **da_dm,
-         **dgds,
-         **dgdm,
-         **D1_rho,
-         **D1_gama,
-         **D1_omega,
-         **S_gama,
-         **S_rho,
-         **S_omega,
-         **f2n,
-         **P_2n,   
-         **P1_2n_1,
            Omega_h,
            sin_theta[MDIV+1],
            theta[MDIV+1],
@@ -912,12 +886,11 @@ void spin(double s_gp[SDIV+1],
            sj1,
            r_e;
 
-    f2n = dmatrix(1, LMAX+1, 1, SDIV);
-    f_rho = f3tensor(1, SDIV, 1, LMAX+1, 1, SDIV);
-    f_gama = f3tensor(1, SDIV, 1, LMAX+1, 1, SDIV);
- 
-    P_2n = dmatrix(1, MDIV, 1, LMAX+1);   
-    P1_2n_1 = dmatrix(1, MDIV, 1, LMAX+1);
+    double f2n[LMAX+2][SDIV+1];
+    float f_rho[SDIV+1][LMAX+2][SDIV+1];
+    float f_gama[SDIV+1][LMAX+2][SDIV+1];
+    double P_2n[MDIV+1][LMAX+2]; 
+    double P1_2n_1[MDIV+1][LMAX+2]; 
     
     struct timespec rho_gamma_start, rho_gamma_stop;
     clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
@@ -1108,8 +1081,6 @@ void spin(double s_gp[SDIV+1],
         }
     }
 
-    free_dmatrix(f2n, 1, LMAX+1, 1, SDIV);
-
     for(m=1; m<=MDIV; m++) { 
         sin_theta[m] = sqrt(1.0-mu[m]*mu[m]);  
         theta[m] = asin(sin_theta[m]);
@@ -1235,10 +1206,9 @@ void spin(double s_gp[SDIV+1],
         /* Compute metric potentials */
         struct timespec metric_start, metric_stop;
         clock_gettime(CLOCK_MONOTONIC, &metric_start);
-
-        S_gama = dmatrix(1, SDIV, 1, MDIV);
-        S_rho = dmatrix(1, SDIV, 1, MDIV);
-        S_omega = dmatrix(1, SDIV, 1, MDIV);
+        double S_gama[SDIV+1][MDIV+1];
+        double S_rho[SDIV+1][MDIV+1];
+        double S_omega[SDIV+1][MDIV+1];
 
         for(s=1; s<=SDIV; s++) {
             for(m=1; m<=MDIV; m++) {
@@ -1302,10 +1272,9 @@ void spin(double s_gp[SDIV+1],
         struct timespec ang_start, ang_stop;
         clock_gettime(CLOCK_MONOTONIC, &ang_start);
    
-        D1_rho = dmatrix(1, LMAX+1, 1, SDIV);
-        D1_gama = dmatrix(1, LMAX+1, 1, SDIV);
-        D1_omega = dmatrix(1, LMAX+1, 1, SDIV);
-
+        double D1_rho[LMAX+2][SDIV+1];
+        double D1_gama[LMAX+2][SDIV+1];
+        double D1_omega[LMAX+2][SDIV+1];
         n = 0;
         for(k=1; k<=SDIV; k++) {      
             for(m=1; m<=MDIV-2; m+=2) {
@@ -1345,20 +1314,15 @@ void spin(double s_gp[SDIV+1],
             }
         }
 
-
-        free_dmatrix(S_gama, 1, SDIV, 1, MDIV);
-        free_dmatrix(S_rho, 1, SDIV, 1, MDIV);
-        free_dmatrix(S_omega, 1, SDIV, 1, MDIV);
-
         clock_gettime(CLOCK_MONOTONIC, &ang_stop);
         printf("spin(), ang: %ld\n", getElapsedTimeNs(ang_start, ang_stop));
         /* RADIAL INTEGRATION */
         struct timespec rad_start, rad_stop;
         clock_gettime(CLOCK_MONOTONIC, &rad_start);
 
-        D2_rho = dmatrix(1, SDIV, 1, LMAX+1);
-        D2_gama = dmatrix(1, SDIV, 1, LMAX+1);
-        D2_omega = dmatrix(1, SDIV, 1, LMAX+1);
+        double D2_rho[SDIV+1][LMAX+2];
+        double D2_gama[SDIV+1][LMAX+2];
+        double D2_omega[SDIV+1][LMAX+2];
 
 
         n = 0;
@@ -1410,9 +1374,6 @@ void spin(double s_gp[SDIV+1],
             }
         }   
  
-        free_dmatrix(D1_rho, 1, LMAX+1, 1, SDIV);
-        free_dmatrix(D1_gama, 1, LMAX+1, 1, SDIV);
-        free_dmatrix(D1_omega, 1, LMAX+1, 1, SDIV);
         clock_gettime(CLOCK_MONOTONIC, &rad_stop);
         printf("spin(), rad: %ld\n", getElapsedTimeNs(rad_start, rad_stop));
 
@@ -1458,10 +1419,6 @@ void spin(double s_gp[SDIV+1],
             }
         }
 
-        free_dmatrix(D2_rho, 1, SDIV, 1, LMAX+1);
-        free_dmatrix(D2_gama, 1, SDIV, 1, LMAX+1);
-        free_dmatrix(D2_omega, 1, SDIV, 1, LMAX+1);
-
         clock_gettime(CLOCK_MONOTONIC, &coeff_stop);
         printf("spin(), coeff: %ld\n", getElapsedTimeNs(coeff_start, coeff_stop));
 
@@ -1500,9 +1457,9 @@ void spin(double s_gp[SDIV+1],
         struct timespec alpha_start, alpha_stop;
         clock_gettime(CLOCK_MONOTONIC, &alpha_start);
 
-        da_dm = dmatrix(1, SDIV, 1, MDIV);
-        dgds = dmatrix(1, SDIV, 1, MDIV);
-        dgdm = dmatrix(1, SDIV, 1, MDIV); 
+        std::array<std::array<double, MDIV+1>, SDIV+1> da_dm = {{0.0}};
+        std::array<std::array<double, MDIV+1>, SDIV+1> dgds = {{0.0}};
+        std::array<std::array<double, MDIV+1>, SDIV+1> dgdm = {{0.0}};
  
         for(s=1;s<=SDIV;s++) {
             for(m=1; m<=MDIV; m++) {
@@ -1537,8 +1494,8 @@ void spin(double s_gp[SDIV+1],
                     d_rho_m = deriv_m<double, SDIV+1, MDIV+1>(rho, s, m);
                     d_omega_s = deriv_s<double, SDIV+1, MDIV+1>(omega, s, m);
                     d_omega_m = deriv_m<double, SDIV+1, MDIV+1>(omega, s, m);
-                    d_gama_ss = s1*deriv_s(dgds, s, m)+(1.0-2.0*sgp)*d_gama_s;
-                    d_gama_mm = m1*deriv_m(dgdm, s, m)-2.0*mum*d_gama_m;  
+                    d_gama_ss = s1*deriv_s<double, SDIV+1, MDIV+1>(dgds, s, m)+(1.0-2.0*sgp)*d_gama_s;
+                    d_gama_mm = m1*deriv_m<double, SDIV+1, MDIV+1>(dgdm, s, m)-2.0*mum*d_gama_m;  
                     d_gama_sm = deriv_sm<double, SDIV+1, MDIV+1>(gama, s, m);
 
                     temp1 = 2.0*SQ(sgp)*(sgp/(1.0-sgp))*m1*d_omega_s*d_omega_m
@@ -1575,12 +1532,6 @@ void spin(double s_gp[SDIV+1],
             }
         } 
  
-
-        free_dmatrix(da_dm, 1, SDIV, 1, MDIV);
-        free_dmatrix(dgds, 1, SDIV, 1, MDIV);
-        free_dmatrix(dgdm, 1, SDIV, 1, MDIV);
-
-
         for(s=1; s<=SDIV; s++) {
             for(m=1; m<=MDIV; m++) {     
                 alpha[s][m] += -alpha[s][MDIV]+0.5*(gama[s][MDIV]-rho[s][MDIV]);
@@ -1623,11 +1574,6 @@ void spin(double s_gp[SDIV+1],
     /* UPDATE r_e_new */
 
     (*r_e_new) = r_e;
-
-    free_f3tensor(f_rho, 1, SDIV, 1, LMAX+1, 1, SDIV);
-    free_f3tensor(f_gama, 1, SDIV, 1, LMAX+1, 1, SDIV);
-    free_dmatrix(P_2n, 1, MDIV, 1, LMAX+1);   
-    free_dmatrix(P1_2n_1, 1, MDIV, 1, LMAX+1);  
 }
 
 

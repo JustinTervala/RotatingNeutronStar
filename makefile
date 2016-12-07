@@ -52,7 +52,7 @@ SIZE=-DMDIV=65 -DSDIV=129
 #*                    SOURCE AND OBJECT MACROS
 #*************************************************************************/
 
-OBJ=main.o equil.o equil_util.o nrutil.o 
+OBJ=main.o equil.o equil_util.o
 
 #/*************************************************************************
 #*                    MAIN COMPILING INSTRUCTIONS
@@ -62,15 +62,12 @@ kepler: $(OBJ)
 	$(CC) $(COPTS) $(MY_OWN) $(SIZE)  -o kepler $(OBJ) -lm -lrt
 
 
-main.o: equil.h  nrutil.h consts.h main.c
+main.o: equil.h equil_util.h consts.h main.c
 	$(CC)  $(COPTS) --std=c++0x -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.c 
 
-equil.o:equil.h equil_util.h nrutil.h consts.h equil.c
+equil.o:equil.h equil_util.h  consts.h equil.c
 	$(CC)  $(COPTS) --std=c++0x -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil.c
 
-equil_util.o:equil_util.h nrutil.h consts.h equil_util.c
+equil_util.o:equil_util.h  consts.h equil_util.c
 	$(CC)  $(COPTS) --std=c++0x -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.c
-
-nrutil.o:nrutil.h nrutil.c
-	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   nrutil.c
 

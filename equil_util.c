@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h> 
 #include <math.h>
-#include "nrutil.h"
+#include <iostream>
 #include "consts.h"
 #include "equil_util.h"
 
@@ -76,7 +76,7 @@ double interp(double xp[],
 
     hunt(xp, np, xb, n_nearest_pt);
 
-    k = IMIN(IMAX((*n_nearest_pt)-(m-1)/2, 1), np+1-m);
+    k = std::min(std::max((*n_nearest_pt)-(m-1)/2, 1), np+1-m);
 
     if(xb == xp[k] || xb == xp[k+1] || xb == xp[k+2] || xb == xp[k+3]) {
         xb += DBL_EPSILON;
@@ -344,4 +344,12 @@ double rtsec_G(double (*func)(double, double),
  
     printf("Maximum number of iterations exceeded in rtsec");  
     return 0.0;
+}
+
+void print_error(const std::string& error_text) {
+    
+	std::cerr << "Numerical Recipes run-time error...\n";
+	std::cerr << error_text << '\n';
+    std::cerr << "...now exiting to system..." << std::endl;
+	exit(1);
 }
