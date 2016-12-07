@@ -84,8 +84,8 @@ void mass_radius(double s_gp[SDIV+1],
                  double *Mass_0,
                  double *ang_mom,
                  double *R_e,
-                 double *v_plus,
-                 double *v_minus,
+                 std::array<double, SDIV+1>& v_plus,
+                 std::array<double, SDIV+1>& v_minus,
                  double *Omega_K);
 
 double dm_dr_is(double r_is, 

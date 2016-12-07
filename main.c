@@ -140,8 +140,8 @@ int main(int argc,                    /* Number of command line arguments */
         Omega,                        /* Angular Velocity */
         J,                            /* Angular Momentum */
         R_e,                          /* Circumferential radius at equator */
-       *v_plus,                       /* vel. of co-rot. particle wrt ZAMO */
-       *v_minus,                      /* vel. of counter-rot. ... */
+       //*v_plus,                       /* vel. of co-rot. particle wrt ZAMO */
+       //*v_minus,                      /* vel. of counter-rot. ... */
         Omega_K,                      /* Keplerian velocity of particle orbiting at equator */
         r_e;                          /* coord. radius at equator     */
 
@@ -248,8 +248,8 @@ int main(int argc,                    /* Number of command line arguments */
     std::array<std::array<double, MDIV+1>, SDIV+1> velocity_sq = {{0.0}}; 
     
 
-    v_plus = dvector(1, SDIV);
-    v_minus = dvector(1, SDIV);
+    std::array<double, SDIV+1> v_plus = {{0.0}};
+    std::array<double, SDIV+1> v_minus = {{0.0}};
 
     /* set program defaults */
     cf = 1.0;
