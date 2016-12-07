@@ -136,10 +136,6 @@ int main(int argc,                    /* Number of command line arguments */
         e_surface,                    /* surface en. density */ 
         p_surface,                    /* surface pressure */
         enthalpy_min,                 /* minimum enthalpy in EOS */
-      **energy,                       /* energy density \epsilon */
-      **pressure,                     /* pressure */ 
-      **enthalpy,                     /* enthalpy */
-      **velocity_sq,                  /* square of velocity */ 
         Mass_0,                       /* Baryon Mass */
         Omega,                        /* Angular Velocity */
         J,                            /* Angular Momentum */
@@ -246,11 +242,11 @@ int main(int argc,                    /* Number of command line arguments */
     std::array<std::array<double, MDIV+1>, SDIV+1> gama = {{0.0}}; 
     std::array<std::array<double, MDIV+1>, SDIV+1> alpha = {{0.0}}; 
     std::array<std::array<double, MDIV+1>, SDIV+1> omega = {{0.0}}; 
+    std::array<std::array<double, MDIV+1>, SDIV+1> energy = {{0.0}}; 
+    std::array<std::array<double, MDIV+1>, SDIV+1> pressure = {{0.0}}; 
+    std::array<std::array<double, MDIV+1>, SDIV+1> enthalpy = {{0.0}}; 
+    std::array<std::array<double, MDIV+1>, SDIV+1> velocity_sq = {{0.0}}; 
     
-    energy = dmatrix(1, SDIV, 1, MDIV);
-    pressure = dmatrix(1, SDIV, 1, MDIV);
-    enthalpy = dmatrix(1, SDIV, 1, MDIV);
-    velocity_sq = dmatrix(1, SDIV, 1, MDIV);
 
     v_plus = dvector(1, SDIV);
     v_minus = dvector(1, SDIV);
