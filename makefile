@@ -59,7 +59,7 @@ OBJ=main.o equil.o equil_util.o nrutil.o
 #*************************************************************************/
 
 kepler: $(OBJ)
-	$(CC) $(MY_OWN) -lm  $(SIZE)  -o kepler $(OBJ) 
+	$(CC) $(MY_OWN) $(SIZE)  -o kepler $(OBJ) -lm -lrt
 
 
 main.o: equil.h  nrutil.h consts.h main.c

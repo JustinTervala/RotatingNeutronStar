@@ -1,3 +1,6 @@
+#include <time.h>
+
+long getElapsedTimeNs(struct timespec start, struct timespec stop);
 
 void make_grid(double s_gp[SDIV+1], 
                double mu[MDIV+1]);                        

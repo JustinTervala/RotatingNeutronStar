@@ -30,8 +30,13 @@
 #include "nrutil.h"
 #include "equil.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h> 
 #include <math.h>
+
+long getElapsedTimeNs(struct timespec start, struct timespec stop) {
+    return (stop.tv_sec - start.tv_sec)*1e9 + stop.tv_nsec - start.tv_nsec;
+}
 
 /*******************************************************************/
 /* Create computational grid.                                      */
@@ -913,6 +918,9 @@ void spin(double s_gp[SDIV+1],
  
     P_2n = dmatrix(1, MDIV, 1, LMAX+1);   
     P1_2n_1 = dmatrix(1, MDIV, 1, LMAX+1);
+    
+    struct timespec rho_gamma_start, rho_gamma_stop;
+    clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
 
     for(n=0; n<=LMAX; n++) {
         for(i=2; i<=SDIV; i++) {
@@ -1083,6 +1091,10 @@ void spin(double s_gp[SDIV+1],
             }
         }
     }
+    clock_gettime(CLOCK_MONOTONIC, &rho_gamma_stop);
+    printf("spin(), rho_gamma: %ld\n", getElapsedTimeNs(rho_gamma_start, rho_gamma_stop));
+    struct timespec pn_start, pn_stop;
+    clock_gettime(CLOCK_MONOTONIC, &pn_start);
 
     n = 0;
     for(i=1; i<=MDIV; i++) {
@@ -1105,6 +1117,8 @@ void spin(double s_gp[SDIV+1],
 
   
     r_e = (*r_e_new);
+    clock_gettime(CLOCK_MONOTONIC, &pn_stop);
+    printf("spin(), pn: %ld\n", getElapsedTimeNs(pn_start, pn_stop));
 
     while(dif > accuracy || n_of_it < 2) { 
 
@@ -1165,6 +1179,8 @@ void spin(double s_gp[SDIV+1],
         }
  
         /* Compute velocity, energy density and pressure. */
+        struct timespec vep_start, vep_stop;
+        clock_gettime(CLOCK_MONOTONIC, &vep_start);
  
         n_nearest = n_tab/2; 
 
@@ -1213,8 +1229,12 @@ void spin(double s_gp[SDIV+1],
                 alpha[s][m] *= SQ(r_e);
             }
         }
+        clock_gettime(CLOCK_MONOTONIC, &vep_stop);
+        printf("spin(), vep: %ld\n", getElapsedTimeNs(vep_start, vep_stop));
 
         /* Compute metric potentials */
+        struct timespec metric_start, metric_stop;
+        clock_gettime(CLOCK_MONOTONIC, &metric_start);
 
         S_gama = dmatrix(1, SDIV, 1, MDIV);
         S_rho = dmatrix(1, SDIV, 1, MDIV);
@@ -1276,7 +1296,11 @@ void spin(double s_gp[SDIV+1],
             }
         }
 
+        clock_gettime(CLOCK_MONOTONIC, &metric_stop);
+        printf("spin(), metric: %ld\n", getElapsedTimeNs(metric_start, metric_stop));
         /* ANGULAR INTEGRATION */
+        struct timespec ang_start, ang_stop;
+        clock_gettime(CLOCK_MONOTONIC, &ang_start);
    
         D1_rho = dmatrix(1, LMAX+1, 1, SDIV);
         D1_gama = dmatrix(1, LMAX+1, 1, SDIV);
@@ -1326,7 +1350,11 @@ void spin(double s_gp[SDIV+1],
         free_dmatrix(S_rho, 1, SDIV, 1, MDIV);
         free_dmatrix(S_omega, 1, SDIV, 1, MDIV);
 
+        clock_gettime(CLOCK_MONOTONIC, &ang_stop);
+        printf("spin(), ang: %ld\n", getElapsedTimeNs(ang_start, ang_stop));
         /* RADIAL INTEGRATION */
+        struct timespec rad_start, rad_stop;
+        clock_gettime(CLOCK_MONOTONIC, &rad_start);
 
         D2_rho = dmatrix(1, SDIV, 1, LMAX+1);
         D2_gama = dmatrix(1, SDIV, 1, LMAX+1);
@@ -1385,8 +1413,12 @@ void spin(double s_gp[SDIV+1],
         free_dmatrix(D1_rho, 1, LMAX+1, 1, SDIV);
         free_dmatrix(D1_gama, 1, LMAX+1, 1, SDIV);
         free_dmatrix(D1_omega, 1, LMAX+1, 1, SDIV);
+        clock_gettime(CLOCK_MONOTONIC, &rad_stop);
+        printf("spin(), rad: %ld\n", getElapsedTimeNs(rad_start, rad_stop));
 
         /* SUMMATION OF COEFFICIENTS */
+        struct timespec coeff_start, coeff_stop;
+        clock_gettime(CLOCK_MONOTONIC, &coeff_start);
 
         for(s=1; s<=SDIV; s++) {
             for(m=1; m<=MDIV; m++) {
@@ -1430,6 +1462,8 @@ void spin(double s_gp[SDIV+1],
         free_dmatrix(D2_gama, 1, SDIV, 1, LMAX+1);
         free_dmatrix(D2_omega, 1, SDIV, 1, LMAX+1);
 
+        clock_gettime(CLOCK_MONOTONIC, &coeff_stop);
+        printf("spin(), coeff: %ld\n", getElapsedTimeNs(coeff_start, coeff_stop));
 
         /* CHECK FOR DIVERGENCE */
 
@@ -1463,6 +1497,8 @@ void spin(double s_gp[SDIV+1],
         } 
       
         /* COMPUTE FIRST ORDER DERIVATIVES OF GAMA */ 
+        struct timespec alpha_start, alpha_stop;
+        clock_gettime(CLOCK_MONOTONIC, &alpha_start);
 
         da_dm = dmatrix(1, SDIV, 1, MDIV);
         dgds = dmatrix(1, SDIV, 1, MDIV);
@@ -1562,6 +1598,8 @@ void spin(double s_gp[SDIV+1],
                 alpha[SDIV][m] = 0.0;
             }
         }
+        clock_gettime(CLOCK_MONOTONIC, &alpha_stop);
+        printf("spin(), alpha: %ld\n", getElapsedTimeNs(alpha_start, alpha_stop));
 
         if(a_check == 200) {
             break;
