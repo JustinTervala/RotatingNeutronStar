@@ -2,4 +2,4 @@
 *.pyc
 *.out
 *.swp
-./kepler
+kepler

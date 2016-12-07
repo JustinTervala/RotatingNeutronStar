@@ -45,6 +45,7 @@ kepler -f eosA -e 1e15
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <array>
 
 /***************************************************************************
  * printing routine  
@@ -131,10 +132,6 @@ int main(int argc,                    /* Number of command line arguments */
         r_ratio,                      /* axis ratio */
         s_gp[SDIV+1],                 /* s grid points */
         mu[MDIV+1],                   /* \mu grid points */
-      **rho,                          /* potential \rho */ 
-      **gama,                         /* potential \gamma */ 
-      **omega,                        /* potential \omega */ 
-      **alpha,                        /* potential \alpha */ 
         Mass,                         /* Gravitational mass */
         e_surface,                    /* surface en. density */ 
         p_surface,                    /* surface pressure */
@@ -245,11 +242,11 @@ int main(int argc,                    /* Number of command line arguments */
 
     /* ALLLOCATE MEMORY */
 
-    rho = dmatrix(1, SDIV, 1, MDIV);
-    gama = dmatrix(1, SDIV, 1, MDIV);
-    alpha = dmatrix(1, SDIV, 1, MDIV);
-    omega = dmatrix(1, SDIV, 1, MDIV);
-
+    std::array<std::array<double, MDIV+1>, SDIV+1> rho = {{0.0}}; 
+    std::array<std::array<double, MDIV+1>, SDIV+1> gama = {{0.0}}; 
+    std::array<std::array<double, MDIV+1>, SDIV+1> alpha = {{0.0}}; 
+    std::array<std::array<double, MDIV+1>, SDIV+1> omega = {{0.0}}; 
+    
     energy = dmatrix(1, SDIV, 1, MDIV);
     pressure = dmatrix(1, SDIV, 1, MDIV);
     enthalpy = dmatrix(1, SDIV, 1, MDIV);

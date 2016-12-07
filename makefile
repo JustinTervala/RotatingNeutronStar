@@ -63,13 +63,13 @@ kepler: $(OBJ)
 
 
 main.o: equil.h  nrutil.h consts.h main.c
-	$(CC)  $(COPTS) -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.c 
+	$(CC)  $(COPTS) --std=c++0x -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.c 
 
 equil.o:equil.h equil_util.h nrutil.h consts.h equil.c
-	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil.c
+	$(CC)  $(COPTS) --std=c++0x -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil.c
 
 equil_util.o:equil_util.h nrutil.h consts.h equil_util.c
-	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.c
+	$(CC)  $(COPTS) --std=c++0x -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.c
 
 nrutil.o:nrutil.h nrutil.c
 	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   nrutil.c

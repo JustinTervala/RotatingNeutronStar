@@ -208,10 +208,10 @@ void mass_radius(double s_gp[SDIV+1],
                  int n_tab,                 
                  char eos_type[],
                  double Gamma_P, 
-                 double **rho,
-                 double **gama,
-                 double **alpha,
-                 double **omega,
+                 std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
+                 std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
+                 std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
+                 std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
                  double **energy,
                  double **pressure,
                  double **enthalpy,
@@ -407,9 +407,9 @@ void mass_radius(double s_gp[SDIV+1],
         s1 = s_gp[s]*(1.0-s_gp[s]);
         s_1 = 1.0-s_gp[s];
         
-        d_gama_s = deriv_s(gama, s, 1);
-        d_rho_s = deriv_s(rho, s, 1);
-        d_omega_s = deriv_s(omega, s, 1);
+        d_gama_s = deriv_s<double, SDIV+1, MDIV+1>(gama, s, 1);
+        d_rho_s = deriv_s<double, SDIV+1, MDIV+1>(rho, s, 1);
+        d_omega_s = deriv_s<double, SDIV+1, MDIV+1>(omega, s, 1);
 
         sqrt_v = exp(-2.0*rho[s][1])*r_e*r_e*pow(s_gp[s], 4.0)*pow(d_omega_s,2.0) 
                  + 2*s1*(d_gama_s+d_rho_s)+s1*s1*(d_gama_s*d_gama_s-d_rho_s*d_rho_s);
@@ -431,9 +431,9 @@ void mass_radius(double s_gp[SDIV+1],
     /* Kepler angular velocity */
 
     for(s=1; s<=SDIV; s++) { 
-        d_o_e[s] = deriv_s(omega, s, 1);
-        d_g_e[s] = deriv_s(gama, s, 1);
-        d_r_e[s] = deriv_s(rho, s, 1);
+        d_o_e[s] = deriv_s<double, SDIV+1, MDIV+1>(omega, s, 1);
+        d_g_e[s] = deriv_s<double, SDIV+1, MDIV+1>(gama, s, 1);
+        d_r_e[s] = deriv_s<double, SDIV+1, MDIV+1>(rho, s, 1);
         d_v_e[s] = deriv_s(velocity, s, 1);
         /* Value of omega on the equatorial plane*/
         omega_mu_0[s] = omega[s][1];
@@ -719,10 +719,10 @@ void sphere(double s_gp[SDIV+1],
             double h_center,
             double p_surface,
             double e_surface,
-            double **rho,
-            double **gama,
-            double **alpha,
-            double **omega,
+            std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
+            std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
+            std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
+            std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
             double *r_e) {
     int s, m, n_nearest;
 
@@ -805,10 +805,10 @@ void spin(double s_gp[SDIV+1],
           double Gamma_P, 
           double h_center,
           double enthalpy_min,
-          double **rho,
-          double **gama,
-          double **alpha,
-          double **omega,
+          std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
+          std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
+          std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
+          std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
           double **energy,
           double **pressure,
           double **enthalpy,
@@ -1267,12 +1267,12 @@ void spin(double s_gp[SDIV+1],
                     d_omega_s = 0.0;
                     d_omega_m = 0.0;
                 } else {
-                    d_gama_s = deriv_s(gama, s, m);
-                    d_gama_m = deriv_m(gama, s, m);
-                    d_rho_s = deriv_s(rho, s, m);
-                    d_rho_m = deriv_m(rho, s, m);
-                    d_omega_s = deriv_s(omega, s, m);
-                    d_omega_m = deriv_m(omega, s, m);
+                    d_gama_s = deriv_s<double, SDIV+1, MDIV+1>(gama, s, m);
+                    d_gama_m = deriv_m<double, SDIV+1, MDIV+1>(gama, s, m);
+                    d_rho_s = deriv_s<double, SDIV+1, MDIV+1>(rho, s, m);
+                    d_rho_m = deriv_m<double, SDIV+1, MDIV+1>(rho, s, m);
+                    d_omega_s = deriv_s<double, SDIV+1, MDIV+1>(omega, s, m);
+                    d_omega_m = deriv_m<double, SDIV+1, MDIV+1>(omega, s, m);
                 }      
 
                 S_rho[s][m] = e_gsm*(0.5*ea*(esm + psm)*s2*(1.0+v2sm)/(1.0-v2sm)
@@ -1506,8 +1506,8 @@ void spin(double s_gp[SDIV+1],
  
         for(s=1;s<=SDIV;s++) {
             for(m=1; m<=MDIV; m++) {
-                dgds[s][m] = deriv_s(gama, s, m);
-                dgdm[s][m] = deriv_m(gama, s, m);
+                dgds[s][m] = deriv_s<double, SDIV+1, MDIV+1>(gama, s, m);
+                dgdm[s][m] = deriv_m<double, SDIV+1, MDIV+1>(gama, s, m);
             }
         }
 
@@ -1533,13 +1533,13 @@ void spin(double s_gp[SDIV+1],
           
                     d_gama_s = dgds[s][m];
                     d_gama_m = dgdm[s][m];
-                    d_rho_s = deriv_s(rho, s, m);
-                    d_rho_m = deriv_m(rho, s, m);
-                    d_omega_s = deriv_s(omega, s, m);
-                    d_omega_m = deriv_m(omega, s, m);
+                    d_rho_s = deriv_s<double, SDIV+1, MDIV+1>(rho, s, m);
+                    d_rho_m = deriv_m<double, SDIV+1, MDIV+1>(rho, s, m);
+                    d_omega_s = deriv_s<double, SDIV+1, MDIV+1>(omega, s, m);
+                    d_omega_m = deriv_m<double, SDIV+1, MDIV+1>(omega, s, m);
                     d_gama_ss = s1*deriv_s(dgds, s, m)+(1.0-2.0*sgp)*d_gama_s;
                     d_gama_mm = m1*deriv_m(dgdm, s, m)-2.0*mum*d_gama_m;  
-                    d_gama_sm = deriv_sm(gama, s, m);
+                    d_gama_sm = deriv_sm<double, SDIV+1, MDIV+1>(gama, s, m);
 
                     temp1 = 2.0*SQ(sgp)*(sgp/(1.0-sgp))*m1*d_omega_s*d_omega_m
                             *(1.0+s1*d_gama_s) - (SQ(SQ(sgp)*d_omega_s) - 
