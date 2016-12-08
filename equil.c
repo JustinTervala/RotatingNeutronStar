@@ -1094,6 +1094,18 @@ void spin(double s_gp[SDIV+1],
 
   
     r_e = (*r_e_new);
+    double S_gama[SDIV+1][MDIV+1];
+    double S_rho[SDIV+1][MDIV+1];
+    double S_omega[SDIV+1][MDIV+1];
+    double D1_rho[LMAX+2][SDIV+1];
+    double D1_gama[LMAX+2][SDIV+1];
+    double D1_omega[LMAX+2][SDIV+1];
+    double D2_rho[SDIV+1][LMAX+2];
+    double D2_gama[SDIV+1][LMAX+2];
+    double D2_omega[SDIV+1][LMAX+2];
+    std::array<std::array<double, MDIV+1>, SDIV+1> da_dm = {{0.0}};
+    std::array<std::array<double, MDIV+1>, SDIV+1> dgds = {{0.0}};
+    std::array<std::array<double, MDIV+1>, SDIV+1> dgdm = {{0.0}};
     clock_gettime(CLOCK_MONOTONIC, &pn_stop);
     printf("spin(), pn: %ld\n", getElapsedTimeNs(pn_start, pn_stop));
 
@@ -1212,9 +1224,6 @@ void spin(double s_gp[SDIV+1],
         /* Compute metric potentials */
         struct timespec metric_start, metric_stop;
         clock_gettime(CLOCK_MONOTONIC, &metric_start);
-        double S_gama[SDIV+1][MDIV+1];
-        double S_rho[SDIV+1][MDIV+1];
-        double S_omega[SDIV+1][MDIV+1];
 
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
@@ -1278,9 +1287,6 @@ void spin(double s_gp[SDIV+1],
         struct timespec ang_start, ang_stop;
         clock_gettime(CLOCK_MONOTONIC, &ang_start);
    
-        double D1_rho[LMAX+2][SDIV+1];
-        double D1_gama[LMAX+2][SDIV+1];
-        double D1_omega[LMAX+2][SDIV+1];
         n = 0;
         for(k=1; k<=SDIV; ++k) {      
             for(m=1; m<=MDIV-2; m+=2) {
@@ -1326,9 +1332,6 @@ void spin(double s_gp[SDIV+1],
         struct timespec rad_start, rad_stop;
         clock_gettime(CLOCK_MONOTONIC, &rad_start);
 
-        double D2_rho[SDIV+1][LMAX+2];
-        double D2_gama[SDIV+1][LMAX+2];
-        double D2_omega[SDIV+1][LMAX+2];
 
 
         n = 0;
@@ -1463,9 +1466,6 @@ void spin(double s_gp[SDIV+1],
         struct timespec alpha_start, alpha_stop;
         clock_gettime(CLOCK_MONOTONIC, &alpha_start);
 
-        std::array<std::array<double, MDIV+1>, SDIV+1> da_dm = {{0.0}};
-        std::array<std::array<double, MDIV+1>, SDIV+1> dgds = {{0.0}};
-        std::array<std::array<double, MDIV+1>, SDIV+1> dgdm = {{0.0}};
  
         for(s=1;s<=SDIV;++s) {
             for(m=1; m<=MDIV; ++m) {
