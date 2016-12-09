@@ -1,5 +1,6 @@
 #include <time.h>
 #include <array>
+#include "equil_util.h"
 
 long getElapsedTimeNs(struct timespec start, struct timespec stop);
 
@@ -68,10 +69,7 @@ void mass_radius(double s_gp[SDIV+1],
                  int n_tab,                 
                  char eos_type[],
                  double Gamma_P, 
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
+                 std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& pressure,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& enthalpy,
@@ -147,10 +145,7 @@ void sphere(double s_gp[SDIV+1],
             double h_center,
             double p_surface,
             double e_surface,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
+            std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
             double *r_e);
 
 
@@ -165,10 +160,7 @@ void spin(double s_gp[SDIV+1],
           double Gamma_P, 
           double h_center,
           double enthalpy_min,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
+          std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
           std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
           std::array<std::array<double, MDIV+1>, SDIV+1>& pressure,
           std::array<std::array<double, MDIV+1>, SDIV+1>& enthalpy,

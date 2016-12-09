@@ -157,7 +157,7 @@ double deriv_sm(const std::array<std::array<Metric, size_y>, size_x>& metric, do
                 if(m == MDIV) {
                     d_temp = (metric[s+1][m].*field-metric[s][m].*field-metric[s+1][m-1].*field+metric[s][m-1].*field)/(DM*DS);
                 } else {         
-                    d_temp = (metric[s+1][m+1].*field-metric[s+1][m-1].*field-metric[s][m+1].*field+metric[s][m-1])/(2.0*DM*DS);
+                    d_temp = (metric[s+1][m+1].*field-metric[s+1][m-1].*field-metric[s][m+1].*field+metric[s][m-1].*field)/(2.0*DM*DS);
                 }
             }
             break;

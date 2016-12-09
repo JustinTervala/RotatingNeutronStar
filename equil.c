@@ -25,7 +25,6 @@
 ******************************************************************************/
 
 
-#include "equil_util.h"
 #include "consts.h"
 #include "equil.h"
 #include <stdio.h>
@@ -207,10 +206,7 @@ void mass_radius(double s_gp[SDIV+1],
                  int n_tab,                 
                  char eos_type[],
                  double Gamma_P, 
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
+                 std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& pressure,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& enthalpy,
@@ -269,8 +265,8 @@ void mass_radius(double s_gp[SDIV+1],
     double rho_0[SDIV+1][MDIV+1];
     std::array<std::array<double, MDIV+1>, SDIV+1> velocity = {{0.0}};
     for(s = 1; s <= SDIV; ++s) {               
-        gama_mu_0[s]=gama[s][1];                   
-        rho_mu_0[s]=rho[s][1];                                                    
+        gama_mu_0[s]=metric[s][1].gama;                   
+        rho_mu_0[s]=metric[s][1].rho;                                                    
     }
 
     n_nearest= SDIV/2;
@@ -318,44 +314,44 @@ void mass_radius(double s_gp[SDIV+1],
         D_J[s] = 0.0;
 
         for(m=1; m<=MDIV-2; m+=2) {
-            D_m[s] += (1.0/(3.0*(MDIV-1)))*( exp(2.0*alpha[s][m]+gama[s][m])*
+            D_m[s] += (1.0/(3.0*(MDIV-1)))*( exp(2.0*metric[s][m].alpha+metric[s][m].gama)*
                       (((energy[s][m]+pressure[s][m])/(1.0-velocity_sq[s][m]))*
                       (1.0+velocity_sq[s][m]+(2.0*s_gp[s]*sqrt(velocity_sq[s][m])/
-                      (1.0-s_gp[s]))*sqrt(1.0-mu[m]*mu[m])*r_e*omega[s][m]*
-                      exp(-rho[s][m])) + 2.0*pressure[s][m])
+                      (1.0-s_gp[s]))*sqrt(1.0-mu[m]*mu[m])*r_e*metric[s][m].omega*
+                      exp(-metric[s][m].rho)) + 2.0*pressure[s][m])
 
-                    + 4.0*exp(2.0*alpha[s][m+1]+gama[s][m+1])*
+                    + 4.0*exp(2.0*metric[s][m+1].alpha+metric[s][m+1].gama)*
                       (((energy[s][m+1]+pressure[s][m+1])/(1.0-velocity_sq[s][m+1]))*
                       (1.0+velocity_sq[s][m+1]+(2.0*s_gp[s]*sqrt(velocity_sq[s][m+1])/
-                      (1.0-s_gp[s]))*sqrt(1.0-mu[m+1]*mu[m+1])*r_e*omega[s][m+1]*
-                      exp(-rho[s][m+1])) + 2.0*pressure[s][m+1]) 
+                      (1.0-s_gp[s]))*sqrt(1.0-mu[m+1]*mu[m+1])*r_e*metric[s][m+1].omega*
+                      exp(-metric[s][m+1].rho)) + 2.0*pressure[s][m+1]) 
 
-                    + exp(2.0*alpha[s][m+2]+gama[s][m+2])*
+                    + exp(2.0*metric[s][m+2].alpha+metric[s][m+2].gama)*
                       (((energy[s][m+2]+pressure[s][m+2])/(1.0-velocity_sq[s][m+2]))*
                       (1.0+velocity_sq[s][m+2]+(2.0*s_gp[s]*sqrt(velocity_sq[s][m+2])/
-                      (1.0-s_gp[s]))*sqrt(1.0-mu[m+2]*mu[m+2])*r_e*omega[s][m+2]*
-                      exp(-rho[s][m+2])) + 2.0*pressure[s][m+2]));    
+                      (1.0-s_gp[s]))*sqrt(1.0-mu[m+2]*mu[m+2])*r_e*metric[s][m+2].omega*
+                      exp(-metric[s][m+2].rho)) + 2.0*pressure[s][m+2]));    
 
-            D_m_0[s] += (1.0/(3.0*(MDIV-1)))*( exp(2.0*alpha[s][m]+(gama[s][m]
-                        -rho[s][m])/2.0)*rho_0[s][m]/sqrt(1.0-velocity_sq[s][m])
+            D_m_0[s] += (1.0/(3.0*(MDIV-1)))*( exp(2.0*metric[s][m].alpha+(metric[s][m].gama
+                        -metric[s][m].rho)/2.0)*rho_0[s][m]/sqrt(1.0-velocity_sq[s][m])
 
-                     + 4.0* exp(2.0*alpha[s][m+1]+(gama[s][m+1]
-                       -rho[s][m+1])/2.0)*rho_0[s][m+1]/sqrt(1.0-velocity_sq[s][m+1])
+                     + 4.0* exp(2.0*metric[s][m+1].alpha+(metric[s][m+1].gama
+                       -metric[s][m+1].rho)/2.0)*rho_0[s][m+1]/sqrt(1.0-velocity_sq[s][m+1])
          
-                     + exp(2.0*alpha[s][m+2]+(gama[s][m+2]
-                       -rho[s][m+2])/2.0)*rho_0[s][m+2]/sqrt(1.0-velocity_sq[s][m+2]));
+                     + exp(2.0*metric[s][m+2].alpha+(metric[s][m+2].gama
+                       -metric[s][m+2].rho)/2.0)*rho_0[s][m+2]/sqrt(1.0-velocity_sq[s][m+2]));
   
             D_J[s] += (1.0/(3.0*(MDIV-1)))*( sqrt(1.0-mu[m]*mu[m])*
-                      exp(2.0*alpha[s][m]+gama[s][m]-rho[s][m])*(energy[s][m]
+                      exp(2.0*metric[s][m].alpha+metric[s][m].gama-metric[s][m].rho)*(energy[s][m]
                       +pressure[s][m])*sqrt(velocity_sq[s][m])/(1.0-velocity_sq[s][m])
   
                    + 4.0*sqrt(1.0-mu[m+1]*mu[m+1])*
-                     exp(2.0*alpha[s][m+1]+gama[s][m+1]-rho[s][m+1])*(energy[s][m+1]
+                     exp(2.0*metric[s][m+1].alpha+metric[s][m+1].gama-metric[s][m+1].rho)*(energy[s][m+1]
                      +pressure[s][m+1])*sqrt(velocity_sq[s][m+1])/
                      (1.0-velocity_sq[s][m+1])
 
                    + sqrt(1.0-mu[m+2]*mu[m+2])*
-                     exp(2.0*alpha[s][m+2]+gama[s][m+2]-rho[s][m+2])*(energy[s][m+2]
+                     exp(2.0*metric[s][m+2].alpha+metric[s][m+2].gama-metric[s][m+2].rho)*(energy[s][m+2]
                      +pressure[s][m+2])*sqrt(velocity_sq[s][m+2])/
                      (1.0-velocity_sq[s][m+2]));
         }
@@ -405,11 +401,11 @@ void mass_radius(double s_gp[SDIV+1],
         s1 = s_gp[s]*(1.0-s_gp[s]);
         s_1 = 1.0-s_gp[s];
         
-        d_gama_s = deriv_s<double, SDIV+1, MDIV+1>(gama, s, 1);
-        d_rho_s = deriv_s<double, SDIV+1, MDIV+1>(rho, s, 1);
-        d_omega_s = deriv_s<double, SDIV+1, MDIV+1>(omega, s, 1);
+        d_gama_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, 1);
+        d_rho_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, 1);
+        d_omega_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, 1);
 
-        sqrt_v = exp(-2.0*rho[s][1])*r_e*r_e*pow(s_gp[s], 4.0)*pow(d_omega_s,2.0) 
+        sqrt_v = exp(-2.0*metric[s][1].rho)*r_e*r_e*pow(s_gp[s], 4.0)*pow(d_omega_s,2.0) 
                  + 2*s1*(d_gama_s+d_rho_s)+s1*s1*(d_gama_s*d_gama_s-d_rho_s*d_rho_s);
 
         if(sqrt_v > 0.0) {
@@ -418,10 +414,10 @@ void mass_radius(double s_gp[SDIV+1],
             sqrt_v=0.0;
         }
 
-        v_plus[s]=(exp(-rho[s][1])*r_e*s_gp[s]*s_gp[s]*d_omega_s + sqrt_v)/
+        v_plus[s]=(exp(-metric[s][1].rho)*r_e*s_gp[s]*s_gp[s]*d_omega_s + sqrt_v)/
                   (2.0+s1*(d_gama_s-d_rho_s));
 
-        v_minus[s]=(exp(-rho[s][1])*r_e*s_gp[s]*s_gp[s]*d_omega_s - sqrt_v)/
+        v_minus[s]=(exp(-metric[s][1].rho)*r_e*s_gp[s]*s_gp[s]*d_omega_s - sqrt_v)/
                    (2.0+s1*(d_gama_s-d_rho_s));
     }
 
@@ -429,12 +425,12 @@ void mass_radius(double s_gp[SDIV+1],
     /* Kepler angular velocity */
 
     for(s=1; s<=SDIV; ++s) { 
-        d_o_e[s] = deriv_s<double, SDIV+1, MDIV+1>(omega, s, 1);
-        d_g_e[s] = deriv_s<double, SDIV+1, MDIV+1>(gama, s, 1);
-        d_r_e[s] = deriv_s<double, SDIV+1, MDIV+1>(rho, s, 1);
+        d_o_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, 1);
+        d_g_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, 1);
+        d_r_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, 1);
         d_v_e[s] = deriv_s<double, SDIV+1, MDIV+1>(velocity, s, 1);
         /* Value of omega on the equatorial plane*/
-        omega_mu_0[s] = omega[s][1];
+        omega_mu_0[s] = metric[s][1].omega;
     }
 
     n_nearest=SDIV/2; 
@@ -713,10 +709,7 @@ void sphere(double s_gp[SDIV+1],
             double h_center,
             double p_surface,
             double e_surface,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
-            std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
+            std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
             double *r_e) {
     int s, m, n_nearest;
 
@@ -762,18 +755,18 @@ void sphere(double s_gp[SDIV+1],
             nu_s = log((1.0-m_final/(2.0*r_is_s))/(1.0+m_final/(2*r_is_s)));
         }
 
-        gama[s][1] = nu_s+lambda_s;
-        rho[s][1] = nu_s-lambda_s;
+        metric[s][1].gama = nu_s+lambda_s;
+        metric[s][1].rho = nu_s-lambda_s;
 
         for(m=1; m<=MDIV; ++m) {
-            gama[s][m] = gama[s][1];        
-            rho[s][m] = rho[s][1];
-            alpha[s][m] = (gama[s][1]-rho[s][1])/2.0;
-            omega[s][m] = 0.0; 
+            metric[s][m].gama = metric[s][1].gama;        
+            metric[s][m].rho = metric[s][1].rho;
+            metric[s][m].alpha = (metric[s][1].gama-metric[s][1].rho)/2.0;
+            metric[s][m].omega = 0.0; 
         }
  
-        gama_mu_0[s] = gama[s][1];                   /* gama at \mu=0 */
-        rho_mu_0[s] = rho[s][1];                     /* rho at \mu=0 */
+        gama_mu_0[s] = metric[s][1].gama;                   /* gama at \mu=0 */
+        rho_mu_0[s] = metric[s][1].rho;                     /* rho at \mu=0 */
 
     }
 
@@ -799,10 +792,7 @@ void spin(double s_gp[SDIV+1],
           double Gamma_P, 
           double h_center,
           double enthalpy_min,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& rho,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& gama,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& alpha,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& omega,
+          std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
           std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
           std::array<std::array<double, MDIV+1>, SDIV+1>& pressure,
           std::array<std::array<double, MDIV+1>, SDIV+1>& enthalpy,
@@ -1121,16 +1111,16 @@ void spin(double s_gp[SDIV+1],
 
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
-                rho[s][m] /= SQ(r_e);
-                gama[s][m] /= SQ(r_e); 
-                alpha[s][m] /= SQ(r_e);
-                omega[s][m] *= r_e;
+                metric[s][m].rho /= SQ(r_e);
+                metric[s][m].gama /= SQ(r_e); 
+                metric[s][m].alpha /= SQ(r_e);
+                metric[s][m].omega *= r_e;
             }
-            rho_mu_0[s] = rho[s][1];     
-            gama_mu_0[s] = gama[s][1];   
-            omega_mu_0[s] = omega[s][1]; 
-            rho_mu_1[s] = rho[s][MDIV];  
-            gama_mu_1[s] = gama[s][MDIV];
+            rho_mu_0[s] = metric[s][1].rho;     
+            gama_mu_0[s] = metric[s][1].gama;   
+            omega_mu_0[s] = metric[s][1].omega; 
+            rho_mu_1[s] = metric[s][MDIV].rho;  
+            gama_mu_1[s] = metric[s][MDIV].gama;
         }
  
         /* Compute new r_e. */ 
@@ -1142,11 +1132,11 @@ void spin(double s_gp[SDIV+1],
         n_nearest = SDIV/2;
         gama_pole_h = interp(s_gp, gama_mu_1, SDIV, s_p, &n_nearest); 
         gama_equator_h = interp(s_gp, gama_mu_0, SDIV, s_e, &n_nearest);
-        gama_center_h = gama[1][1];                    
+        gama_center_h = metric[1][1].gama;                    
   
         rho_pole_h = interp(s_gp, rho_mu_1, SDIV, s_p, &n_nearest);   
         rho_equator_h = interp(s_gp, rho_mu_0, SDIV, s_e, &n_nearest);
-        rho_center_h = rho[1][1];                      
+        rho_center_h = metric[1][1].rho;                      
  
         r_e = sqrt(2*h_center/(gama_pole_h+rho_pole_h-gama_center_h-rho_center_h));
 
@@ -1177,19 +1167,19 @@ void spin(double s_gp[SDIV+1],
             sgp = s_gp[s];
 
             for(m=1; m<=MDIV; ++m) {
-                rsm = rho[s][m];
+                rsm = metric[s][m].rho;
             
                 if(r_ratio == 1.0) {
                     velocity_sq[s][m] = 0.0;
                 } else { 
-                    velocity_sq[s][m] = SQ((Omega_h-omega[s][m])*(sgp/(1.0-sgp))
+                    velocity_sq[s][m] = SQ((Omega_h-metric[s][m].omega)*(sgp/(1.0-sgp))
                                            *sin_theta[m]*exp(-rsm*SQ(r_e)));
                 }
                 if(velocity_sq[s][m] >= 1.0) { 
                     velocity_sq[s][m] = 0.0;
                 }
                 enthalpy[s][m] = enthalpy_min + 0.5*(SQ(r_e)*(gama_pole_h+rho_pole_h
-                                 -gama[s][m]-rsm)-log(1.0-velocity_sq[s][m]));
+                                 -metric[s][m].gama-rsm)-log(1.0-velocity_sq[s][m]));
   
                 if((enthalpy[s][m] <= enthalpy_min) || (sgp > s_e)) {
                     pressure[s][m] = 0.0;
@@ -1213,9 +1203,9 @@ void spin(double s_gp[SDIV+1],
 
                 /* Rescale back metric potentials (except omega) */
 
-                rho[s][m] *= SQ(r_e);
-                gama[s][m] *= SQ(r_e);
-                alpha[s][m] *= SQ(r_e);
+                metric[s][m].rho *= SQ(r_e);
+                metric[s][m].gama *= SQ(r_e);
+                metric[s][m].alpha *= SQ(r_e);
             }
         }
         clock_gettime(CLOCK_MONOTONIC, &vep_stop);
@@ -1227,9 +1217,9 @@ void spin(double s_gp[SDIV+1],
 
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
-                rsm = rho[s][m];
-                gsm = gama[s][m];
-                omsm = omega[s][m];
+                rsm = metric[s][m].rho;
+                gsm = metric[s][m].gama;
+                omsm = metric[s][m].omega;
                 esm = energy[s][m];
                 psm = pressure[s][m];
                 e_gsm = exp(0.5*gsm);
@@ -1242,7 +1232,7 @@ void spin(double s_gp[SDIV+1],
                 s1 = sgp*s_1;
                 s2 = SQ(sgp/s_1);  
 
-                ea = 16.0*PI*exp(2.0*alpha[s][m])*SQ(r_e);
+                ea = 16.0*PI*exp(2.0*metric[s][m].alpha)*SQ(r_e);
  
                 if(s == 1) {
                     d_gama_s = 0.0;
@@ -1252,12 +1242,12 @@ void spin(double s_gp[SDIV+1],
                     d_omega_s = 0.0;
                     d_omega_m = 0.0;
                 } else {
-                    d_gama_s = deriv_s<double, SDIV+1, MDIV+1>(gama, s, m);
-                    d_gama_m = deriv_m<double, SDIV+1, MDIV+1>(gama, s, m);
-                    d_rho_s = deriv_s<double, SDIV+1, MDIV+1>(rho, s, m);
-                    d_rho_m = deriv_m<double, SDIV+1, MDIV+1>(rho, s, m);
-                    d_omega_s = deriv_s<double, SDIV+1, MDIV+1>(omega, s, m);
-                    d_omega_m = deriv_m<double, SDIV+1, MDIV+1>(omega, s, m);
+                    d_gama_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
+                    d_gama_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
+                    d_rho_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
+                    d_rho_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
+                    d_omega_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
+                    d_omega_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
                 }      
 
                 S_rho[s][m] = e_gsm*(0.5*ea*(esm + psm)*s2*(1.0+v2sm)/(1.0-v2sm)
@@ -1393,9 +1383,9 @@ void spin(double s_gp[SDIV+1],
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
 
-                gsm = gama[s][m];
-                rsm = rho[s][m];
-                omsm = omega[s][m];             
+                gsm = metric[s][m].gama;
+                rsm = metric[s][m].rho;
+                omsm = metric[s][m].omega;             
                 e_gsm = exp(-0.5*gsm);
                 e_rsm = exp(rsm);
                 temp1 = sin_theta[m];
@@ -1418,9 +1408,9 @@ void spin(double s_gp[SDIV+1],
                     }
                 }
        
-                rho[s][m] = rsm + cf*(sum_rho-rsm);
-                gama[s][m] = gsm + cf*(sum_gama-gsm);
-                omega[s][m] = omsm + cf*(sum_omega-omsm);
+                metric[s][m].rho = rsm + cf*(sum_rho-rsm);
+                metric[s][m].gama = gsm + cf*(sum_gama-gsm);
+                metric[s][m].omega = omsm + cf*(sum_omega-omsm);
 
                 sum_omega = 0.0;
                 sum_rho = 0.0;
@@ -1433,7 +1423,7 @@ void spin(double s_gp[SDIV+1],
 
         /* CHECK FOR DIVERGENCE */
 
-        if(fabs(omega[2][1]) > 100.0 || fabs(rho[2][1]) > 100.0 || fabs(gama[2][1]) > 300.0) {
+        if(fabs(metric[2][1].omega) > 100.0 || fabs(metric[2][1].rho) > 100.0 || fabs(metric[2][1].gama) > 300.0) {
             a_check=200; 
             break;
         }
@@ -1444,9 +1434,9 @@ void spin(double s_gp[SDIV+1],
         if(r_ratio == 1.0) {
             for(s=1; s<=SDIV; ++s) {
                 for(m=1; m<=MDIV; ++m) {
-                    rho[s][m] = rho[s][1];
-                    gama[s][m] = gama[s][1];
-                    omega[s][m] = 0.0;          
+                    metric[s][m].rho = metric[s][1].rho;
+                    metric[s][m].gama = metric[s][1].gama;
+                    metric[s][m].omega = 0.0;          
                 }
             }
         }
@@ -1456,9 +1446,9 @@ void spin(double s_gp[SDIV+1],
 
         if(SMAX == 1.0) {
             for(m=1; m<=MDIV; ++m) {
-                rho[SDIV][m] = 0.0;
-                gama[SDIV][m] = 0.0;
-                omega[SDIV][m] = 0.0;
+                metric[SDIV][m].rho = 0.0;
+                metric[SDIV][m].gama = 0.0;
+                metric[SDIV][m].omega = 0.0;
             }
         } 
       
@@ -1469,8 +1459,8 @@ void spin(double s_gp[SDIV+1],
  
         for(s=1;s<=SDIV;++s) {
             for(m=1; m<=MDIV; ++m) {
-                dgds[s][m] = deriv_s<double, SDIV+1, MDIV+1>(gama, s, m);
-                dgdm[s][m] = deriv_m<double, SDIV+1, MDIV+1>(gama, s, m);
+                dgds[s][m] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
+                dgdm[s][m] = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
             }
         }
 
@@ -1496,13 +1486,13 @@ void spin(double s_gp[SDIV+1],
           
                     d_gama_s = dgds[s][m];
                     d_gama_m = dgdm[s][m];
-                    d_rho_s = deriv_s<double, SDIV+1, MDIV+1>(rho, s, m);
-                    d_rho_m = deriv_m<double, SDIV+1, MDIV+1>(rho, s, m);
-                    d_omega_s = deriv_s<double, SDIV+1, MDIV+1>(omega, s, m);
-                    d_omega_m = deriv_m<double, SDIV+1, MDIV+1>(omega, s, m);
+                    d_rho_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
+                    d_rho_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
+                    d_omega_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
+                    d_omega_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
                     d_gama_ss = s1*deriv_s<double, SDIV+1, MDIV+1>(dgds, s, m)+(1.0-2.0*sgp)*d_gama_s;
                     d_gama_mm = m1*deriv_m<double, SDIV+1, MDIV+1>(dgdm, s, m)-2.0*mum*d_gama_m;  
-                    d_gama_sm = deriv_sm<double, SDIV+1, MDIV+1>(gama, s, m);
+                    d_gama_sm = deriv_sm<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
 
                     temp1 = 2.0*SQ(sgp)*(sgp/(1.0-sgp))*m1*d_omega_s*d_omega_m
                             *(1.0+s1*d_gama_s) - (SQ(SQ(sgp)*d_omega_s) - 
@@ -1522,7 +1512,7 @@ void spin(double s_gp[SDIV+1],
 
                     temp7 = s1*mum*d_gama_s*(1.0+s1*d_gama_s);
 
-                    temp8 = m1*exp(-2*rho[s][m]);
+                    temp8 = m1*exp(-2*metric[s][m].rho);
  
                     da_dm[s][m] = -0.5*(d_rho_m+d_gama_m) - temp2*(0.5*(temp3 - 
                                   d_gama_mm - temp4)*(-mum+m1*d_gama_m) + 0.25*temp5 
@@ -1532,27 +1522,27 @@ void spin(double s_gp[SDIV+1],
         }
 
         for(s=1; s<=SDIV; ++s) {
-            alpha[s][1] = 0.0;
+            metric[s][1].alpha = 0.0;
             for(m=1; m<=MDIV-1; ++m) { 
-                alpha[s][m+1] = alpha[s][m]+0.5*DM*(da_dm[s][m+1]+da_dm[s][m]);
+                metric[s][m+1].alpha = metric[s][m].alpha+0.5*DM*(da_dm[s][m+1]+da_dm[s][m]);
             }
         } 
  
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {     
-                alpha[s][m] += -alpha[s][MDIV]+0.5*(gama[s][MDIV]-rho[s][MDIV]);
+                metric[s][m].alpha += -metric[s][MDIV].alpha+0.5*(metric[s][MDIV].gama-metric[s][MDIV].rho);
 
-                if(alpha[s][m] >= 300.0) {
+                if(metric[s][m].alpha >= 300.0) {
                     a_check = 200; 
                     break;
                 }
-                omega[s][m] /= r_e;
+                metric[s][m].omega /= r_e;
             }
         } 
 
         if(SMAX == 1.0) {
             for(m=1; m<=MDIV; ++m) {     
-                alpha[SDIV][m] = 0.0;
+                metric[SDIV][m].alpha = 0.0;
             }
         }
         clock_gettime(CLOCK_MONOTONIC, &alpha_stop);

@@ -39,7 +39,6 @@ kepler -f eosA -e 1e15
 **************************************************************************/
 #include "consts.h"
 #include "equil.h"
-#include "equil_util.h"
 #include <stdio.h>
 #include <string.h> 
 #include <math.h>
@@ -238,10 +237,7 @@ int main(int argc,                    /* Number of command line arguments */
 
     /* ALLLOCATE MEMORY */
 
-    std::array<std::array<double, MDIV+1>, SDIV+1> rho = {{0.0}}; 
-    std::array<std::array<double, MDIV+1>, SDIV+1> gama = {{0.0}}; 
-    std::array<std::array<double, MDIV+1>, SDIV+1> alpha = {{0.0}}; 
-    std::array<std::array<double, MDIV+1>, SDIV+1> omega = {{0.0}}; 
+    std::array<std::array<Metric, MDIV+1>, SDIV+1> metric;
     std::array<std::array<double, MDIV+1>, SDIV+1> energy = {{0.0}}; 
     std::array<std::array<double, MDIV+1>, SDIV+1> pressure = {{0.0}}; 
     std::array<std::array<double, MDIV+1>, SDIV+1> enthalpy = {{0.0}}; 
@@ -276,8 +272,8 @@ int main(int argc,                    /* Number of command line arguments */
 
     sphere(s_gp, log_e_tab, log_p_tab, 
            log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-           e_center, p_center, h_center, p_surface,e_surface,
-           rho, gama, alpha, omega, &r_e);
+           e_center, p_center, h_center, p_surface, e_surface,
+           metric, &r_e);
 
     r_ratio = 1.0; 
 
@@ -292,7 +288,7 @@ int main(int argc,                    /* Number of command line arguments */
     spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
          n_tab, eos_type, Gamma_P, 
          h_center, enthalpy_min,
-         rho, gama, alpha, omega, energy, pressure, enthalpy, velocity_sq,
+         metric, energy, pressure, enthalpy, velocity_sq,
          a_check, accuracy, cf,
          r_ratio, &r_e, &Omega);
     clock_gettime(CLOCK_MONOTONIC, &spin_stop);
@@ -314,7 +310,7 @@ int main(int argc,                    /* Number of command line arguments */
     clock_gettime(CLOCK_MONOTONIC, &mr_start);
     mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
                 log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                rho, gama, alpha, omega, 
+                metric, 
                 energy, pressure, enthalpy, velocity_sq,
                 r_ratio, e_surface, r_e, Omega,
                 &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
@@ -352,7 +348,7 @@ int main(int argc,                    /* Number of command line arguments */
         spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
              n_tab, eos_type, Gamma_P, 
              h_center, enthalpy_min,
-             rho, gama, alpha, omega, energy, pressure, enthalpy, velocity_sq,
+             metric, energy, pressure, enthalpy, velocity_sq,
              a_check, accuracy, cf,
              r_ratio, &r_e, &Omega);
         clock_gettime(CLOCK_MONOTONIC, &spin_stop);
@@ -361,7 +357,7 @@ int main(int argc,                    /* Number of command line arguments */
         clock_gettime(CLOCK_MONOTONIC, &mr_start);
         mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
                     log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                    rho, gama, alpha, omega, 
+                    metric, 
                     energy, pressure, enthalpy, velocity_sq,
                     r_ratio, e_surface, r_e, Omega,
                     &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
@@ -397,7 +393,7 @@ int main(int argc,                    /* Number of command line arguments */
             spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
                  n_tab, eos_type, Gamma_P, 
                  h_center, enthalpy_min,
-                 rho, gama, alpha, omega, energy, pressure, enthalpy, velocity_sq,
+                 metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
                  r_ratio, &r_e, &Omega);
             clock_gettime(CLOCK_MONOTONIC, &spin_stop);
@@ -406,7 +402,7 @@ int main(int argc,                    /* Number of command line arguments */
             clock_gettime(CLOCK_MONOTONIC, &mr_start);
             mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
                         log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                        rho, gama, alpha, omega, 
+                        metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
                         &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
@@ -433,7 +429,7 @@ int main(int argc,                    /* Number of command line arguments */
             spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
                  n_tab, eos_type, Gamma_P, 
                  h_center, enthalpy_min,
-                 rho, gama, alpha, omega, energy, pressure, enthalpy, velocity_sq,
+                 metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
                  r_ratio, &r_e, &Omega);
             clock_gettime(CLOCK_MONOTONIC, &spin_stop);
@@ -442,7 +438,7 @@ int main(int argc,                    /* Number of command line arguments */
             clock_gettime(CLOCK_MONOTONIC, &mr_start);
             mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
                         log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                        rho, gama, alpha, omega, 
+                        metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
                         &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
