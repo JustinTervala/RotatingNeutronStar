@@ -880,7 +880,9 @@ void spin(double s_gp[SDIV+1],
     float f_rho[SDIV+1][LMAX+2][SDIV+1];
     float f_gama[SDIV+1][LMAX+2][SDIV+1];
     double P_2n[MDIV+1][LMAX+2]; 
+    double P_2n_t[LMAX+2][MDIV+1]; 
     double P1_2n_1[MDIV+1][LMAX+2]; 
+    double P1_2n_1_t[LMAX+2][MDIV+1]; 
     
     struct timespec rho_gamma_start, rho_gamma_stop;
     clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
@@ -1069,19 +1071,26 @@ void spin(double s_gp[SDIV+1],
     for(i=1; i<=MDIV; ++i) {
         P_2n[i][n+1] = legendre(2*n, mu[i]);
     }
-
-    for(i=1; i<=MDIV; ++i) {
-        for(n=1;n<=LMAX;++n) {
-            P_2n[i][n+1] = legendre(2*n, mu[i]);
-            P1_2n_1[i][n+1] = plgndr(2*n-1, 1, mu[i]);
-        }
-    }
-
+    
     for(m=1; m<=MDIV; ++m) { 
         sin_theta[m] = sqrt(1.0-mu[m]*mu[m]);  
         theta[m] = asin(sin_theta[m]);
     }
 
+    double sin_2n_1_theta[MDIV+1][LMAX+1];
+    double sin_2n_1_theta_t[LMAX+1][MDIV+1];
+    for(i=1; i<=MDIV; ++i) {
+        for(n=1;n<=LMAX;++n) {
+            P_2n[i][n+1] = legendre(2*n, mu[i]);
+            P_2n_t[n+1][i] = P_2n[i][n+1];
+            P1_2n_1[i][n+1] = plgndr(2*n-1, 1, mu[i]);
+            P1_2n_1_t[n+1][i] = P1_2n_1[i][n+1];
+            sin_2n_1_theta[i][n] = sin((2.0*n-1.0)*theta[i]);
+            sin_2n_1_theta_t[n][i] = sin_2n_1_theta[i][n];
+        }
+    }
+
+    
   
     r_e = (*r_e_new);
     double S_gama[SDIV+1][MDIV+1];
@@ -1295,17 +1304,17 @@ void spin(double s_gp[SDIV+1],
             for(k=1; k<=SDIV; ++k) {      
                 for(m=1; m<=MDIV-2; m+=2) {
 
-                    sum_rho += (DM/3.0)*(P_2n[m][n+1]*S_rho[k][m]
-                               + 4.0*P_2n[m+1][n+1]*S_rho[k][m+1] 
-                               + P_2n[m+2][n+1]*S_rho[k][m+2]);
+                    sum_rho += (DM/3.0)*(P_2n_t[n+1][m]*S_rho[k][m]
+                               + 4.0*P_2n_t[n+1][m+1]*S_rho[k][m+1] 
+                               + P_2n_t[n+1][m+2]*S_rho[k][m+2]);
                        
-                    sum_gama += (DM/3.0)*(sin((2.0*n-1.0)*theta[m])*S_gama[k][m]
-                                +4.0*sin((2.0*n-1.0)*theta[m+1])*S_gama[k][m+1]
-                                +sin((2.0*n-1.0)*theta[m+2])*S_gama[k][m+2]);
+                    sum_gama += (DM/3.0)*(sin_2n_1_theta_t[n][m]*S_gama[k][m]
+                                +4.0*sin_2n_1_theta_t[n][m+1]*S_gama[k][m+1]
+                                +sin_2n_1_theta_t[n][m+2]*S_gama[k][m+2]);
   
-                    sum_omega += (DM/3.0)*(sin_theta[m]*P1_2n_1[m][n+1]*S_omega[k][m]
-                                 +4.0*sin_theta[m+1]*P1_2n_1[m+1][n+1]*S_omega[k][m+1]
-                                 +sin_theta[m+2]*P1_2n_1[m+2][n+1]*S_omega[k][m+2]);
+                    sum_omega += (DM/3.0)*(sin_theta[m]*P1_2n_1_t[n+1][m]*S_omega[k][m]
+                                 +4.0*sin_theta[m+1]*P1_2n_1_t[n+1][m+1]*S_omega[k][m+1]
+                                 +sin_theta[m+2]*P1_2n_1_t[n+1][m+2]*S_omega[k][m+2]);
                 }
                 D1_rho[n+1][k] = sum_rho;
                 D1_gama[n+1][k] = sum_gama;
@@ -1403,7 +1412,7 @@ void spin(double s_gp[SDIV+1],
                         sum_omega += -e_rsm*e_gsm*(P1_2n_1[m][n+1]/(2.0*n
                                      *(2.0*n-1.0)*temp1))*D2_omega[s][n+1];
   
-                        sum_gama += -(2.0/PI)*e_gsm*(sin((2.0*n-1.0)*theta[m])
+                        sum_gama += -(2.0/PI)*e_gsm*(sin_2n_1_theta[m][n]
                                     /((2.0*n-1.0)*temp1))*D2_gama[s][n+1];   
                     }
                 }
