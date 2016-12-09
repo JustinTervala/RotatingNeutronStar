@@ -118,9 +118,9 @@ double e_at_p(double pp,
               double log_p_tab[201],
               int    n_tab, 
               int    *n_nearest_pt,
-              char eos_type[],
+              bool   is_tab_eos,
               double Gamma_P) {
-    if(strcmp(eos_type, "tab") == 0) {
+    if(is_tab_eos) {
         return pow(10.0, interp(log_p_tab, log_e_tab, n_tab, log10(pp), n_nearest_pt));
     } else {
         return pp/(Gamma_P-1.0) + pow(pp, 1.0/Gamma_P); 
@@ -468,14 +468,14 @@ double dm_dr_is(double r_is,
                 double log_p_tab[SDIV+1],
                 int    n_tab,
                 int    *n_nearest_pt,
-                char eos_type[],
+                bool   is_tab_eos, 
                 double Gamma_P) {
     double dmdr, e_d;
 
     if(p < p_surface) { 
         e_d = 0.0;
     } else { 
-        e_d = e_at_p(p, log_e_tab, log_p_tab, n_tab, n_nearest_pt, eos_type, Gamma_P);
+        e_d = e_at_p(p, log_e_tab, log_p_tab, n_tab, n_nearest_pt, is_tab_eos, Gamma_P);
     } 
     if(r_is < RMIN) { 
         dmdr=4.0*PI*e_center*r*r*(1.0+4.0*PI*e_center*r*r/3.0);
@@ -496,14 +496,14 @@ double dp_dr_is(double r_is,
                 double log_p_tab[SDIV+1],
                 int    n_tab,
                 int    *n_nearest_pt,
-                char eos_type[],
+                bool   is_tab_eos,
                 double Gamma_P) {
     double dpdr, e_d; 
 
     if(p < p_surface) { 
         e_d=0.0;
     } else {        
-        e_d=e_at_p(p, log_e_tab, log_p_tab, n_tab, n_nearest_pt, eos_type, Gamma_P);
+        e_d=e_at_p(p, log_e_tab, log_p_tab, n_tab, n_nearest_pt, is_tab_eos, Gamma_P);
     }
     if(r_is < RMIN) {
         dpdr = -4.0*PI*(e_center+p)*(e_center+3.0*p)*r*(1.0+4.0*e_center*r*r/3.0)/3.0;
@@ -565,6 +565,7 @@ void TOV(int    i_check,
            m_gp[RDIV+1],
            e_d_gp[RDIV+1];   
 
+    bool is_tab_eos = (strcmp(eos_type, "tab") == 0);
     if(i_check == 1) {
         if(strcmp(eos_type, "tab") == 0) {
             r_is_est=1.5e6/sqrt(KAPPA);
@@ -594,7 +595,7 @@ void TOV(int    i_check,
 
     while(p >= p_surface) { 
  
-        e_d = e_at_p(p, log_e_tab, log_p_tab, n_tab, &n_nearest, eos_type, Gamma_P);
+        e_d = e_at_p(p, log_e_tab, log_p_tab, n_tab, &n_nearest, is_tab_eos, Gamma_P);
 
         if((i_check == 3) && (r_is > r_is_check) && (i <= RDIV)) {
             r_is_gp[i] = r_is;
@@ -612,38 +613,38 @@ void TOV(int    i_check,
         a1 = dr_dr_is(r_is, r, m);
 
         b1 = dm_dr_is(r_is, r, m, p, e_center, p_surface, log_e_tab, log_p_tab, n_tab,
-                      &n_nearest, eos_type, Gamma_P);
+                      &n_nearest, is_tab_eos, Gamma_P);
         c1 = dp_dr_is(r_is,r,m,p, e_center, p_surface, log_e_tab, log_p_tab, n_tab,
-                      &n_nearest, eos_type, Gamma_P);
+                      &n_nearest, is_tab_eos, Gamma_P);
 
         a2 = dr_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0);
 
         b2 = dm_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, e_center, 
                       p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest, 
-                      eos_type, Gamma_P);
+                      is_tab_eos, Gamma_P);
 
         c2 = dp_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, e_center, 
                       p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest,  
-                      eos_type, Gamma_P);
+                      is_tab_eos, Gamma_P);
 
 
         a3 = dr_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0);
 
         b3 = dm_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, e_center, 
                       p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest, 
-                      eos_type, Gamma_P);
+                      is_tab_eos, Gamma_P);
 
         c3 = dp_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, e_center, 
                       p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest, 
-                      eos_type, Gamma_P);
+                      is_tab_eos, Gamma_P);
 
         a4 = dr_dr_is(r_is+h, r+h*a3, m+h*b3);
 
         b4 = dm_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, e_center, p_surface, 
-                      log_e_tab, log_p_tab, n_tab, &n_nearest, eos_type, Gamma_P);
+                      log_e_tab, log_p_tab, n_tab, &n_nearest, is_tab_eos, Gamma_P);
 
         c4 = dp_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, e_center, p_surface, 
-                      log_e_tab, log_p_tab, n_tab, &n_nearest, eos_type, Gamma_P);
+                      log_e_tab, log_p_tab, n_tab, &n_nearest, is_tab_eos, Gamma_P);
 
         r += (h/6.0)*(a1+2*a2+2*a3+a4);
         m += (h/6.0)*(b1+2*b2+2*b3+b4);
@@ -1093,6 +1094,7 @@ void spin(double s_gp[SDIV+1],
     
   
     r_e = (*r_e_new);
+    bool is_tab_eos = (strcmp(eos_type, "tab") == 0);
     double S_gama[SDIV+1][MDIV+1];
     double S_rho[SDIV+1][MDIV+1];
     double S_omega[SDIV+1][MDIV+1];
@@ -1178,12 +1180,12 @@ void spin(double s_gp[SDIV+1],
             for(m=1; m<=MDIV; ++m) {
                 rsm = metric[s][m].rho;
             
-                if(r_ratio == 1.0) {
-                    velocity_sq[s][m] = 0.0;
-                } else { 
+                if(r_ratio != 1.0) { 
                     velocity_sq[s][m] = SQ((Omega_h-metric[s][m].omega)*(sgp/(1.0-sgp))
                                            *sin_theta[m]*exp(-rsm*SQ(r_e)));
-                }
+                } else {
+                    velocity_sq[s][m] = 0.0;
+		}
                 if(velocity_sq[s][m] >= 1.0) { 
                     velocity_sq[s][m] = 0.0;
                 }
@@ -1194,11 +1196,11 @@ void spin(double s_gp[SDIV+1],
                     pressure[s][m] = 0.0;
                     energy[s][m] = 0.0; 
                 } else { 
-                    if(strcmp(eos_type, "tab") == 0) {
+                    if(is_tab_eos) {
                         pressure[s][m] = p_at_h(enthalpy[s][m], log_p_tab, 
                                                 log_h_tab, n_tab, &n_nearest);
                         energy[s][m] = e_at_p(pressure[s][m], log_e_tab, 
-                                              log_p_tab, n_tab, &n_nearest, eos_type,
+                                              log_p_tab, n_tab, &n_nearest, is_tab_eos,
                                               Gamma_P);
                     } else {
                         rho0sm = pow(((Gamma_P-1.0)/Gamma_P)
@@ -1570,7 +1572,7 @@ void spin(double s_gp[SDIV+1],
 
     /* COMPUTE OMEGA */  
 
-    if(strcmp(eos_type, "tab") == 0) { 
+    if(is_tab_eos) { 
          (*Omega) = Omega_h*C/(r_e*sqrt(KAPPA));
     } else {
          (*Omega) = Omega_h/r_e;

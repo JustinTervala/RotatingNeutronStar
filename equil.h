@@ -21,7 +21,7 @@ double e_at_p(double pp,
               double log_p_tab[201],
               int    n_tab, 
               int    *n_nearest_pt,
-              char eos_type[],
+              bool   is_tab_eos,
               double Gamma_P);
 
 double p_at_e(double ee, 
@@ -96,7 +96,7 @@ double dm_dr_is(double r_is,
                 double log_p_tab[SDIV+1],
                 int    n_tab,
                 int    *n_nearest_pt,
-                char   eos_type[],
+                bool   is_tab_eos,
                 double Gamma_P);
 
 double dp_dr_is(double r_is, 
@@ -109,7 +109,7 @@ double dp_dr_is(double r_is,
                 double log_p_tab[SDIV+1],
                 int    n_tab,
                 int    *n_nearest_pt,
-                char eos_type[],
+                bool   is_tab_eos,
                 double Gamma_P);
 
 double dr_dr_is(double r_is, double r, double m);
