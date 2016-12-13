@@ -1291,12 +1291,12 @@ void spin(double s_gp[SDIV+1],
         n = 0;
         for(k=1; k<=SDIV; ++k) {      
             for(m=1; m<=MDIV-2; m+=2) {
-                sum_rho += (DM/3.0)*(P_2n[m][n+1]*S_rho[k][m]
+                sum_rho += P_2n[m][n+1]*S_rho[k][m]
                            + 4.0*P_2n[m+1][n+1]*S_rho[k][m+1] 
-                           + P_2n[m+2][n+1]*S_rho[k][m+2]);
+                           + P_2n[m+2][n+1]*S_rho[k][m+2];
             }
 
-            D1_rho[n+1][k] = sum_rho;
+            D1_rho[n+1][k] = (DM/3.0)*sum_rho;
             D1_gama[n+1][k] = 0.0;
             D1_omega[n+1][k] = 0.0;
             sum_rho = 0.0;
@@ -1306,21 +1306,21 @@ void spin(double s_gp[SDIV+1],
             for(k=1; k<=SDIV; ++k) {      
                 for(m=1; m<=MDIV-2; m+=2) {
 
-                    sum_rho += (DM/3.0)*(P_2n_t[n+1][m]*S_rho[k][m]
+                    sum_rho += P_2n_t[n+1][m]*S_rho[k][m]
                                + 4.0*P_2n_t[n+1][m+1]*S_rho[k][m+1] 
-                               + P_2n_t[n+1][m+2]*S_rho[k][m+2]);
+                               + P_2n_t[n+1][m+2]*S_rho[k][m+2];
                        
-                    sum_gama += (DM/3.0)*(sin_2n_1_theta_t[n][m]*S_gama[k][m]
+                    sum_gama += sin_2n_1_theta_t[n][m]*S_gama[k][m]
                                 +4.0*sin_2n_1_theta_t[n][m+1]*S_gama[k][m+1]
-                                +sin_2n_1_theta_t[n][m+2]*S_gama[k][m+2]);
+                                +sin_2n_1_theta_t[n][m+2]*S_gama[k][m+2];
   
-                    sum_omega += (DM/3.0)*(sin_theta[m]*P1_2n_1_t[n+1][m]*S_omega[k][m]
+                    sum_omega += sin_theta[m]*P1_2n_1_t[n+1][m]*S_omega[k][m]
                                  +4.0*sin_theta[m+1]*P1_2n_1_t[n+1][m+1]*S_omega[k][m+1]
-                                 +sin_theta[m+2]*P1_2n_1_t[n+1][m+2]*S_omega[k][m+2]);
+                                 +sin_theta[m+2]*P1_2n_1_t[n+1][m+2]*S_omega[k][m+2];
                 }
-                D1_rho[n+1][k] = sum_rho;
-                D1_gama[n+1][k] = sum_gama;
-                D1_omega[n+1][k] = sum_omega;
+                D1_rho[n+1][k] = (DM/3.0)*sum_rho;
+                D1_gama[n+1][k] = (DM/3.0)*sum_gama;
+                D1_omega[n+1][k] = (DM/3.0)*sum_omega;
                 sum_rho = 0.0;
                 sum_gama = 0.0;
                 sum_omega = 0.0;
@@ -1338,11 +1338,11 @@ void spin(double s_gp[SDIV+1],
         n = 0;
         for(s=1; s<=SDIV; ++s) {
             for(k=1; k<=SDIV-2; k+=2) { 
-                sum_rho += (DS/3.0)*( f_rho[s][n+1][k]*D1_rho[n+1][k] 
+                sum_rho += ( f_rho[s][n+1][k]*D1_rho[n+1][k] 
                            + 4.0*f_rho[s][n+1][k+1]*D1_rho[n+1][k+1]
                             + f_rho[s][n+1][k+2]*D1_rho[n+1][k+2]);
             }
-            D2_rho[s][n+1] = sum_rho;
+            D2_rho[s][n+1] = (DS/3.0)*sum_rho;
             D2_gama[s][n+1] = 0.0;
             D2_omega[s][n+1] = 0.0;
             sum_rho = 0.0;
@@ -1351,33 +1351,33 @@ void spin(double s_gp[SDIV+1],
         for(s=1; s<=SDIV; ++s) {
             for(n=1; n<=LMAX; ++n) {
                 for(k=1; k<=SDIV-2; k+=2) { 
-                    sum_rho += (DS/3.0)*( f_rho[s][n+1][k]*D1_rho[n+1][k] 
+                    sum_rho += f_rho[s][n+1][k]*D1_rho[n+1][k] 
                                + 4.0*f_rho[s][n+1][k+1]*D1_rho[n+1][k+1]
-                               + f_rho[s][n+1][k+2]*D1_rho[n+1][k+2]);
+                               + f_rho[s][n+1][k+2]*D1_rho[n+1][k+2];
  
-                    sum_gama += (DS/3.0)*( f_gama[s][n+1][k]*D1_gama[n+1][k] 
+                    sum_gama += f_gama[s][n+1][k]*D1_gama[n+1][k] 
                                 + 4.0*f_gama[s][n+1][k+1]*D1_gama[n+1][k+1]
-                                + f_gama[s][n+1][k+2]*D1_gama[n+1][k+2]);
+                                + f_gama[s][n+1][k+2]*D1_gama[n+1][k+2];
      
                     if(k < s && k+2 <= s) {
-                        sum_omega += (DS/3.0)*( f_rho[s][n+1][k]*D1_omega[n+1][k] 
-                              + 4.0*f_rho[s][n+1][k+1]*D1_omega[n+1][k+1]
-                              + f_rho[s][n+1][k+2]*D1_omega[n+1][k+2]);
+                        sum_omega += f_rho[s][n+1][k]*D1_omega[n+1][k] 
+                                     + 4.0*f_rho[s][n+1][k+1]*D1_omega[n+1][k+1]
+                                     + f_rho[s][n+1][k+2]*D1_omega[n+1][k+2];
                     } else {
                         if(k >= s) {
-                            sum_omega += (DS/3.0)*( f_gama[s][n+1][k]*D1_omega[n+1][k] 
+                            sum_omega += f_gama[s][n+1][k]*D1_omega[n+1][k] 
                                          + 4.0*f_gama[s][n+1][k+1]*D1_omega[n+1][k+1]
-                                         + f_gama[s][n+1][k+2]*D1_omega[n+1][k+2]);
+                                         + f_gama[s][n+1][k+2]*D1_omega[n+1][k+2];
                         } else {
-                            sum_omega += (DS/3.0)*( f_rho[s][n+1][k]*D1_omega[n+1][k] 
+                            sum_omega += f_rho[s][n+1][k]*D1_omega[n+1][k] 
                                          + 4.0*f_rho[s][n+1][k+1]*D1_omega[n+1][k+1]
-                                         + f_gama[s][n+1][k+2]*D1_omega[n+1][k+2]);
+                                         + f_gama[s][n+1][k+2]*D1_omega[n+1][k+2];
                         }
                     }
                 }
-                D2_rho[s][n+1] = sum_rho;
-                D2_gama[s][n+1] = sum_gama;
-                D2_omega[s][n+1] = sum_omega;
+                D2_rho[s][n+1] = (DS/3.0)*sum_rho;
+                D2_gama[s][n+1] = (DS/3.0)*sum_gama;
+                D2_omega[s][n+1] = (DS/3.0)*sum_omega;
                 sum_rho = 0.0;
                 sum_gama = 0.0;
                 sum_omega = 0.0;
