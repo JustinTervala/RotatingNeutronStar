@@ -20,10 +20,10 @@ template <typename T> int sgn(T val, T& out) {
     out = (T(0) < val) - (val < T(0));
 }
 
-void hunt(double xx[], int n, double x, int &jlo);
+void hunt(const double xx[], int n, double x, int &jlo);
 
-double interp(double xp[], 
-              double yp[], 
+double interp(const double xp[], 
+              const double yp[], 
               int    np ,
               double xb, 
               int    &n_nearest_pt);

@@ -9,7 +9,7 @@
 /* Routine that locates nearest grid point for a given value.              */
 /* Adapted from Numerical Recipes.                                         */
 /***************************************************************************/
-void hunt(double xx[], int n, double x, int &jlo) { 
+void hunt(const double xx[], int n, double x, int &jlo) { 
     int jm, jhi, inc, ascnd;
 
     ascnd = (xx[n] > xx[1]);
@@ -64,8 +64,8 @@ void hunt(double xx[], int n, double x, int &jlo) {
 /* Driver for the interpolation routine. First we find the tab. point    */
 /* nearest to xb, then we interpolate using four points around xb.       */  
 /*************************************************************************/
-double interp(double xp[], 
-              double yp[], 
+double interp(const double xp[], 
+              const double yp[], 
               int    np ,
               double xb, 
               int    &n_nearest_pt) { 
