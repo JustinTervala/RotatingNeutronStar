@@ -1,8 +1,9 @@
+#pragma once
+
 #include "equil_util.h"
 
 struct GridTrig {
     public:
-        double theta[MDIV+1];
         double sin_theta[MDIV+1];
         native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_rho;
         native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_gama;
@@ -17,6 +18,7 @@ struct GridTrig {
         ~GridTrig() {}     
     private:
         native_matrix<double, LMAX+2, SDIV+1>  _f2n;
+        double _theta[MDIV+1];
         void compute_f2n(const double s_gp[SDIV+1]);
 
         void compute_f_rho_gamma(const double s_gp[SDIV+1]);

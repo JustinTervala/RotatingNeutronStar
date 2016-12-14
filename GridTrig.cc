@@ -197,7 +197,7 @@ void GridTrig::compute_trig(const double mu[MDIV+1]) {
     
     for(m=1; m<=MDIV; ++m) { 
         sin_theta[m] = sqrt(1.0-mu[m]*mu[m]);  
-        theta[m] = asin(sin_theta[m]);
+        _theta[m] = asin(sin_theta[m]);
     }
 
     for(i=1; i<=MDIV; ++i) {
@@ -206,7 +206,7 @@ void GridTrig::compute_trig(const double mu[MDIV+1]) {
             P_2n_t[n+1][i] = P_2n[i][n+1];
             P1_2n_1[i][n+1] = plgndr(2*n-1, 1, mu[i]);
             P1_2n_1_t[n+1][i] = P1_2n_1[i][n+1];
-            sin_2n_1_theta[i][n] = sin((2.0*n-1.0)*theta[i]);
+            sin_2n_1_theta[i][n] = sin((2.0*n-1.0)*_theta[i]);
             sin_2n_1_theta_t[n][i] = sin_2n_1_theta[i][n];
         }
     }

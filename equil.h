@@ -1,7 +1,10 @@
+#pragma once
+
 #include <time.h>
 #include <array>
 #include "equil_util.h"
 #include "EquationOfState.hh"
+#include "GridTrig.hh"
 
 long getElapsedTimeNs(struct timespec start, struct timespec stop);
 
@@ -79,16 +82,7 @@ void sphere(double s_gp[SDIV+1],
 
 void spin(double s_gp[SDIV+1],
           double mu[MDIV+1],
-          const double theta[MDIV+1],
-          const double sin_theta[MDIV+1],
-          const double (&P_2n)[MDIV+1][LMAX+2],
-          const double (&P_2n_t)[LMAX+2][MDIV+1],
-          const double (&P1_2n_1)[MDIV+1][LMAX+2],
-          const double (&P1_2n_1_t)[LMAX+2][MDIV+1],
-          const double (&sin_2n_1_theta)[MDIV+1][LMAX+1],
-          const double (&sin_2n_1_theta_t)[LMAX+1][MDIV+1],
-          const float (&f_rho)[SDIV+1][LMAX+2][SDIV+1],
-          const float (&f_gama)[SDIV+1][LMAX+2][SDIV+1],
+          const GridTrig& trig,
           const EquationOfState& eos, 
           double h_center,
           double enthalpy_min,
@@ -103,22 +97,3 @@ void spin(double s_gp[SDIV+1],
           double r_ratio,
           double &r_e_new,
           double &Omega) ;
- 
-void compute_f2n(const double s_gp[SDIV+1],
-                 double (&f2n)[LMAX+2][SDIV+1]);
-
-void compute_f_rho_gamma(const double s_gp[SDIV+1],
-                         const double (&f2n)[LMAX+2][SDIV+1],
-                         float (&f_rho)[SDIV+1][LMAX+2][SDIV+1],
-                         float (&f_gama)[SDIV+1][LMAX+2][SDIV+1]);
-
-void compute_trig(const double mu[MDIV+1],
-                  double theta[MDIV+1],
-                  double sin_theta[MDIV+1],
-                  double (&P_2n)[MDIV+1][LMAX+2],
-                  double (&P_2n_t)[LMAX+2][MDIV+1],
-                  double (&P1_2n_1)[MDIV+1][LMAX+2],
-                  double (&P1_2n_1_t)[LMAX+2][MDIV+1],
-                  double (&sin_2n_1_theta)[MDIV+1][LMAX+1],
-                  double (&sin_2n_1_theta_t)[LMAX+1][MDIV+1]);
-                   

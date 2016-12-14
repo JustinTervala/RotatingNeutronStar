@@ -638,16 +638,7 @@ void sphere(double s_gp[SDIV+1],
 /*************************************************************************/
 void spin(double s_gp[SDIV+1],
           double mu[MDIV+1],
-          const double theta[MDIV+1],
-          const double sin_theta[MDIV+1],
-          const double (&P_2n)[MDIV+1][LMAX+2],
-          const double (&P_2n_t)[LMAX+2][MDIV+1],
-          const double (&P1_2n_1)[MDIV+1][LMAX+2],
-          const double (&P1_2n_1_t)[LMAX+2][MDIV+1],
-          const double (&sin_2n_1_theta)[MDIV+1][LMAX+1],
-          const double (&sin_2n_1_theta_t)[LMAX+1][MDIV+1],
-          const float (&f_rho)[SDIV+1][LMAX+2][SDIV+1],
-          const float (&f_gama)[SDIV+1][LMAX+2][SDIV+1],
+          const GridTrig& trig,
           const EquationOfState& eos, 
           double h_center,
           double enthalpy_min,
@@ -814,7 +805,7 @@ void spin(double s_gp[SDIV+1],
             
                 if(r_ratio != 1.0) { 
                     velocity_sq[s][m] = SQ((Omega_h-metric[s][m].omega)*(sgp/(1.0-sgp))
-                                           *sin_theta[m]*exp(-rsm*SQ(r_e)));
+                                           *trig.sin_theta[m]*exp(-rsm*SQ(r_e)));
                 } else {
                     velocity_sq[s][m] = 0.0;
 		}
@@ -920,9 +911,9 @@ void spin(double s_gp[SDIV+1],
         n = 0;
         for(k=1; k<=SDIV; ++k) {      
             for(m=1; m<=MDIV-2; m+=2) {
-                sum_rho += P_2n[m][n+1]*S_metric[k][m].rho
-                           + 4.0*P_2n[m+1][n+1]*S_metric[k][m+1].rho 
-                           + P_2n[m+2][n+1]*S_metric[k][m+2].rho;
+                sum_rho += trig.P_2n[m][n+1]*S_metric[k][m].rho
+                           + 4.0*trig.P_2n[m+1][n+1]*S_metric[k][m+1].rho 
+                           + trig.P_2n[m+2][n+1]*S_metric[k][m+2].rho;
             }
 
             D1_metric[n+1][k].rho = (DM/3.0)*sum_rho;
@@ -935,17 +926,17 @@ void spin(double s_gp[SDIV+1],
             for(k=1; k<=SDIV; ++k) {      
                 for(m=1; m<=MDIV-2; m+=2) {
 
-                    sum_rho += P_2n_t[n+1][m]*S_metric[k][m].rho
-                               + 4.0*P_2n_t[n+1][m+1]*S_metric[k][m+1].rho 
-                               + P_2n_t[n+1][m+2]*S_metric[k][m+2].rho;
+                    sum_rho += trig.P_2n_t[n+1][m]*S_metric[k][m].rho
+                               + 4.0*trig.P_2n_t[n+1][m+1]*S_metric[k][m+1].rho 
+                               + trig.P_2n_t[n+1][m+2]*S_metric[k][m+2].rho;
                        
-                    sum_gama += sin_2n_1_theta_t[n][m]*S_metric[k][m].gama
-                                +4.0*sin_2n_1_theta_t[n][m+1]*S_metric[k][m+1].gama
-                                +sin_2n_1_theta_t[n][m+2]*S_metric[k][m+2].gama;
+                    sum_gama += trig.sin_2n_1_theta_t[n][m]*S_metric[k][m].gama
+                                +4.0*trig.sin_2n_1_theta_t[n][m+1]*S_metric[k][m+1].gama
+                                +trig.sin_2n_1_theta_t[n][m+2]*S_metric[k][m+2].gama;
   
-                    sum_omega += sin_theta[m]*P1_2n_1_t[n+1][m]*S_metric[k][m].omega
-                                 +4.0*sin_theta[m+1]*P1_2n_1_t[n+1][m+1]*S_metric[k][m+1].omega
-                                 +sin_theta[m+2]*P1_2n_1_t[n+1][m+2]*S_metric[k][m+2].omega;
+                    sum_omega += trig.sin_theta[m]*trig.P1_2n_1_t[n+1][m]*S_metric[k][m].omega
+                                 +4.0*trig.sin_theta[m+1]*trig.P1_2n_1_t[n+1][m+1]*S_metric[k][m+1].omega
+                                 +trig.sin_theta[m+2]*trig.P1_2n_1_t[n+1][m+2]*S_metric[k][m+2].omega;
                 }
                 D1_metric[n+1][k].rho = (DM/3.0)*sum_rho;
                 D1_metric[n+1][k].gama = (DM/3.0)*sum_gama;
@@ -967,9 +958,9 @@ void spin(double s_gp[SDIV+1],
         n = 0;
         for(s=1; s<=SDIV; ++s) {
             for(k=1; k<=SDIV-2; k+=2) { 
-                sum_rho += ( f_rho[s][n+1][k]*D1_metric[n+1][k].rho 
-                           + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].rho
-                            + f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].rho);
+                sum_rho += ( trig.f_rho[s][n+1][k]*D1_metric[n+1][k].rho 
+                           + 4.0*trig.f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].rho
+                            + trig.f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].rho);
             }
             D2_metric[s][n+1].rho = (DS/3.0)*sum_rho;
             D2_metric[s][n+1].gama = 0.0;
@@ -980,27 +971,27 @@ void spin(double s_gp[SDIV+1],
         for(s=1; s<=SDIV; ++s) {
             for(n=1; n<=LMAX; ++n) {
                 for(k=1; k<=SDIV-2; k+=2) { 
-                    sum_rho += f_rho[s][n+1][k]*D1_metric[n+1][k].rho 
-                               + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].rho
-                               + f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].rho;
+                    sum_rho += trig.f_rho[s][n+1][k]*D1_metric[n+1][k].rho 
+                               + 4.0*trig.f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].rho
+                               + trig.f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].rho;
  
-                    sum_gama += f_gama[s][n+1][k]*D1_metric[n+1][k].gama 
-                                + 4.0*f_gama[s][n+1][k+1]*D1_metric[n+1][k+1].gama
-                                + f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].gama;
+                    sum_gama += trig.f_gama[s][n+1][k]*D1_metric[n+1][k].gama 
+                                + 4.0*trig.f_gama[s][n+1][k+1]*D1_metric[n+1][k+1].gama
+                                + trig.f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].gama;
      
                     if(k < s && k+2 <= s) {
-                        sum_omega += f_rho[s][n+1][k]*D1_metric[n+1][k].omega 
-                                     + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].omega
-                                     + f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
+                        sum_omega += trig.f_rho[s][n+1][k]*D1_metric[n+1][k].omega 
+                                     + 4.0*trig.f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].omega
+                                     + trig.f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
                     } else {
                         if(k >= s) {
-                            sum_omega += f_gama[s][n+1][k]*D1_metric[n+1][k].omega 
-                                         + 4.0*f_gama[s][n+1][k+1]*D1_metric[n+1][k+1].omega
-                                         + f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
+                            sum_omega += trig.f_gama[s][n+1][k]*D1_metric[n+1][k].omega 
+                                         + 4.0*trig.f_gama[s][n+1][k+1]*D1_metric[n+1][k+1].omega
+                                         + trig.f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
                         } else {
-                            sum_omega += f_rho[s][n+1][k]*D1_metric[n+1][k].omega 
-                                         + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].omega
-                                         + f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
+                            sum_omega += trig.f_rho[s][n+1][k]*D1_metric[n+1][k].omega 
+                                         + 4.0*trig.f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].omega
+                                         + trig.f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
                         }
                     }
                 }
@@ -1028,21 +1019,21 @@ void spin(double s_gp[SDIV+1],
                 omsm = metric[s][m].omega;             
                 e_gsm = exp(-0.5*gsm);
                 e_rsm = exp(rsm);
-                temp1 = sin_theta[m];
+                temp1 = trig.sin_theta[m];
 
-                sum_rho += -e_gsm*P_2n[m][0+1]*D2_metric[s][0+1].rho; 
+                sum_rho += -e_gsm*trig.P_2n[m][0+1]*D2_metric[s][0+1].rho; 
 
                 for(n=1; n<=LMAX; ++n) {
 
-                    sum_rho += -e_gsm*P_2n[m][n+1]*D2_metric[s][n+1].rho; 
+                    sum_rho += -e_gsm*trig.P_2n[m][n+1]*D2_metric[s][n+1].rho; 
 
                     if(m == MDIV) {             
                         sum_gama += -(2.0/PI)*e_gsm*D2_metric[s][n+1].gama;   
                         sum_omega += 0.5*e_rsm*e_gsm*D2_metric[s][n+1].omega; 
                     } else { 
-                        sum_gama += -(2.0/PI)*e_gsm*(sin_2n_1_theta[m][n]
+                        sum_gama += -(2.0/PI)*e_gsm*(trig.sin_2n_1_theta[m][n]
                                     /((2.0*n-1.0)*temp1))*D2_metric[s][n+1].gama;   
-                        sum_omega += -e_rsm*e_gsm*(P1_2n_1[m][n+1]/(2.0*n
+                        sum_omega += -e_rsm*e_gsm*(trig.P1_2n_1[m][n+1]/(2.0*n
                                      *(2.0*n-1.0)*temp1))*D2_metric[s][n+1].omega;
                     }
                 }
@@ -1211,223 +1202,3 @@ void spin(double s_gp[SDIV+1],
     r_e_new = r_e;
 }
 
-void compute_f2n(const double s_gp[SDIV+1],
-                 double (&f2n)[LMAX+2][SDIV+1]) {
-    
-    for(int n=0; n<=LMAX; ++n) {
-        for(int i=2; i<=SDIV; ++i) {
-            f2n[n+1][i] = pow((1.0-s_gp[i])/s_gp[i], 2.0*n);
-        }
-    }
-}
-
-void compute_f_rho_gamma(const double s_gp[SDIV+1],
-                         const double (&f2n)[LMAX+2][SDIV+1],
-                         float (&f_rho)[SDIV+1][LMAX+2][SDIV+1],
-                         float (&f_gama)[SDIV+1][LMAX+2][SDIV+1]) {
-
-    int j, k, n;
-    double sk, sj, sk1, sj1;
-    if(SMAX != 1.0) {
-
-        for(j=2; j<=SDIV; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                for(k=2; k<=SDIV; ++k) {
-                    sk = s_gp[k];
-                    sj = s_gp[j];
-                    sk1 = 1.0-sk;
-                    sj1 = 1.0-sj;
-
-                    if(k < j) {   
-                        f_rho[j][n+1][k] = f2n[n+1][j]*sj1/(sj*f2n[n+1][k]*sk1*sk1);
-                        f_gama[j][n+1][k] = f2n[n+1][j]/(f2n[n+1][k]*sk*sk1);
-                    } else {     
-                        f_rho[j][n+1][k] = f2n[n+1][k]/(f2n[n+1][j]*sk*sk1);
-                        f_gama[j][n+1][k] = f2n[n+1][k]*sj1*sj1*sk/(sj*sj*f2n[n+1][j]*sk1*sk1*sk1);
-                    }
-                }
-            }
-        }
-        j = 1;
- 
-        n = 0; 
-        for(k=2; k<=SDIV; ++k) {
-            sk = s_gp[k];
-            f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
-        }
-
-        n = 1;
-        for(k=2; k<=SDIV; ++k) {
-            sk = s_gp[k];
-            sk1 = 1.0-sk;         
-            f_rho[j][n+1][k] = 0.0;
-            f_gama[j][n+1][k] = 1.0/(sk*sk1);
-        }
-
-        for(n=2; n<=LMAX; ++n) {
-            for(k=1; k<=SDIV; ++k) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-
-        k = 1;
-        //Chache inefficient
-        n = 0;
-        for(j=1; j<=SDIV; ++j) {
-            f_rho[j][n+1][k] = 0.0;
-        }
-        //cache inefficent
-        for(j=1; j<=SDIV; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-
-        //cache inefficent
-        n = 0;
-        for(j=2; j<=SDIV; ++j) {
-            for(k=2; k<=SDIV; ++k) {
-                sk = s_gp[k];
-                sj = s_gp[j];
-                sk1 = 1.0-sk;
-                sj1 = 1.0-sj;
-
-                if(k < j) {
-                    f_rho[j][n+1][k] = sj1/(sj*sk1*sk1);
-                } else {    
-                    f_rho[j][n+1][k] = 1.0/(sk*sk1);
-                }
-            }
-        }         
-
-    } else {      
-        for(j=2; j<=SDIV-1; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                for(k=2; k<=SDIV-1; ++k) {
-                    sk = s_gp[k];
-                    sj = s_gp[j];
-                    sk1 = 1.0-sk;
-                    sj1 = 1.0-sj;
-
-                    if(k < j) {   
-                        f_rho[j][n+1][k] = f2n[n+1][j]*sj1/(sj*f2n[n+1][k]*sk1*sk1);
-                        f_gama[j][n+1][k] = f2n[n+1][j]/(f2n[n+1][k]*sk*sk1);
-                    } else {     
-                        f_rho[j][n+1][k] = f2n[n+1][k]/(f2n[n+1][j]*sk*sk1);
-
-                        f_gama[j][n+1][k] = f2n[n+1][k]*sj1*sj1*sk/(sj*sj*f2n[n+1][j]*sk1*sk1*sk1);
-                    }
-                }
-            }
-        }
-   
-        j = 1;
- 
-        n = 0; 
-        for(k=2; k<=SDIV-1; ++k) {
-            sk = s_gp[k];
-            f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
-        }
-
-        n = 1;
-        for(k=2; k<=SDIV-1; ++k) {
-            sk = s_gp[k];
-            sk1 = 1.0-sk;         
-            f_rho[j][n+1][k] = 0.0;
-            f_gama[j][n+1][k] = 1.0/(sk*sk1);
-        }
-
-        for(n=2; n<=LMAX; ++n) {
-            for(k=1; k<=SDIV-1; ++k) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-             }
-        }
-
-        k = 1;
- 
-        //cache inefficient
-        n = 0;
-        for(j=1; j<=SDIV-1; ++j) {
-            f_rho[j][n+1][k]=0.0;
-        }
-
-        //cache inefficent
-        for(j=1; j<=SDIV-1; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
- 
-        //cache inefficient
-        n = 0;
-        for(j=2; j<=SDIV-1; ++j) {
-            for(k=2; k<=SDIV-1; ++k) {
-                sk = s_gp[k];
-                sj = s_gp[j];
-                sk1 = 1.0-sk;
-                sj1 = 1.0-sj;
-
-                if(k < j) { 
-                  f_rho[j][n+1][k] = sj1/(sj*sk1*sk1);
-                } else {     
-                  f_rho[j][n+1][k] = 1.0/(sk*sk1);
-                }
-            }
-        }
- 
-        j = SDIV;
-        for(n=1; n<=LMAX; ++n) {
-            for(k=1; k<=SDIV; ++k) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-
-        //cache inefficient
-        k = SDIV;
-        for(j=1; j<=SDIV; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-    }
-}
-
-
-void compute_trig(const double mu[MDIV+1],
-                  double theta[MDIV+1],
-                  double sin_theta[MDIV+1],
-                  double (&P_2n)[MDIV+1][LMAX+2],
-                  double (&P_2n_t)[LMAX+2][MDIV+1],
-                  double (&P1_2n_1)[MDIV+1][LMAX+2],
-                  double (&P1_2n_1_t)[LMAX+2][MDIV+1],
-                  double (&sin_2n_1_theta)[MDIV+1][LMAX+1],
-                  double (&sin_2n_1_theta_t)[LMAX+1][MDIV+1]) {
-                   
-    //cache inefficient
-    int n = 0, i, m;
-    for(i=1; i<=MDIV; ++i) {
-        P_2n[i][n+1] = legendre(2*n, mu[i]);
-    }
-    
-    for(m=1; m<=MDIV; ++m) { 
-        sin_theta[m] = sqrt(1.0-mu[m]*mu[m]);  
-        theta[m] = asin(sin_theta[m]);
-    }
-
-    for(i=1; i<=MDIV; ++i) {
-        for(n=1;n<=LMAX;++n) {
-            P_2n[i][n+1] = legendre(2*n, mu[i]);
-            P_2n_t[n+1][i] = P_2n[i][n+1];
-            P1_2n_1[i][n+1] = plgndr(2*n-1, 1, mu[i]);
-            P1_2n_1_t[n+1][i] = P1_2n_1[i][n+1];
-            sin_2n_1_theta[i][n] = sin((2.0*n-1.0)*theta[i]);
-            sin_2n_1_theta_t[n][i] = sin_2n_1_theta[i][n];
-        }
-    }
-}

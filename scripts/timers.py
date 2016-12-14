@@ -4,18 +4,18 @@ import sys
 
 def read_data():
     with open('out.out', 'r') as f:
-        spin_time = {x:[] for x in ['total', 'rho_gamma', 'pn', 'vep', 'metric', 'ang', 'rad', 'coeff', 'alpha']}
+        spin_time = {x:[] for x in ['total', 'vep', 'metric', 'ang', 'rad', 'coeff', 'alpha']}
         mass_radius_time = []
         for line in f:
             if "spin():" in line:
                 spin_time['total'].append(float(line.split(':')[1]))
             elif "spin()" in line:	
                 timer = line.split(',')[-1]	
-                if "rho_gamma:" in timer:
-                    spin_time['rho_gamma'].append(float(timer.split(':')[1]))
-                elif "pn:" in timer:
-                    spin_time['pn'].append(float(timer.split(':')[1]))
-                elif "vep:" in timer:
+#                if "rho_gamma:" in timer:
+ #                   spin_time['rho_gamma'].append(float(timer.split(':')[1]))
+  #              elif "pn:" in timer:
+   #                 spin_time['pn'].append(float(timer.split(':')[1]))
+                if "vep:" in timer:
                     spin_time['vep'].append(float(timer.split(':')[1]))
                 elif "metric:" in timer:
                     spin_time['metric'].append(float(timer.split(':')[1]))
