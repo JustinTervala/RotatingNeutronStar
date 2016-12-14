@@ -732,214 +732,20 @@ void spin(double s_gp[SDIV+1],
     native_matrix<double, LMAX+2, MDIV+1> P_2n_t;
     native_matrix<double, MDIV+1, LMAX+2> P1_2n_1;
     native_matrix<double, LMAX+2, MDIV+1> P1_2n_1_t;
+    native_matrix<double, MDIV+1, LMAX+1> sin_2n_1_theta;
+    native_matrix<double, LMAX+1, MDIV+1> sin_2n_1_theta_t;
     
     struct timespec rho_gamma_start, rho_gamma_stop;
     clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
+    compute_f2n(s_gp, f2n);
 
-    for(n=0; n<=LMAX; ++n) {
-        for(i=2; i<=SDIV; ++i) {
-            f2n[n+1][i] = pow((1.0-s_gp[i])/s_gp[i], 2.0*n);
-        }
-    }
-
-    if(SMAX != 1.0) {
-
-        for(j=2; j<=SDIV; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                for(k=2; k<=SDIV; ++k) {
-                    sk = s_gp[k];
-                    sj = s_gp[j];
-                    sk1 = 1.0-sk;
-                    sj1 = 1.0-sj;
-
-                    if(k < j) {   
-                        f_rho[j][n+1][k] = f2n[n+1][j]*sj1/(sj*f2n[n+1][k]*sk1*sk1);
-                        f_gama[j][n+1][k] = f2n[n+1][j]/(f2n[n+1][k]*sk*sk1);
-                    } else {     
-                        f_rho[j][n+1][k] = f2n[n+1][k]/(f2n[n+1][j]*sk*sk1);
-                        f_gama[j][n+1][k] = f2n[n+1][k]*sj1*sj1*sk/(sj*sj*f2n[n+1][j]*sk1*sk1*sk1);
-                    }
-                }
-            }
-        }
-        j = 1;
- 
-        n = 0; 
-        for(k=2; k<=SDIV; ++k) {
-            sk = s_gp[k];
-            f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
-        }
-
-        n = 1;
-        for(k=2; k<=SDIV; ++k) {
-            sk = s_gp[k];
-            sk1 = 1.0-sk;         
-            f_rho[j][n+1][k] = 0.0;
-            f_gama[j][n+1][k] = 1.0/(sk*sk1);
-        }
-
-        for(n=2; n<=LMAX; ++n) {
-            for(k=1; k<=SDIV; ++k) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-
-        k = 1;
-        //Chache inefficient
-        n = 0;
-        for(j=1; j<=SDIV; ++j) {
-            f_rho[j][n+1][k] = 0.0;
-        }
-        //cache inefficent
-        for(j=1; j<=SDIV; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-
-        //cache inefficent
-        n = 0;
-        for(j=2; j<=SDIV; ++j) {
-            for(k=2; k<=SDIV; ++k) {
-                sk = s_gp[k];
-                sj = s_gp[j];
-                sk1 = 1.0-sk;
-                sj1 = 1.0-sj;
-
-                if(k < j) {
-                    f_rho[j][n+1][k] = sj1/(sj*sk1*sk1);
-                } else {    
-                    f_rho[j][n+1][k] = 1.0/(sk*sk1);
-                }
-            }
-        }         
-
-    } else {      
-        for(j=2; j<=SDIV-1; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                for(k=2; k<=SDIV-1; ++k) {
-                    sk = s_gp[k];
-                    sj = s_gp[j];
-                    sk1 = 1.0-sk;
-                    sj1 = 1.0-sj;
-
-                    if(k < j) {   
-                        f_rho[j][n+1][k] = f2n[n+1][j]*sj1/(sj*f2n[n+1][k]*sk1*sk1);
-                        f_gama[j][n+1][k] = f2n[n+1][j]/(f2n[n+1][k]*sk*sk1);
-                    } else {     
-                        f_rho[j][n+1][k] = f2n[n+1][k]/(f2n[n+1][j]*sk*sk1);
-
-                        f_gama[j][n+1][k] = f2n[n+1][k]*sj1*sj1*sk/(sj*sj*f2n[n+1][j]*sk1*sk1*sk1);
-                    }
-                }
-            }
-        }
-   
-        j = 1;
- 
-        n = 0; 
-        for(k=2; k<=SDIV-1; ++k) {
-            sk = s_gp[k];
-            f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
-        }
-
-        n = 1;
-        for(k=2; k<=SDIV-1; ++k) {
-            sk = s_gp[k];
-            sk1 = 1.0-sk;         
-            f_rho[j][n+1][k] = 0.0;
-            f_gama[j][n+1][k] = 1.0/(sk*sk1);
-        }
-
-        for(n=2; n<=LMAX; ++n) {
-            for(k=1; k<=SDIV-1; ++k) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-             }
-        }
-
-        k = 1;
- 
-        //cache inefficient
-        n = 0;
-        for(j=1; j<=SDIV-1; ++j) {
-            f_rho[j][n+1][k]=0.0;
-        }
-
-        //cache inefficent
-        for(j=1; j<=SDIV-1; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
- 
-        //cache inefficient
-        n = 0;
-        for(j=2; j<=SDIV-1; ++j) {
-            for(k=2; k<=SDIV-1; ++k) {
-                sk = s_gp[k];
-                sj = s_gp[j];
-                sk1 = 1.0-sk;
-                sj1 = 1.0-sj;
-
-                if(k < j) { 
-                  f_rho[j][n+1][k] = sj1/(sj*sk1*sk1);
-                } else {     
-                  f_rho[j][n+1][k] = 1.0/(sk*sk1);
-                }
-            }
-        }
- 
-        j = SDIV;
-        for(n=1; n<=LMAX; ++n) {
-            for(k=1; k<=SDIV; ++k) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-
-        //cache inefficient
-        k = SDIV;
-        for(j=1; j<=SDIV; ++j) {
-            for(n=1; n<=LMAX; ++n) {
-                f_rho[j][n+1][k] = 0.0;
-                f_gama[j][n+1][k] = 0.0;
-            }
-        }
-    }
+    compute_f_rho_gamma(s_gp, f2n, f_rho, f_gama);
     clock_gettime(CLOCK_MONOTONIC, &rho_gamma_stop);
     printf("spin(), rho_gamma: %ld\n", getElapsedTimeNs(rho_gamma_start, rho_gamma_stop));
     struct timespec pn_start, pn_stop;
     clock_gettime(CLOCK_MONOTONIC, &pn_start);
 
-    //cache inefficient
-    n = 0;
-    for(i=1; i<=MDIV; ++i) {
-        P_2n[i][n+1] = legendre(2*n, mu[i]);
-    }
-    
-    for(m=1; m<=MDIV; ++m) { 
-        sin_theta[m] = sqrt(1.0-mu[m]*mu[m]);  
-        theta[m] = asin(sin_theta[m]);
-    }
-
-    double sin_2n_1_theta[MDIV+1][LMAX+1];
-    double sin_2n_1_theta_t[LMAX+1][MDIV+1];
-    for(i=1; i<=MDIV; ++i) {
-        for(n=1;n<=LMAX;++n) {
-            P_2n[i][n+1] = legendre(2*n, mu[i]);
-            P_2n_t[n+1][i] = P_2n[i][n+1];
-            P1_2n_1[i][n+1] = plgndr(2*n-1, 1, mu[i]);
-            P1_2n_1_t[n+1][i] = P1_2n_1[i][n+1];
-            sin_2n_1_theta[i][n] = sin((2.0*n-1.0)*theta[i]);
-            sin_2n_1_theta_t[n][i] = sin_2n_1_theta[i][n];
-        }
-    }
-
-    
+    compute_trig(mu, theta, sin_theta, P_2n, P_2n_t, P1_2n_1, P1_2n_1_t, sin_2n_1_theta, sin_2n_1_theta_t);
   
     r_e = r_e_new;
     native_matrix<RhoGamaOmega, SDIV+1, MDIV+1> S_metric;
@@ -1420,5 +1226,223 @@ void spin(double s_gp[SDIV+1],
     r_e_new = r_e;
 }
 
+void compute_f2n(const double s_gp[SDIV+1],
+                 double (&f2n)[LMAX+2][SDIV+1]) {
+    
+    for(int n=0; n<=LMAX; ++n) {
+        for(int i=2; i<=SDIV; ++i) {
+            f2n[n+1][i] = pow((1.0-s_gp[i])/s_gp[i], 2.0*n);
+        }
+    }
+}
+
+void compute_f_rho_gamma(const double s_gp[SDIV+1],
+                         const double (&f2n)[LMAX+2][SDIV+1],
+                         float (&f_rho)[SDIV+1][LMAX+2][SDIV+1],
+                         float (&f_gama)[SDIV+1][LMAX+2][SDIV+1]) {
+
+    int j, k, n;
+    double sk, sj, sk1, sj1;
+    if(SMAX != 1.0) {
+
+        for(j=2; j<=SDIV; ++j) {
+            for(n=1; n<=LMAX; ++n) {
+                for(k=2; k<=SDIV; ++k) {
+                    sk = s_gp[k];
+                    sj = s_gp[j];
+                    sk1 = 1.0-sk;
+                    sj1 = 1.0-sj;
+
+                    if(k < j) {   
+                        f_rho[j][n+1][k] = f2n[n+1][j]*sj1/(sj*f2n[n+1][k]*sk1*sk1);
+                        f_gama[j][n+1][k] = f2n[n+1][j]/(f2n[n+1][k]*sk*sk1);
+                    } else {     
+                        f_rho[j][n+1][k] = f2n[n+1][k]/(f2n[n+1][j]*sk*sk1);
+                        f_gama[j][n+1][k] = f2n[n+1][k]*sj1*sj1*sk/(sj*sj*f2n[n+1][j]*sk1*sk1*sk1);
+                    }
+                }
+            }
+        }
+        j = 1;
+ 
+        n = 0; 
+        for(k=2; k<=SDIV; ++k) {
+            sk = s_gp[k];
+            f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
+        }
+
+        n = 1;
+        for(k=2; k<=SDIV; ++k) {
+            sk = s_gp[k];
+            sk1 = 1.0-sk;         
+            f_rho[j][n+1][k] = 0.0;
+            f_gama[j][n+1][k] = 1.0/(sk*sk1);
+        }
+
+        for(n=2; n<=LMAX; ++n) {
+            for(k=1; k<=SDIV; ++k) {
+                f_rho[j][n+1][k] = 0.0;
+                f_gama[j][n+1][k] = 0.0;
+            }
+        }
+
+        k = 1;
+        //Chache inefficient
+        n = 0;
+        for(j=1; j<=SDIV; ++j) {
+            f_rho[j][n+1][k] = 0.0;
+        }
+        //cache inefficent
+        for(j=1; j<=SDIV; ++j) {
+            for(n=1; n<=LMAX; ++n) {
+                f_rho[j][n+1][k] = 0.0;
+                f_gama[j][n+1][k] = 0.0;
+            }
+        }
+
+        //cache inefficent
+        n = 0;
+        for(j=2; j<=SDIV; ++j) {
+            for(k=2; k<=SDIV; ++k) {
+                sk = s_gp[k];
+                sj = s_gp[j];
+                sk1 = 1.0-sk;
+                sj1 = 1.0-sj;
+
+                if(k < j) {
+                    f_rho[j][n+1][k] = sj1/(sj*sk1*sk1);
+                } else {    
+                    f_rho[j][n+1][k] = 1.0/(sk*sk1);
+                }
+            }
+        }         
+
+    } else {      
+        for(j=2; j<=SDIV-1; ++j) {
+            for(n=1; n<=LMAX; ++n) {
+                for(k=2; k<=SDIV-1; ++k) {
+                    sk = s_gp[k];
+                    sj = s_gp[j];
+                    sk1 = 1.0-sk;
+                    sj1 = 1.0-sj;
+
+                    if(k < j) {   
+                        f_rho[j][n+1][k] = f2n[n+1][j]*sj1/(sj*f2n[n+1][k]*sk1*sk1);
+                        f_gama[j][n+1][k] = f2n[n+1][j]/(f2n[n+1][k]*sk*sk1);
+                    } else {     
+                        f_rho[j][n+1][k] = f2n[n+1][k]/(f2n[n+1][j]*sk*sk1);
+
+                        f_gama[j][n+1][k] = f2n[n+1][k]*sj1*sj1*sk/(sj*sj*f2n[n+1][j]*sk1*sk1*sk1);
+                    }
+                }
+            }
+        }
+   
+        j = 1;
+ 
+        n = 0; 
+        for(k=2; k<=SDIV-1; ++k) {
+            sk = s_gp[k];
+            f_rho[j][n+1][k] = 1.0/(sk*(1.0-sk));
+        }
+
+        n = 1;
+        for(k=2; k<=SDIV-1; ++k) {
+            sk = s_gp[k];
+            sk1 = 1.0-sk;         
+            f_rho[j][n+1][k] = 0.0;
+            f_gama[j][n+1][k] = 1.0/(sk*sk1);
+        }
+
+        for(n=2; n<=LMAX; ++n) {
+            for(k=1; k<=SDIV-1; ++k) {
+                f_rho[j][n+1][k] = 0.0;
+                f_gama[j][n+1][k] = 0.0;
+             }
+        }
+
+        k = 1;
+ 
+        //cache inefficient
+        n = 0;
+        for(j=1; j<=SDIV-1; ++j) {
+            f_rho[j][n+1][k]=0.0;
+        }
+
+        //cache inefficent
+        for(j=1; j<=SDIV-1; ++j) {
+            for(n=1; n<=LMAX; ++n) {
+                f_rho[j][n+1][k] = 0.0;
+                f_gama[j][n+1][k] = 0.0;
+            }
+        }
+ 
+        //cache inefficient
+        n = 0;
+        for(j=2; j<=SDIV-1; ++j) {
+            for(k=2; k<=SDIV-1; ++k) {
+                sk = s_gp[k];
+                sj = s_gp[j];
+                sk1 = 1.0-sk;
+                sj1 = 1.0-sj;
+
+                if(k < j) { 
+                  f_rho[j][n+1][k] = sj1/(sj*sk1*sk1);
+                } else {     
+                  f_rho[j][n+1][k] = 1.0/(sk*sk1);
+                }
+            }
+        }
+ 
+        j = SDIV;
+        for(n=1; n<=LMAX; ++n) {
+            for(k=1; k<=SDIV; ++k) {
+                f_rho[j][n+1][k] = 0.0;
+                f_gama[j][n+1][k] = 0.0;
+            }
+        }
+
+        //cache inefficient
+        k = SDIV;
+        for(j=1; j<=SDIV; ++j) {
+            for(n=1; n<=LMAX; ++n) {
+                f_rho[j][n+1][k] = 0.0;
+                f_gama[j][n+1][k] = 0.0;
+            }
+        }
+    }
+}
 
 
+void compute_trig(const double mu[MDIV+1],
+                  double theta[MDIV+1],
+                  double sin_theta[MDIV+1],
+                  double (&P_2n)[MDIV+1][LMAX+2],
+                  double (&P_2n_t)[LMAX+2][MDIV+1],
+                  double (&P1_2n_1)[MDIV+1][LMAX+2],
+                  double (&P1_2n_1_t)[LMAX+2][MDIV+1],
+                  double (&sin_2n_1_theta)[MDIV+1][LMAX+1],
+                  double (&sin_2n_1_theta_t)[LMAX+1][MDIV+1]) {
+                   
+    //cache inefficient
+    int n = 0, i, m;
+    for(i=1; i<=MDIV; ++i) {
+        P_2n[i][n+1] = legendre(2*n, mu[i]);
+    }
+    
+    for(m=1; m<=MDIV; ++m) { 
+        sin_theta[m] = sqrt(1.0-mu[m]*mu[m]);  
+        theta[m] = asin(sin_theta[m]);
+    }
+
+    for(i=1; i<=MDIV; ++i) {
+        for(n=1;n<=LMAX;++n) {
+            P_2n[i][n+1] = legendre(2*n, mu[i]);
+            P_2n_t[n+1][i] = P_2n[i][n+1];
+            P1_2n_1[i][n+1] = plgndr(2*n-1, 1, mu[i]);
+            P1_2n_1_t[n+1][i] = P1_2n_1[i][n+1];
+            sin_2n_1_theta[i][n] = sin((2.0*n-1.0)*theta[i]);
+            sin_2n_1_theta_t[n][i] = sin_2n_1_theta[i][n];
+        }
+    }
+}
