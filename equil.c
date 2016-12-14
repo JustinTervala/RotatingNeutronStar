@@ -90,11 +90,11 @@ void make_center(const EquationOfState& eos,
 void mass_radius(double s_gp[SDIV+1],
                  double mu[MDIV+1],
                  const EquationOfState& eos, 
-                 std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& pressure,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& enthalpy,
-                 std::array<std::array<double, MDIV+1>, SDIV+1>& velocity_sq,
+                 matrix<Metric, SDIV+1, MDIV+1>& metric,
+                 matrix<double, SDIV+1, MDIV+1>& energy,
+                 matrix<double, SDIV+1, MDIV+1>& pressure,
+                 matrix<double, SDIV+1, MDIV+1>& enthalpy,
+                 matrix<double, SDIV+1, MDIV+1>& velocity_sq,
                  double r_ratio,
                  double e_surface,
                  double r_e,
@@ -146,8 +146,8 @@ void mass_radius(double s_gp[SDIV+1],
     s_p = r_p/(r_p+r_e);                            /* s-coordinate at pole */
     s_e = 0.5;
     
-    double rho_0[SDIV+1][MDIV+1];
-    std::array<std::array<double, MDIV+1>, SDIV+1> velocity = {{0.0}};
+    native_matrix<double, SDIV+1, MDIV+1> rho_0;
+    matrix<double, SDIV+1, MDIV+1> velocity = {{0.0}};
     for(s = 1; s <= SDIV; ++s) {               
         gama_mu_0[s]=metric[s][1].gama;                   
         rho_mu_0[s]=metric[s][1].rho;                                                    
@@ -567,7 +567,7 @@ void sphere(double s_gp[SDIV+1],
             double h_center,
             double p_surface,
             double e_surface,
-            std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
+            matrix<Metric, SDIV+1, MDIV+1>& metric,
             double &r_e) {
     int s, m, n_nearest;
 
@@ -641,11 +641,11 @@ void spin(double s_gp[SDIV+1],
           const EquationOfState& eos, 
           double h_center,
           double enthalpy_min,
-          std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& pressure,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& enthalpy,
-          std::array<std::array<double, MDIV+1>, SDIV+1>& velocity_sq,
+          matrix<Metric, SDIV+1, MDIV+1>& metric,
+          matrix<double, SDIV+1, MDIV+1>& energy,
+          matrix<double, SDIV+1, MDIV+1>& pressure,
+          matrix<double, SDIV+1, MDIV+1>& enthalpy,
+          matrix<double, SDIV+1, MDIV+1>& velocity_sq,
           int    a_check, 
           double accuracy,
           double cf,
@@ -725,13 +725,13 @@ void spin(double s_gp[SDIV+1],
            sj1,
            r_e;
 
-    double f2n[LMAX+2][SDIV+1];
-    float f_rho[SDIV+1][LMAX+2][SDIV+1];
-    float f_gama[SDIV+1][LMAX+2][SDIV+1];
-    double P_2n[MDIV+1][LMAX+2]; 
-    double P_2n_t[LMAX+2][MDIV+1]; 
-    double P1_2n_1[MDIV+1][LMAX+2]; 
-    double P1_2n_1_t[LMAX+2][MDIV+1]; 
+    native_matrix<double, LMAX+2, SDIV+1>  f2n;
+    native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_rho;
+    native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_gama;
+    native_matrix<double, MDIV+1, LMAX+2> P_2n; 
+    native_matrix<double, LMAX+2, MDIV+1> P_2n_t;
+    native_matrix<double, MDIV+1, LMAX+2> P1_2n_1;
+    native_matrix<double, LMAX+2, MDIV+1> P1_2n_1_t;
     
     struct timespec rho_gamma_start, rho_gamma_stop;
     clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
@@ -942,12 +942,12 @@ void spin(double s_gp[SDIV+1],
     
   
     r_e = r_e_new;
-    RhoGamaOmega S_metric[SDIV+1][MDIV+1];
-    RhoGamaOmega D1_metric[LMAX+2][SDIV+1];
-    RhoGamaOmega D2_metric[SDIV+1][LMAX+2];
-    std::array<std::array<double, MDIV+1>, SDIV+1> da_dm = {{0.0}};
-    std::array<std::array<double, MDIV+1>, SDIV+1> dgds = {{0.0}};
-    std::array<std::array<double, MDIV+1>, SDIV+1> dgdm = {{0.0}};
+    native_matrix<RhoGamaOmega, SDIV+1, MDIV+1> S_metric;
+    native_matrix<RhoGamaOmega, LMAX+2, SDIV+1> D1_metric;
+    native_matrix<RhoGamaOmega, SDIV+1, LMAX+2> D2_metric;
+    matrix<double, SDIV+1, MDIV+1> da_dm = {{0.0}};
+    matrix<double, SDIV+1, MDIV+1> dgds = {{0.0}};
+    matrix<double, SDIV+1, MDIV+1> dgdm = {{0.0}};
     clock_gettime(CLOCK_MONOTONIC, &pn_stop);
     printf("spin(), pn: %ld\n", getElapsedTimeNs(pn_start, pn_stop));
 

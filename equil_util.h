@@ -4,6 +4,18 @@
 
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 
+template<class T, size_t size_x, size_t size_y>
+using matrix = std::array<std::array<T, size_y>, size_x>;
+
+template<class T, size_t size_x, size_t size_y>
+using native_matrix = T[size_x][size_y];
+
+template<class T, size_t size_x, size_t size_y, size_t size_z>
+using tensor = std::array<std::array<std::array<T, size_z>, size_y>, size_x>;
+
+template<class T, size_t size_x, size_t size_y, size_t size_z>
+using native_tensor = T[size_x][size_y][size_z];
+
 struct Metric {
     double rho, gama, omega, alpha;
     Metric() : rho(0.0), gama(0.0), omega(0.0), alpha(0.0) {}
