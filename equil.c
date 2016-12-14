@@ -638,6 +638,16 @@ void sphere(double s_gp[SDIV+1],
 /*************************************************************************/
 void spin(double s_gp[SDIV+1],
           double mu[MDIV+1],
+          const double theta[MDIV+1],
+          const double sin_theta[MDIV+1],
+          const double (&P_2n)[MDIV+1][LMAX+2],
+          const double (&P_2n_t)[LMAX+2][MDIV+1],
+          const double (&P1_2n_1)[MDIV+1][LMAX+2],
+          const double (&P1_2n_1_t)[LMAX+2][MDIV+1],
+          const double (&sin_2n_1_theta)[MDIV+1][LMAX+1],
+          const double (&sin_2n_1_theta_t)[LMAX+1][MDIV+1],
+          const float (&f_rho)[SDIV+1][LMAX+2][SDIV+1],
+          const float (&f_gama)[SDIV+1][LMAX+2][SDIV+1],
           const EquationOfState& eos, 
           double h_center,
           double enthalpy_min,
@@ -717,35 +727,12 @@ void spin(double s_gp[SDIV+1],
            omega_mu_0[SDIV+1],           /* omega at \mu=0 */
            s_e = 0.5,
            Omega_h,
-           sin_theta[MDIV+1],
-           theta[MDIV+1],
            sk,
            sj,
            sk1,
            sj1,
            r_e;
 
-    native_matrix<double, LMAX+2, SDIV+1>  f2n;
-    native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_rho;
-    native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_gama;
-    native_matrix<double, MDIV+1, LMAX+2> P_2n; 
-    native_matrix<double, LMAX+2, MDIV+1> P_2n_t;
-    native_matrix<double, MDIV+1, LMAX+2> P1_2n_1;
-    native_matrix<double, LMAX+2, MDIV+1> P1_2n_1_t;
-    native_matrix<double, MDIV+1, LMAX+1> sin_2n_1_theta;
-    native_matrix<double, LMAX+1, MDIV+1> sin_2n_1_theta_t;
-    
-    struct timespec rho_gamma_start, rho_gamma_stop;
-    clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
-    compute_f2n(s_gp, f2n);
-
-    compute_f_rho_gamma(s_gp, f2n, f_rho, f_gama);
-    clock_gettime(CLOCK_MONOTONIC, &rho_gamma_stop);
-    printf("spin(), rho_gamma: %ld\n", getElapsedTimeNs(rho_gamma_start, rho_gamma_stop));
-    struct timespec pn_start, pn_stop;
-    clock_gettime(CLOCK_MONOTONIC, &pn_start);
-
-    compute_trig(mu, theta, sin_theta, P_2n, P_2n_t, P1_2n_1, P1_2n_1_t, sin_2n_1_theta, sin_2n_1_theta_t);
   
     r_e = r_e_new;
     native_matrix<RhoGamaOmega, SDIV+1, MDIV+1> S_metric;
@@ -754,8 +741,6 @@ void spin(double s_gp[SDIV+1],
     matrix<double, SDIV+1, MDIV+1> da_dm = {{0.0}};
     matrix<double, SDIV+1, MDIV+1> dgds = {{0.0}};
     matrix<double, SDIV+1, MDIV+1> dgdm = {{0.0}};
-    clock_gettime(CLOCK_MONOTONIC, &pn_stop);
-    printf("spin(), pn: %ld\n", getElapsedTimeNs(pn_start, pn_stop));
 
     while(dif > accuracy || n_of_it < 2) { 
 

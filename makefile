@@ -52,7 +52,7 @@ SIZE=-DMDIV=65 -DSDIV=129
 #*                    SOURCE AND OBJECT MACROS
 #*************************************************************************/
 
-OBJ=main.o equil.o EquationOfState.o equil_util.o 
+OBJ=main.o equil.o EquationOfState.o GridTrig.o equil_util.o 
 
 #/*************************************************************************
 #*                    MAIN COMPILING INSTRUCTIONS
@@ -74,3 +74,5 @@ EquationOfState.o: EquationOfState.hh consts.h equil_util.h
 equil_util.o:equil_util.h  consts.h equil_util.c
 	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.c
 
+GridTrig.o: GridTrig.hh consts.h equil_util.h
+	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   GridTrig.cc

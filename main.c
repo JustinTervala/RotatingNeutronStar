@@ -232,7 +232,34 @@ int main(int argc,                    /* Number of command line arguments */
   
     /* SET UP GRID */
     make_grid(s_gp, mu);
+    double theta[MDIV+1];
+    double sin_theta[MDIV+1];
+    native_matrix<double, LMAX+2, SDIV+1>  f2n;
+    native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_rho;
+    native_tensor<float, SDIV+1, LMAX+2, SDIV+1> f_gama;
+    native_matrix<double, MDIV+1, LMAX+2> P_2n; 
+    native_matrix<double, LMAX+2, MDIV+1> P_2n_t;
+    native_matrix<double, MDIV+1, LMAX+2> P1_2n_1;
+    native_matrix<double, LMAX+2, MDIV+1> P1_2n_1_t;
+    native_matrix<double, MDIV+1, LMAX+1> sin_2n_1_theta;
+    native_matrix<double, LMAX+1, MDIV+1> sin_2n_1_theta_t;
+    
+    struct timespec rho_gamma_start, rho_gamma_stop;
+    clock_gettime(CLOCK_MONOTONIC, &rho_gamma_start);
+    compute_f2n(s_gp, f2n);
 
+    compute_f_rho_gamma(s_gp, f2n, f_rho, f_gama);
+    clock_gettime(CLOCK_MONOTONIC, &rho_gamma_stop);
+    printf("spin(), rho_gamma: %ld\n", getElapsedTimeNs(rho_gamma_start, rho_gamma_stop));
+    struct timespec pn_start, pn_stop;
+    clock_gettime(CLOCK_MONOTONIC, &pn_start);
+
+    compute_trig(mu, theta, sin_theta, P_2n, P_2n_t, P1_2n_1, P1_2n_1_t, sin_2n_1_theta, sin_2n_1_theta_t);
+    
+    clock_gettime(CLOCK_MONOTONIC, &pn_stop);
+    printf("spin(), pn: %ld\n", getElapsedTimeNs(pn_start, pn_stop));
+  
+ 
     /* ALLLOCATE MEMORY */
 
     matrix<Metric, SDIV+1, MDIV+1> metric;
@@ -279,7 +306,9 @@ int main(int argc,                    /* Number of command line arguments */
        WHEN r_ratio = 1.0, THE STAR IS SPHERICAL */
 
     clock_gettime(CLOCK_MONOTONIC, &spin_start);
-    spin(s_gp, mu, eos, h_center, enthalpy_min,
+    spin(s_gp, mu, theta, sin_theta, P_2n, P_2n_t, P1_2n_1, P1_2n_1_t,
+         sin_2n_1_theta, sin_2n_1_theta_t, f_rho, f_gama,
+         eos, h_center, enthalpy_min,
          metric, energy, pressure, enthalpy, velocity_sq,
          a_check, accuracy, cf,
          r_ratio, r_e, Omega);
@@ -335,7 +364,9 @@ int main(int argc,                    /* Number of command line arguments */
         /* Compute the star with the specified value of r_ratio    */
 
       	clock_gettime(CLOCK_MONOTONIC, &spin_start);
-        spin(s_gp, mu, eos, h_center, enthalpy_min,
+        spin(s_gp, mu, theta, sin_theta, P_2n, P_2n_t, P1_2n_1, P1_2n_1_t,
+             sin_2n_1_theta, sin_2n_1_theta_t, f_rho, f_gama,
+             eos, h_center, enthalpy_min,
              metric, energy, pressure, enthalpy, velocity_sq,
              a_check, accuracy, cf,
              r_ratio, r_e, Omega);
@@ -376,7 +407,9 @@ int main(int argc,                    /* Number of command line arguments */
             r_ratio = xm;
 
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            spin(s_gp, mu, eos, h_center, enthalpy_min,
+            spin(s_gp, mu, theta, sin_theta, P_2n, P_2n_t, P1_2n_1, P1_2n_1_t,
+                 sin_2n_1_theta, sin_2n_1_theta_t, f_rho, f_gama,
+                 eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
                  r_ratio, r_e, Omega);
@@ -408,7 +441,9 @@ int main(int argc,                    /* Number of command line arguments */
             r_ratio = ans;
 
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            spin(s_gp, mu, eos, h_center, enthalpy_min,
+            spin(s_gp, mu, theta, sin_theta, P_2n, P_2n_t, P1_2n_1, P1_2n_1_t,
+                 sin_2n_1_theta, sin_2n_1_theta_t, f_rho, f_gama,
+                 eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
                  r_ratio, r_e, Omega);
