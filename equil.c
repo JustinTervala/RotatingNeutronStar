@@ -1095,9 +1095,10 @@ void spin(double s_gp[SDIV+1],
   
     r_e = r_e_new;
     bool is_tab_eos = (strcmp(eos_type, "tab") == 0);
-    double S_gama[SDIV+1][MDIV+1];
-    double S_rho[SDIV+1][MDIV+1];
-    double S_omega[SDIV+1][MDIV+1];
+    RhoGamaOmega S_metric[SDIV+1][MDIV+1];
+    //double S_gama[SDIV+1][MDIV+1];
+    //double S_rho[SDIV+1][MDIV+1];
+    //double S_omega[SDIV+1][MDIV+1];
     double D1_rho[LMAX+2][SDIV+1];
     double D1_gama[LMAX+2][SDIV+1];
     double D1_omega[LMAX+2][SDIV+1];
@@ -1261,17 +1262,17 @@ void spin(double s_gp[SDIV+1],
                     d_omega_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
                 }      
 
-                S_rho[s][m] = e_gsm*(0.5*ea*(esm + psm)*s2*(1.0+v2sm)/(1.0-v2sm)
+                S_metric[s][m].rho = e_gsm*(0.5*ea*(esm + psm)*s2*(1.0+v2sm)/(1.0-v2sm)
                                 + s2*m1*SQ(e_rsm)*(SQ(s1*d_omega_s) 
                                 + m1*SQ(d_omega_m))
                                 + s1*d_gama_s - mum*d_gama_m + 0.5*rsm*(ea*psm*s2  
                                 - s1*d_gama_s*(0.5*s1*d_gama_s+1.0) 
                                 - d_gama_m*(0.5*m1*d_gama_m-mum)));
 
-                S_gama[s][m] = e_gsm*(ea*psm*s2 + 0.5*gsm*(ea*psm*s2 - 0.5*SQ(s1
+                S_metric[s][m].gama = e_gsm*(ea*psm*s2 + 0.5*gsm*(ea*psm*s2 - 0.5*SQ(s1
                                 *d_gama_s) - 0.5*m1*SQ(d_gama_m)));
 
-                S_omega[s][m] = e_gsm*e_rsm*( -ea*(Omega_h-omsm)*(esm+psm)
+                S_metric[s][m].omega = e_gsm*e_rsm*( -ea*(Omega_h-omsm)*(esm+psm)
                                 *s2/(1.0-v2sm) + omsm*( -0.5*ea*(((1.0+v2sm)*esm 
                                 + 2.0*v2sm*psm)/(1.0-v2sm))*s2 
                                 - s1*(2*d_rho_s+0.5*d_gama_s)
@@ -1291,9 +1292,9 @@ void spin(double s_gp[SDIV+1],
         n = 0;
         for(k=1; k<=SDIV; ++k) {      
             for(m=1; m<=MDIV-2; m+=2) {
-                sum_rho += P_2n[m][n+1]*S_rho[k][m]
-                           + 4.0*P_2n[m+1][n+1]*S_rho[k][m+1] 
-                           + P_2n[m+2][n+1]*S_rho[k][m+2];
+                sum_rho += P_2n[m][n+1]*S_metric[k][m].rho
+                           + 4.0*P_2n[m+1][n+1]*S_metric[k][m+1].rho 
+                           + P_2n[m+2][n+1]*S_metric[k][m+2].rho;
             }
 
             D1_rho[n+1][k] = (DM/3.0)*sum_rho;
@@ -1306,17 +1307,17 @@ void spin(double s_gp[SDIV+1],
             for(k=1; k<=SDIV; ++k) {      
                 for(m=1; m<=MDIV-2; m+=2) {
 
-                    sum_rho += P_2n_t[n+1][m]*S_rho[k][m]
-                               + 4.0*P_2n_t[n+1][m+1]*S_rho[k][m+1] 
-                               + P_2n_t[n+1][m+2]*S_rho[k][m+2];
+                    sum_rho += P_2n_t[n+1][m]*S_metric[k][m].rho
+                               + 4.0*P_2n_t[n+1][m+1]*S_metric[k][m+1].rho 
+                               + P_2n_t[n+1][m+2]*S_metric[k][m+2].rho;
                        
-                    sum_gama += sin_2n_1_theta_t[n][m]*S_gama[k][m]
-                                +4.0*sin_2n_1_theta_t[n][m+1]*S_gama[k][m+1]
-                                +sin_2n_1_theta_t[n][m+2]*S_gama[k][m+2];
+                    sum_gama += sin_2n_1_theta_t[n][m]*S_metric[k][m].gama
+                                +4.0*sin_2n_1_theta_t[n][m+1]*S_metric[k][m+1].gama
+                                +sin_2n_1_theta_t[n][m+2]*S_metric[k][m+2].gama;
   
-                    sum_omega += sin_theta[m]*P1_2n_1_t[n+1][m]*S_omega[k][m]
-                                 +4.0*sin_theta[m+1]*P1_2n_1_t[n+1][m+1]*S_omega[k][m+1]
-                                 +sin_theta[m+2]*P1_2n_1_t[n+1][m+2]*S_omega[k][m+2];
+                    sum_omega += sin_theta[m]*P1_2n_1_t[n+1][m]*S_metric[k][m].omega
+                                 +4.0*sin_theta[m+1]*P1_2n_1_t[n+1][m+1]*S_metric[k][m+1].omega
+                                 +sin_theta[m+2]*P1_2n_1_t[n+1][m+2]*S_metric[k][m+2].omega;
                 }
                 D1_rho[n+1][k] = (DM/3.0)*sum_rho;
                 D1_gama[n+1][k] = (DM/3.0)*sum_gama;

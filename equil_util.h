@@ -10,6 +10,12 @@ struct Metric {
     ~Metric() {}
 };
 
+struct RhoGamaOmega {
+    double rho, gama, omega;
+    RhoGamaOmega() : rho(0.0), gama(0.0), omega(0.0) {}
+    ~RhoGamaOmega() {}
+};
+
 template <typename T> int sgn(T val, T& out) {
     out = (T(0) < val) - (val < T(0));
 }
