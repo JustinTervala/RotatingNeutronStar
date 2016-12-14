@@ -87,8 +87,8 @@ void make_center(const EquationOfState& eos,
  *     and the velocity of co- and counter-rotating particles      
  *    with respect to a ZAMO                                         */
 /***********************************************************************/
-void mass_radius(double s_gp[SDIV+1],
-                 double mu[MDIV+1],
+void mass_radius(const double s_gp[SDIV+1],
+                 const double mu[MDIV+1],
                  const EquationOfState& eos, 
                  matrix<Metric, SDIV+1, MDIV+1>& metric,
                  matrix<double, SDIV+1, MDIV+1>& energy,
@@ -560,7 +560,7 @@ void TOV(int    i_check,
 }
 
 /*************************************************************************/
-void sphere(double s_gp[SDIV+1],
+void sphere(const double s_gp[SDIV+1],
             const EquationOfState& eos,  
             double e_center,
             double p_center, 
@@ -636,8 +636,8 @@ void sphere(double s_gp[SDIV+1],
 /*************************************************************************/
 /* Main iteration cycle for computation of the rotating star's metric    */
 /*************************************************************************/
-void spin(double s_gp[SDIV+1],
-          double mu[MDIV+1],
+void spin(const double s_gp[SDIV+1],
+          const double mu[MDIV+1],
           const GridTrig& trig,
           const EquationOfState& eos, 
           double h_center,

@@ -16,8 +16,8 @@ void make_center(const EquationOfState& eos,
                  double &p_center, 
                  double &h_center);
 
-void mass_radius(double s_gp[SDIV+1],
-                 double mu[MDIV+1],
+void mass_radius(const double s_gp[SDIV+1],
+                 const double mu[MDIV+1],
                  const EquationOfState& eos, 
                  std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
@@ -69,7 +69,7 @@ void TOV(int    i_check,
          double &r_final, 
          double &m_final);
 
-void sphere(double s_gp[SDIV+1],
+void sphere(const double s_gp[SDIV+1],
             const EquationOfState& eos, 
             double e_center,
             double p_center, 
@@ -80,8 +80,8 @@ void sphere(double s_gp[SDIV+1],
             double &r_e);
 
 
-void spin(double s_gp[SDIV+1],
-          double mu[MDIV+1],
+void spin(const double s_gp[SDIV+1],
+          const double mu[MDIV+1],
           const GridTrig& trig,
           const EquationOfState& eos, 
           double h_center,
