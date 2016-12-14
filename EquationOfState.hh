@@ -16,6 +16,7 @@ class EquationOfState {
         EquationOfState(char eos_file[]); 
         EquationOfState(double gamma_p); 
         double e_of_rho0(double rho0) const;
+        static double e_of_rho0(double rho0, double Gamma_P);
         double e_at_p(double pp) const;         
         double e_at_p(double pp, int& n_nearest_pt) const;         
         double p_at_e(double ee, int& n_nearest_pt) const;        

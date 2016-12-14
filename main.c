@@ -228,9 +228,7 @@ int main(int argc,                    /* Number of command line arguments */
 
     /* LOAD TABULATED EOS */ 
 
-    if(strcmp(eos_type, "tab") == 0) { 
-        load_eos(eos_file, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, n_tab);
-    }
+    EquationOfState eos = (strcmp(eos_type, "tab") == 0) ? EquationOfState(eos_file) : EquationOfState(Gamma_P);
   
     /* SET UP GRID */
     make_grid(s_gp, mu);
@@ -264,15 +262,11 @@ int main(int argc,                    /* Number of command line arguments */
 
     /* CALCULATE THE PRESSURE AND ENTHALPY AT THE CENTRE OF THE STAR*/
 
-    make_center(eos_file, log_e_tab, log_p_tab, 
-                log_h_tab, log_n0_tab, n_tab,eos_type, Gamma_P, 
-                e_center, &p_center, &h_center);
+    make_center(eos, e_center, p_center, h_center);
 
     /* COMPUTE A SPHERICAL STAR AS A FIRST GUESS FOR THE ROTATING STAR */
 
-    sphere(s_gp, log_e_tab, log_p_tab, 
-           log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-           e_center, p_center, h_center, p_surface, e_surface,
+    sphere(s_gp, eos, e_center, p_center, h_center, p_surface, e_surface,
            metric, r_e);
 
     r_ratio = 1.0; 
@@ -285,9 +279,7 @@ int main(int argc,                    /* Number of command line arguments */
        WHEN r_ratio = 1.0, THE STAR IS SPHERICAL */
 
     clock_gettime(CLOCK_MONOTONIC, &spin_start);
-    spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
-         n_tab, eos_type, Gamma_P, 
-         h_center, enthalpy_min,
+    spin(s_gp, mu, eos, h_center, enthalpy_min,
          metric, energy, pressure, enthalpy, velocity_sq,
          a_check, accuracy, cf,
          r_ratio, r_e, Omega);
@@ -308,9 +300,7 @@ int main(int argc,                    /* Number of command line arguments */
        AND COUNTER-ROTATING PARTICLES (v_minus) */
 
     clock_gettime(CLOCK_MONOTONIC, &mr_start);
-    mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
-                log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                metric, 
+    mass_radius(s_gp, mu, eos, metric, 
                 energy, pressure, enthalpy, velocity_sq,
                 r_ratio, e_surface, r_e, Omega,
                 Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
@@ -319,7 +309,7 @@ int main(int argc,                    /* Number of command line arguments */
 
     /* PRINT OUT INFORMATION ABOUT THE STELLAR MODEL */
 
-    if(strcmp(eos_type, "tab") == 0) {
+    if(eos.isTabulatedEos()) {
         print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
     } else { 
         printpoly(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
@@ -345,9 +335,7 @@ int main(int argc,                    /* Number of command line arguments */
         /* Compute the star with the specified value of r_ratio    */
 
       	clock_gettime(CLOCK_MONOTONIC, &spin_start);
-        spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
-             n_tab, eos_type, Gamma_P, 
-             h_center, enthalpy_min,
+        spin(s_gp, mu, eos, h_center, enthalpy_min,
              metric, energy, pressure, enthalpy, velocity_sq,
              a_check, accuracy, cf,
              r_ratio, r_e, Omega);
@@ -355,16 +343,14 @@ int main(int argc,                    /* Number of command line arguments */
         printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
    
         clock_gettime(CLOCK_MONOTONIC, &mr_start);
-        mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
-                    log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                    metric, 
+        mass_radius(s_gp, mu, eos, metric, 
                     energy, pressure, enthalpy, velocity_sq,
                     r_ratio, e_surface, r_e, Omega,
                     Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
         clock_gettime(CLOCK_MONOTONIC, &mr_stop);
         printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 
-        if(strcmp(eos_type, "tab") == 0) {
+        if(eos.isTabulatedEos()) {
             print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
         } else { 
             printpoly(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
@@ -390,9 +376,7 @@ int main(int argc,                    /* Number of command line arguments */
             r_ratio = xm;
 
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
-                 n_tab, eos_type, Gamma_P, 
-                 h_center, enthalpy_min,
+            spin(s_gp, mu, eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
                  r_ratio, r_e, Omega);
@@ -400,9 +384,7 @@ int main(int argc,                    /* Number of command line arguments */
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
 
             clock_gettime(CLOCK_MONOTONIC, &mr_start);
-            mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
-                        log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                        metric, 
+            mass_radius(s_gp, mu, eos, metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
                         Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
@@ -426,9 +408,7 @@ int main(int argc,                    /* Number of command line arguments */
             r_ratio = ans;
 
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            spin(s_gp, mu, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, 
-                 n_tab, eos_type, Gamma_P, 
-                 h_center, enthalpy_min,
+            spin(s_gp, mu, eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
                  r_ratio, r_e, Omega);
@@ -436,9 +416,7 @@ int main(int argc,                    /* Number of command line arguments */
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
 
             clock_gettime(CLOCK_MONOTONIC, &mr_start);
-            mass_radius(s_gp, mu, log_e_tab, log_p_tab, 
-                        log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
-                        metric, 
+            mass_radius(s_gp, mu, eos, metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
                         Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);

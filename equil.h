@@ -1,74 +1,21 @@
 #include <time.h>
 #include <array>
 #include "equil_util.h"
+#include "EquationOfState.hh"
 
 long getElapsedTimeNs(struct timespec start, struct timespec stop);
 
 void make_grid(double s_gp[SDIV+1], 
                double mu[MDIV+1]);                        
 
-void load_eos(char eos_file[], 
-              double log_e_tab[201], 
-              double log_p_tab[201], 
-              double log_h_tab[201],
-              double log_n0_tab[201], 
-              int &n_tab);
-
-double e_of_rho0(double rho0, double Gamma_P);
-
-double e_at_p(double pp, 
-              double log_e_tab[201], 
-              double log_p_tab[201],
-              int    n_tab, 
-              int    &n_nearest_pt,
-              bool   is_tab_eos,
-              double Gamma_P);
-
-double p_at_e(double ee, 
-              double log_p_tab[201], 
-              double log_e_tab[201],
-              int    n_tab, 
-              int    &n_nearest_pt);
-
-double p_at_h(double hh, 
-              double log_p_tab[201], 
-              double log_h_tab[201],
-              int    n_tab, 
-              int    &n_nearest_pt);
-
-double h_at_p(double pp, 
-              double log_h_tab[201], 
-              double log_p_tab[201],
-              int    n_tab, 
-              int    &n_nearest_pt);
-
-double n0_at_e(double ee, 
-               double log_n0_tab[201], 
-               double log_e_tab[201],
-               int    n_tab, 
-               int    &n_nearest_pt);
-
-void make_center(char eos_file[], 
-                 double log_e_tab[201], 
-                 double log_p_tab[201], 
-                 double log_h_tab[201],
-                 double log_n0_tab[201], 
-                 int n_tab,                 
-                 char eos_type[],
-                 double Gamma_P, 
+void make_center(const EquationOfState& eos, 
                  double e_center,
-                 double *p_center, 
-                 double *h_center);
+                 double &p_center, 
+                 double &h_center);
 
 void mass_radius(double s_gp[SDIV+1],
                  double mu[MDIV+1],
-                 double log_e_tab[201], 
-                 double log_p_tab[201], 
-                 double log_h_tab[201],
-                 double log_n0_tab[201], 
-                 int n_tab,                 
-                 char eos_type[],
-                 double Gamma_P, 
+                 const EquationOfState& eos, 
                  std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& energy,
                  std::array<std::array<double, MDIV+1>, SDIV+1>& pressure,
@@ -92,12 +39,8 @@ double dm_dr_is(double r_is,
                 double p, 
                 double e_center, 
                 double p_surface,
-                double log_e_tab[SDIV+1],
-                double log_p_tab[SDIV+1],
-                int    n_tab,
-                int    *n_nearest_pt,
-                bool   is_tab_eos,
-                double Gamma_P);
+                const EquationOfState& eos, 
+                int    &n_nearest_pt);
 
 double dp_dr_is(double r_is, 
                 double r, 
@@ -105,26 +48,17 @@ double dp_dr_is(double r_is,
                 double p,
                 double e_center, 
                 double p_surface,
-                double log_e_tab[SDIV+1],
-                double log_p_tab[SDIV+1],
-                int    n_tab,
-                int    *n_nearest_pt,
-                bool   is_tab_eos,
-                double Gamma_P);
+                const EquationOfState& eos,
+                int    &n_nearest_pt);
 
 double dr_dr_is(double r_is, double r, double m);
 
 void TOV(int    i_check, 
-         char   eos_type[],
          double e_center,
          double p_center,
          double p_surface,
          double e_surface,
-         double Gamma_P, 
-         double log_e_tab[201],
-         double log_p_tab[201],
-         double log_h_tab[201],
-         int    n_tab,
+         const EquationOfState& eos, 
          double r_is_gp[RDIV+1], 
          double lambda_gp[RDIV+1], 
          double nu_gp[RDIV+1], 
@@ -132,14 +66,8 @@ void TOV(int    i_check,
          double &r_final, 
          double &m_final);
 
-void sphere(double s_gp[SDIV+1], 
-            double log_e_tab[201], 
-            double log_p_tab[201], 
-            double log_h_tab[201],
-            double log_n0_tab[201], 
-            int n_tab,                 
-            char eos_type[],
-            double Gamma_P, 
+void sphere(double s_gp[SDIV+1],
+            const EquationOfState& eos, 
             double e_center,
             double p_center, 
             double h_center,
@@ -151,13 +79,7 @@ void sphere(double s_gp[SDIV+1],
 
 void spin(double s_gp[SDIV+1],
           double mu[MDIV+1],
-          double log_e_tab[201], 
-          double log_p_tab[201], 
-          double log_h_tab[201],
-          double log_n0_tab[201], 
-          int n_tab,                 
-          char eos_type[],
-          double Gamma_P, 
+          const EquationOfState& eos, 
           double h_center,
           double enthalpy_min,
           std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,

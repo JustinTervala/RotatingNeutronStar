@@ -54,6 +54,10 @@ double EquationOfState::e_of_rho0(double rho0) const {
     return pow(rho0, kGammaP) / (kGammaP-1.0) + rho0;
 }
 
+double EquationOfState::e_of_rho0(double rho0, double Gamma_P) {
+    return pow(rho0, Gamma_P) / (Gamma_P-1.0) + rho0;
+}
+
 double EquationOfState::e_at_p(double pp, int& n_nearest_pt) const {
     return pow(10.0, interp(_log_p_tab, _log_e_tab, _num_tab, log10(pp), n_nearest_pt));
 }
