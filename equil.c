@@ -1097,12 +1097,10 @@ void spin(double s_gp[SDIV+1],
     bool is_tab_eos = (strcmp(eos_type, "tab") == 0);
     RhoGamaOmega S_metric[SDIV+1][MDIV+1];
     RhoGamaOmega D1_metric[LMAX+2][SDIV+1];
-    //double D1_rho[LMAX+2][SDIV+1];
-    //double D1_gama[LMAX+2][SDIV+1];
-    //double D1_omega[LMAX+2][SDIV+1];
-    double D2_rho[SDIV+1][LMAX+2];
-    double D2_gama[SDIV+1][LMAX+2];
-    double D2_omega[SDIV+1][LMAX+2];
+    RhoGamaOmega D2_metric[SDIV+1][LMAX+2];
+    //double D2_rho[SDIV+1][LMAX+2];
+    //double D2_gama[SDIV+1][LMAX+2];
+    //double D2_omega[SDIV+1][LMAX+2];
     std::array<std::array<double, MDIV+1>, SDIV+1> da_dm = {{0.0}};
     std::array<std::array<double, MDIV+1>, SDIV+1> dgds = {{0.0}};
     std::array<std::array<double, MDIV+1>, SDIV+1> dgdm = {{0.0}};
@@ -1341,9 +1339,9 @@ void spin(double s_gp[SDIV+1],
                            + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].rho
                             + f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].rho);
             }
-            D2_rho[s][n+1] = (DS/3.0)*sum_rho;
-            D2_gama[s][n+1] = 0.0;
-            D2_omega[s][n+1] = 0.0;
+            D2_metric[s][n+1].rho = (DS/3.0)*sum_rho;
+            D2_metric[s][n+1].gama = 0.0;
+            D2_metric[s][n+1].omega = 0.0;
             sum_rho = 0.0;
         }  
  
@@ -1374,9 +1372,9 @@ void spin(double s_gp[SDIV+1],
                         }
                     }
                 }
-                D2_rho[s][n+1] = (DS/3.0)*sum_rho;
-                D2_gama[s][n+1] = (DS/3.0)*sum_gama;
-                D2_omega[s][n+1] = (DS/3.0)*sum_omega;
+                D2_metric[s][n+1].rho = (DS/3.0)*sum_rho;
+                D2_metric[s][n+1].gama = (DS/3.0)*sum_gama;
+                D2_metric[s][n+1].omega = (DS/3.0)*sum_omega;
                 sum_rho = 0.0;
                 sum_gama = 0.0;
                 sum_omega = 0.0;
@@ -1393,28 +1391,27 @@ void spin(double s_gp[SDIV+1],
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
 
-                gsm = metric[s][m].gama;
                 rsm = metric[s][m].rho;
+                gsm = metric[s][m].gama;
                 omsm = metric[s][m].omega;             
                 e_gsm = exp(-0.5*gsm);
                 e_rsm = exp(rsm);
                 temp1 = sin_theta[m];
 
-                sum_rho += -e_gsm*P_2n[m][0+1]*D2_rho[s][0+1]; 
+                sum_rho += -e_gsm*P_2n[m][0+1]*D2_metric[s][0+1].rho; 
 
                 for(n=1; n<=LMAX; ++n) {
 
-                    sum_rho += -e_gsm*P_2n[m][n+1]*D2_rho[s][n+1]; 
+                    sum_rho += -e_gsm*P_2n[m][n+1]*D2_metric[s][n+1].rho; 
 
                     if(m == MDIV) {             
-                        sum_omega += 0.5*e_rsm*e_gsm*D2_omega[s][n+1]; 
-                        sum_gama += -(2.0/PI)*e_gsm*D2_gama[s][n+1];   
+                        sum_gama += -(2.0/PI)*e_gsm*D2_metric[s][n+1].gama;   
+                        sum_omega += 0.5*e_rsm*e_gsm*D2_metric[s][n+1].omega; 
                     } else { 
-                        sum_omega += -e_rsm*e_gsm*(P1_2n_1[m][n+1]/(2.0*n
-                                     *(2.0*n-1.0)*temp1))*D2_omega[s][n+1];
-  
                         sum_gama += -(2.0/PI)*e_gsm*(sin_2n_1_theta[m][n]
-                                    /((2.0*n-1.0)*temp1))*D2_gama[s][n+1];   
+                                    /((2.0*n-1.0)*temp1))*D2_metric[s][n+1].gama;   
+                        sum_omega += -e_rsm*e_gsm*(P1_2n_1[m][n+1]/(2.0*n
+                                     *(2.0*n-1.0)*temp1))*D2_metric[s][n+1].omega;
                     }
                 }
        
