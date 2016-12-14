@@ -229,7 +229,7 @@ int main(int argc,                    /* Number of command line arguments */
     /* LOAD TABULATED EOS */ 
 
     if(strcmp(eos_type, "tab") == 0) { 
-        load_eos(eos_file, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, &n_tab);
+        load_eos(eos_file, log_e_tab, log_p_tab, log_h_tab, log_n0_tab, n_tab);
     }
   
     /* SET UP GRID */
@@ -273,7 +273,7 @@ int main(int argc,                    /* Number of command line arguments */
     sphere(s_gp, log_e_tab, log_p_tab, 
            log_h_tab, log_n0_tab, n_tab, eos_type, Gamma_P, 
            e_center, p_center, h_center, p_surface, e_surface,
-           metric, &r_e);
+           metric, r_e);
 
     r_ratio = 1.0; 
 
@@ -290,7 +290,7 @@ int main(int argc,                    /* Number of command line arguments */
          h_center, enthalpy_min,
          metric, energy, pressure, enthalpy, velocity_sq,
          a_check, accuracy, cf,
-         r_ratio, &r_e, &Omega);
+         r_ratio, r_e, Omega);
     clock_gettime(CLOCK_MONOTONIC, &spin_stop);
     printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
   
@@ -313,7 +313,7 @@ int main(int argc,                    /* Number of command line arguments */
                 metric, 
                 energy, pressure, enthalpy, velocity_sq,
                 r_ratio, e_surface, r_e, Omega,
-                &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
+                Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
     clock_gettime(CLOCK_MONOTONIC, &mr_stop);
     printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 
@@ -350,7 +350,7 @@ int main(int argc,                    /* Number of command line arguments */
              h_center, enthalpy_min,
              metric, energy, pressure, enthalpy, velocity_sq,
              a_check, accuracy, cf,
-             r_ratio, &r_e, &Omega);
+             r_ratio, r_e, Omega);
         clock_gettime(CLOCK_MONOTONIC, &spin_stop);
         printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
    
@@ -360,7 +360,7 @@ int main(int argc,                    /* Number of command line arguments */
                     metric, 
                     energy, pressure, enthalpy, velocity_sq,
                     r_ratio, e_surface, r_e, Omega,
-                    &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
+                    Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
         clock_gettime(CLOCK_MONOTONIC, &mr_stop);
         printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 
@@ -395,7 +395,7 @@ int main(int argc,                    /* Number of command line arguments */
                  h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
-                 r_ratio, &r_e, &Omega);
+                 r_ratio, r_e, Omega);
             clock_gettime(CLOCK_MONOTONIC, &spin_stop);
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
 
@@ -405,7 +405,7 @@ int main(int argc,                    /* Number of command line arguments */
                         metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
-                        &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
+                        Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
             clock_gettime(CLOCK_MONOTONIC, &mr_stop);
             printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 
@@ -431,7 +431,7 @@ int main(int argc,                    /* Number of command line arguments */
                  h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  a_check, accuracy, cf,
-                 r_ratio, &r_e, &Omega);
+                 r_ratio, r_e, Omega);
             clock_gettime(CLOCK_MONOTONIC, &spin_stop);
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
 
@@ -441,7 +441,7 @@ int main(int argc,                    /* Number of command line arguments */
                         metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
-                        &Mass, &Mass_0, &J, &R_e, v_plus, v_minus, &Omega_K);
+                        Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
             clock_gettime(CLOCK_MONOTONIC, &mr_stop);
             printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 

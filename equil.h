@@ -12,7 +12,7 @@ void load_eos(char eos_file[],
               double log_p_tab[201], 
               double log_h_tab[201],
               double log_n0_tab[201], 
-              int *n_tab);
+              int &n_tab);
 
 double e_of_rho0(double rho0, double Gamma_P);
 
@@ -20,7 +20,7 @@ double e_at_p(double pp,
               double log_e_tab[201], 
               double log_p_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt,
+              int    &n_nearest_pt,
               bool   is_tab_eos,
               double Gamma_P);
 
@@ -28,25 +28,25 @@ double p_at_e(double ee,
               double log_p_tab[201], 
               double log_e_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt);
+              int    &n_nearest_pt);
 
 double p_at_h(double hh, 
               double log_p_tab[201], 
               double log_h_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt);
+              int    &n_nearest_pt);
 
 double h_at_p(double pp, 
               double log_h_tab[201], 
               double log_p_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt);
+              int    &n_nearest_pt);
 
 double n0_at_e(double ee, 
                double log_n0_tab[201], 
                double log_e_tab[201],
                int    n_tab, 
-               int    *n_nearest_pt);
+               int    &n_nearest_pt);
 
 void make_center(char eos_file[], 
                  double log_e_tab[201], 
@@ -78,13 +78,13 @@ void mass_radius(double s_gp[SDIV+1],
                  double e_surface,
                  double r_e,
                  double Omega,
-                 double *Mass, 
-                 double *Mass_0,
-                 double *ang_mom,
-                 double *R_e,
+                 double &Mass, 
+                 double &Mass_0,
+                 double &ang_mom,
+                 double &R_e,
                  std::array<double, SDIV+1>& v_plus,
                  std::array<double, SDIV+1>& v_minus,
-                 double *Omega_K);
+                 double &Omega_K);
 
 double dm_dr_is(double r_is, 
                 double r, 
@@ -128,9 +128,9 @@ void TOV(int    i_check,
          double r_is_gp[RDIV+1], 
          double lambda_gp[RDIV+1], 
          double nu_gp[RDIV+1], 
-         double *r_is_final, 
-         double *r_final, 
-         double *m_final);
+         double &r_is_final, 
+         double &r_final, 
+         double &m_final);
 
 void sphere(double s_gp[SDIV+1], 
             double log_e_tab[201], 
@@ -146,7 +146,7 @@ void sphere(double s_gp[SDIV+1],
             double p_surface,
             double e_surface,
             std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
-            double *r_e);
+            double &r_e);
 
 
 void spin(double s_gp[SDIV+1],
@@ -169,6 +169,6 @@ void spin(double s_gp[SDIV+1],
           double accuracy,
           double cf,
           double r_ratio,
-          double *r_e_new,
-          double *Omega) ;
+          double &r_e_new,
+          double &Omega) ;
  

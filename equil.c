@@ -73,7 +73,7 @@ void load_eos(char eos_file[],
               double log_p_tab[201], 
               double log_h_tab[201],
               double log_n0_tab[201], 
-              int *n_tab)
+              int &n_tab)
 {
     int i;                    /* counter */
 
@@ -94,11 +94,11 @@ void load_eos(char eos_file[],
 
     /* READ NUMBER OF TABULATED POINTS */
 
-    fscanf(f_eos, "%d\n", n_tab);
+    fscanf(f_eos, "%d\n", &n_tab);
 
     /* READ EOS, H, N0 AND MAKE THEM DIMENSIONLESS */
  
-    for(i = 1; i <= (*n_tab); ++i) {  
+    for(i = 1; i <= n_tab; ++i) {  
         fscanf(f_eos,"%lf %lf %lf %lf\n",&rho,&p,&h,&n0) ;
         log_e_tab[i] = log10(rho*C*C*KSCALE);     /* multiply by C^2 to get */ 
         log_p_tab[i] = log10(p*KSCALE);           /* energy density. */
@@ -117,7 +117,7 @@ double e_at_p(double pp,
               double log_e_tab[201], 
               double log_p_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt,
+              int    &n_nearest_pt,
               bool   is_tab_eos,
               double Gamma_P) {
     if(is_tab_eos) {
@@ -132,7 +132,7 @@ double p_at_e(double ee,
               double log_p_tab[201], 
               double log_e_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt) {
+              int    &n_nearest_pt) {
     return pow(10.0, interp(log_e_tab, log_p_tab, n_tab, log10(ee), n_nearest_pt));
 } 
 
@@ -141,7 +141,7 @@ double p_at_h(double hh,
               double log_p_tab[201], 
               double log_h_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt) {
+              int    &n_nearest_pt) {
     return pow(10.0, interp(log_h_tab, log_p_tab, n_tab, log10(hh), n_nearest_pt));
 }
 
@@ -150,7 +150,7 @@ double h_at_p(double pp,
               double log_h_tab[201], 
               double log_p_tab[201],
               int    n_tab, 
-              int    *n_nearest_pt) {
+              int    &n_nearest_pt) {
     return pow(10.0, interp(log_p_tab, log_h_tab, n_tab, log10(pp), n_nearest_pt));
 }
 
@@ -159,7 +159,7 @@ double n0_at_e(double ee,
                double log_n0_tab[201], 
                double log_e_tab[201],
                int    n_tab, 
-               int    *n_nearest_pt) {
+               int    &n_nearest_pt) {
     return pow(10.0, interp(log_e_tab, log_n0_tab, n_tab, log10(ee), n_nearest_pt));
 }
  
@@ -182,8 +182,8 @@ void make_center(char eos_file[],
     n_nearest = n_tab/2; 
 
     if(strcmp(eos_type, "tab") == 0) {
-        (*p_center) = p_at_e(e_center, log_p_tab, log_e_tab, n_tab, &n_nearest);
-        (*h_center) = h_at_p((*p_center), log_h_tab, log_p_tab, n_tab, &n_nearest);
+        (*p_center) = p_at_e(e_center, log_p_tab, log_e_tab, n_tab, n_nearest);
+        (*h_center) = h_at_p((*p_center), log_h_tab, log_p_tab, n_tab, n_nearest);
     } else {
         rho0_center = rtsec_G(e_of_rho0, Gamma_P, 0.0, e_center, DBL_EPSILON, e_center );
         (*p_center) = pow(rho0_center, Gamma_P);
@@ -215,13 +215,13 @@ void mass_radius(double s_gp[SDIV+1],
                  double e_surface,
                  double r_e,
                  double Omega,
-                 double *Mass, 
-                 double *Mass_0,
-                 double *ang_mom,
-                 double *R_e,
+                 double &Mass, 
+                 double &Mass_0,
+                 double &ang_mom,
+                 double &R_e,
                  std::array<double, SDIV+1>& v_plus,
                  std::array<double, SDIV+1>& v_minus,
-                double *Omega_K) {
+                 double &Omega_K) {
     int s,
         m,
         n_nearest;
@@ -269,22 +269,22 @@ void mass_radius(double s_gp[SDIV+1],
         rho_mu_0[s]=metric[s][1].rho;                                                    
     }
 
-    n_nearest= SDIV/2;
-    gama_equator=interp(s_gp,gama_mu_0,SDIV,s_e, &n_nearest);  
-    rho_equator=interp(s_gp,rho_mu_0,SDIV,s_e, &n_nearest);   
+    n_nearest = SDIV/2;
+    gama_equator = interp(s_gp,gama_mu_0,SDIV,s_e, n_nearest);  
+    rho_equator = interp(s_gp,rho_mu_0,SDIV,s_e, n_nearest);   
 
     /* Circumferential radius */
 
     if(strcmp(eos_type, "tab") == 0) {
-        (*R_e) = sqrt(KAPPA)*r_e*exp((gama_equator-rho_equator)/2.0);
+        R_e = sqrt(KAPPA)*r_e*exp((gama_equator-rho_equator)/2.0);
     } else {
-        (*R_e) = r_e*exp((gama_equator-rho_equator)/2.0);
+        R_e = r_e*exp((gama_equator-rho_equator)/2.0);
     }
     
     /* Masses and angular momentum */
  
-    (*Mass) = 0.0;              /* initialize */
-    (*Mass_0) = 0.0;
+    Mass = 0.0;              /* initialize */
+    Mass_0 = 0.0;
     J = 0.0;
 
    /* CALCULATE THE REST MASS DENSITY */
@@ -294,7 +294,7 @@ void mass_radius(double s_gp[SDIV+1],
             for(m=1; m<=MDIV; ++m) {
                 if(energy[s][m] > e_surface) {
                     rho_0[s][m] = n0_at_e(energy[s][m], log_n0_tab, log_e_tab, n_tab,
-                                             &n_nearest)*MB*KSCALE*SQ(C);
+                                             n_nearest)*MB*KSCALE*SQ(C);
                 } else {
                     rho_0[s][m] = 0.0;
                 }
@@ -358,11 +358,11 @@ void mass_radius(double s_gp[SDIV+1],
     }
 
     for(s=1; s<=SDIV-2; s+=2) { 
-        (*Mass) += (SMAX/(3.0*(SDIV-1)))*(pow(sqrt(s_gp[s])/(1.0-s_gp[s]), 4.0)*
+        Mass += (SMAX/(3.0*(SDIV-1)))*(pow(sqrt(s_gp[s])/(1.0-s_gp[s]), 4.0)*
                    D_m[s]+4.0*pow(sqrt(s_gp[s+1])/(1.0-s_gp[s+1]), 4.0)*D_m[s+1]
                    +pow(sqrt(s_gp[s+2])/(1.0-s_gp[s+2]), 4.0)*D_m[s+2]);
 
-        (*Mass_0) += (SMAX/(3.0*(SDIV-1)))*(pow(sqrt(s_gp[s])/(1.0-s_gp[s]), 4.0)*
+        Mass_0 += (SMAX/(3.0*(SDIV-1)))*(pow(sqrt(s_gp[s])/(1.0-s_gp[s]), 4.0)*
                      D_m_0[s]+4.0*pow(sqrt(s_gp[s+1])/(1.0-s_gp[s+1]), 4.0)*D_m_0[s+1]
                      +pow(sqrt(s_gp[s+2])/(1.0-s_gp[s+2]), 4.0)*D_m_0[s+2]);
  
@@ -374,11 +374,11 @@ void mass_radius(double s_gp[SDIV+1],
     }
    
     if(strcmp(eos_type, "tab") == 0) {
-        (*Mass) *= 4*PI*sqrt(KAPPA)*C*C*pow(r_e, 3.0)/G;
-        (*Mass_0) *= 4*PI*sqrt(KAPPA)*C*C*pow(r_e, 3.0)/G;
+        Mass *= 4*PI*sqrt(KAPPA)*C*C*pow(r_e, 3.0)/G;
+        Mass_0 *= 4*PI*sqrt(KAPPA)*C*C*pow(r_e, 3.0)/G;
     } else {
-        (*Mass) *= 4*PI*pow(r_e, 3.0);
-        (*Mass_0) *= 4*PI*pow(r_e, 3.0);
+        Mass *= 4*PI*pow(r_e, 3.0);
+        Mass_0 *= 4*PI*pow(r_e, 3.0);
     }
  
     if(r_ratio == 1.0) { 
@@ -391,7 +391,7 @@ void mass_radius(double s_gp[SDIV+1],
         }
     }
 
-    (*ang_mom) = J;
+    ang_mom = J;
 
 
   /* Compute the velocities of co-rotating and counter-rotating particles
@@ -434,10 +434,10 @@ void mass_radius(double s_gp[SDIV+1],
     }
 
     n_nearest=SDIV/2; 
-    doe=interp(s_gp, d_o_e, SDIV, s_e, &n_nearest);
-    dge=interp(s_gp, d_g_e, SDIV, s_e, &n_nearest);
-    dre=interp(s_gp, d_r_e, SDIV, s_e, &n_nearest);
-    dve=interp(s_gp, d_v_e, SDIV, s_e, &n_nearest);
+    doe=interp(s_gp, d_o_e, SDIV, s_e, n_nearest);
+    dge=interp(s_gp, d_g_e, SDIV, s_e, n_nearest);
+    dre=interp(s_gp, d_r_e, SDIV, s_e, n_nearest);
+    dve=interp(s_gp, d_v_e, SDIV, s_e, n_nearest);
 
     vek = (doe/(8.0+dge-dre))*r_e*exp(-rho_equator) + sqrt(((dge+dre)/(8.0+dge
           -dre)) + pow((doe/(8.0+dge-dre))*r_e*exp(-rho_equator),2.0));
@@ -446,14 +446,14 @@ void mass_radius(double s_gp[SDIV+1],
     if (r_ratio ==1.0) {
         omega_equator = 0.0;
     } else {
-        omega_equator = interp(s_gp, omega_mu_0, SDIV, s_e, &n_nearest);
+        omega_equator = interp(s_gp, omega_mu_0, SDIV, s_e, n_nearest);
     }
 
 
     if(strcmp(eos_type,"tab")==0) {
-        (*Omega_K) = (C/sqrt(KAPPA))*(omega_equator+vek*exp(rho_equator)/r_e);
+        Omega_K = (C/sqrt(KAPPA))*(omega_equator+vek*exp(rho_equator)/r_e);
     } else { 
-        (*Omega_K) = omega_equator + vek*exp(rho_equator)/r_e;
+        Omega_K = omega_equator + vek*exp(rho_equator)/r_e;
     }
 }
 
@@ -467,7 +467,7 @@ double dm_dr_is(double r_is,
                 double log_e_tab[SDIV+1],
                 double log_p_tab[SDIV+1],
                 int    n_tab,
-                int    *n_nearest_pt,
+                int    &n_nearest_pt,
                 bool   is_tab_eos, 
                 double Gamma_P) {
     double dmdr, e_d;
@@ -495,7 +495,7 @@ double dp_dr_is(double r_is,
                 double log_e_tab[SDIV+1],
                 double log_p_tab[SDIV+1],
                 int    n_tab,
-                int    *n_nearest_pt,
+                int    &n_nearest_pt,
                 bool   is_tab_eos,
                 double Gamma_P) {
     double dpdr, e_d; 
@@ -541,9 +541,9 @@ void TOV(int    i_check,
          double r_is_gp[RDIV+1], 
          double lambda_gp[RDIV+1], 
          double nu_gp[RDIV+1], 
-         double *r_is_final, 
-         double *r_final, 
-         double *m_final) {
+         double &r_is_final, 
+         double &r_final, 
+         double &m_final) {
     int i = 2, n_nearest;
 
     double r,                           /* radius */
@@ -574,9 +574,9 @@ void TOV(int    i_check,
         }
         h=r_is_est/100;     
     } else {
-        r_is_est= (*r_is_final);
+        r_is_est= r_is_final;
         h = r_is_est/10000;   
-        dr_is_save = (*r_is_final)/RDIV;
+        dr_is_save = r_is_final/RDIV;
         r_is_check = dr_is_save;
     }
 
@@ -595,7 +595,7 @@ void TOV(int    i_check,
 
     while(p >= p_surface) { 
  
-        e_d = e_at_p(p, log_e_tab, log_p_tab, n_tab, &n_nearest, is_tab_eos, Gamma_P);
+        e_d = e_at_p(p, log_e_tab, log_p_tab, n_tab, n_nearest, is_tab_eos, Gamma_P);
 
         if((i_check == 3) && (r_is > r_is_check) && (i <= RDIV)) {
             r_is_gp[i] = r_is;
@@ -606,45 +606,45 @@ void TOV(int    i_check,
             r_is_check += dr_is_save;
         }    
        
-        (*r_is_final) = r_is;
-        (*r_final) = r;
-        (*m_final) = m;
+        r_is_final = r_is;
+        r_final = r;
+        m_final = m;
 
         a1 = dr_dr_is(r_is, r, m);
 
         b1 = dm_dr_is(r_is, r, m, p, e_center, p_surface, log_e_tab, log_p_tab, n_tab,
-                      &n_nearest, is_tab_eos, Gamma_P);
+                      n_nearest, is_tab_eos, Gamma_P);
         c1 = dp_dr_is(r_is,r,m,p, e_center, p_surface, log_e_tab, log_p_tab, n_tab,
-                      &n_nearest, is_tab_eos, Gamma_P);
+                      n_nearest, is_tab_eos, Gamma_P);
 
         a2 = dr_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0);
 
         b2 = dm_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, e_center, 
-                      p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest, 
+                      p_surface, log_e_tab, log_p_tab, n_tab, n_nearest, 
                       is_tab_eos, Gamma_P);
 
         c2 = dp_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, e_center, 
-                      p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest,  
+                      p_surface, log_e_tab, log_p_tab, n_tab, n_nearest,  
                       is_tab_eos, Gamma_P);
 
 
         a3 = dr_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0);
 
         b3 = dm_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, e_center, 
-                      p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest, 
+                      p_surface, log_e_tab, log_p_tab, n_tab, n_nearest, 
                       is_tab_eos, Gamma_P);
 
         c3 = dp_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, e_center, 
-                      p_surface, log_e_tab, log_p_tab, n_tab, &n_nearest, 
+                      p_surface, log_e_tab, log_p_tab, n_tab, n_nearest, 
                       is_tab_eos, Gamma_P);
 
         a4 = dr_dr_is(r_is+h, r+h*a3, m+h*b3);
 
         b4 = dm_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, e_center, p_surface, 
-                      log_e_tab, log_p_tab, n_tab, &n_nearest, is_tab_eos, Gamma_P);
+                      log_e_tab, log_p_tab, n_tab, n_nearest, is_tab_eos, Gamma_P);
 
         c4 = dp_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, e_center, p_surface, 
-                      log_e_tab, log_p_tab, n_tab, &n_nearest, is_tab_eos, Gamma_P);
+                      log_e_tab, log_p_tab, n_tab, n_nearest, is_tab_eos, Gamma_P);
 
         r += (h/6.0)*(a1+2*a2+2*a3+a4);
         m += (h/6.0)*(b1+2*b2+2*b3+b4);
@@ -654,20 +654,20 @@ void TOV(int    i_check,
 
     }
 
-    r_is_gp[RDIV] = (*r_is_final);
-    r_gp[RDIV] = (*r_final);
-    m_gp[RDIV] = (*m_final);
+    r_is_gp[RDIV] = r_is_final;
+    r_gp[RDIV] = r_final;
+    m_gp[RDIV] = m_final;
 
     /* Rescale r_is and compute lambda */
 
     if(i_check == 3) {
-        k_rescale = 0.5*((*r_final)/(*r_is_final))*(1.0-(*m_final)/(*r_final)+
-                    sqrt(1.0-2.0*(*m_final)/(*r_final)));
+        k_rescale = 0.5*(r_final/r_is_final)*(1.0-m_final/r_final+
+                    sqrt(1.0-2.0*m_final/r_final));
  
-        (*r_is_final) *= k_rescale;
+        r_is_final *= k_rescale;
  
-        nu_s = log((1.0-(*m_final)/(2.0*(*r_is_final)))/(1.0+(*m_final)/
-               (2.0*(*r_is_final))));
+        nu_s = log((1.0-m_final/(2.0*r_is_final))/(1.0+m_final/
+               (2.0*r_is_final)));
 
         for(i=1; i<=RDIV; ++i) {
             r_is_gp[i] *= k_rescale;
@@ -681,8 +681,8 @@ void TOV(int    i_check,
                 hh=0.0;
             } else { 
                 if(strcmp(eos_type, "tab") == 0) {
-                    p = p_at_e(e_d_gp[i], log_p_tab, log_e_tab, n_tab, &n_nearest);
-                    hh = h_at_p(p, log_h_tab, log_p_tab, n_tab, &n_nearest);
+                    p = p_at_e(e_d_gp[i], log_p_tab, log_e_tab, n_tab, n_nearest);
+                    hh = h_at_p(p, log_h_tab, log_p_tab, n_tab, n_nearest);
                 } else { 
                     rho0 = rtsec_G(e_of_rho0, Gamma_P, 0.0, e_d_gp[i], DBL_EPSILON, e_d_gp[i]);
                     p = pow(rho0, Gamma_P);
@@ -711,7 +711,7 @@ void sphere(double s_gp[SDIV+1],
             double p_surface,
             double e_surface,
             std::array<std::array<Metric, MDIV+1>, SDIV+1>& metric,
-            double *r_e) {
+            double &r_e) {
     int s, m, n_nearest;
 
     double r_is_s,
@@ -734,23 +734,23 @@ void sphere(double s_gp[SDIV+1],
 
     TOV(1, eos_type, e_center, p_center, p_surface, e_surface, Gamma_P,
         log_e_tab, log_p_tab, log_h_tab, n_tab, r_is_gp, lambda_gp, 
-        nu_gp, &r_is_final, &r_final, &m_final);
+        nu_gp, r_is_final, r_final, m_final);
 
     TOV(2, eos_type, e_center, p_center, p_surface, e_surface, Gamma_P,
         log_e_tab, log_p_tab, log_h_tab, n_tab, r_is_gp, lambda_gp, 
-        nu_gp, &r_is_final, &r_final, &m_final);
+        nu_gp, r_is_final, r_final, m_final);
 
     TOV(3, eos_type, e_center, p_center, p_surface, e_surface, Gamma_P,
         log_e_tab, log_p_tab, log_h_tab, n_tab, r_is_gp, lambda_gp, 
-        nu_gp, &r_is_final, &r_final, &m_final);
+        nu_gp, r_is_final, r_final, m_final);
 
     n_nearest = RDIV/2;
     for(s=1; s<=SDIV; ++s) {
         r_is_s = r_is_final*(s_gp[s]/(1.0-s_gp[s]));
 
         if(r_is_s < r_is_final) {
-            lambda_s = interp(r_is_gp, lambda_gp, RDIV, r_is_s, &n_nearest);
-            nu_s = interp(r_is_gp, nu_gp, RDIV, r_is_s, &n_nearest);
+            lambda_s = interp(r_is_gp, lambda_gp, RDIV, r_is_s, n_nearest);
+            nu_s = interp(r_is_gp, nu_gp, RDIV, r_is_s, n_nearest);
         } else {
             lambda_s = 2.0*log(1.0+m_final/(2.0*r_is_s));
             nu_s = log((1.0-m_final/(2.0*r_is_s))/(1.0+m_final/(2*r_is_s)));
@@ -772,10 +772,10 @@ void sphere(double s_gp[SDIV+1],
     }
 
     n_nearest = SDIV/2;
-    gama_eq = interp(s_gp, gama_mu_0, SDIV, s_e, &n_nearest); /* gama at equator */
-    rho_eq = interp(s_gp, rho_mu_0, SDIV, s_e, &n_nearest);   /* rho at equator */
+    gama_eq = interp(s_gp, gama_mu_0, SDIV, s_e, n_nearest); /* gama at equator */
+    rho_eq = interp(s_gp, rho_mu_0, SDIV, s_e, n_nearest);   /* rho at equator */
  
-    (*r_e)= r_final*exp(0.5*(rho_eq-gama_eq)); 
+    r_e = r_final*exp(0.5*(rho_eq-gama_eq)); 
 
 }
 
@@ -802,8 +802,8 @@ void spin(double s_gp[SDIV+1],
           double accuracy,
           double cf,
           double r_ratio,
-          double *r_e_new,
-          double *Omega) {
+          double &r_e_new,
+          double &Omega) {
     int m,                      /* counter */
         s,                      /* counter */
         n,                      /* counter */
@@ -1093,7 +1093,7 @@ void spin(double s_gp[SDIV+1],
 
     
   
-    r_e = (*r_e_new);
+    r_e = r_e_new;
     bool is_tab_eos = (strcmp(eos_type, "tab") == 0);
     double S_gama[SDIV+1][MDIV+1];
     double S_rho[SDIV+1][MDIV+1];
@@ -1141,12 +1141,12 @@ void spin(double s_gp[SDIV+1],
         s_p = r_p/(r_p+r_e);                        
   
         n_nearest = SDIV/2;
-        gama_pole_h = interp(s_gp, gama_mu_1, SDIV, s_p, &n_nearest); 
-        gama_equator_h = interp(s_gp, gama_mu_0, SDIV, s_e, &n_nearest);
+        gama_pole_h = interp(s_gp, gama_mu_1, SDIV, s_p, n_nearest); 
+        gama_equator_h = interp(s_gp, gama_mu_0, SDIV, s_e, n_nearest);
         gama_center_h = metric[1][1].gama;                    
   
-        rho_pole_h = interp(s_gp, rho_mu_1, SDIV, s_p, &n_nearest);   
-        rho_equator_h = interp(s_gp, rho_mu_0, SDIV, s_e, &n_nearest);
+        rho_pole_h = interp(s_gp, rho_mu_1, SDIV, s_p, n_nearest);   
+        rho_equator_h = interp(s_gp, rho_mu_0, SDIV, s_e, n_nearest);
         rho_center_h = metric[1][1].rho;                      
  
         r_e = sqrt(2*h_center/(gama_pole_h+rho_pole_h-gama_center_h-rho_center_h));
@@ -1157,7 +1157,7 @@ void spin(double s_gp[SDIV+1],
             Omega_h = 0.0;
             omega_equator_h = 0.0;
         } else {
-            omega_equator_h = interp(s_gp, omega_mu_0, SDIV, s_e, &n_nearest);
+            omega_equator_h = interp(s_gp, omega_mu_0, SDIV, s_e, n_nearest);
             term_in_Omega_h = 1.0-exp(SQ(r_e)*(gama_pole_h+rho_pole_h
                                               -gama_equator_h-rho_equator_h));
             if(term_in_Omega_h >= 0.0) { 
@@ -1198,9 +1198,9 @@ void spin(double s_gp[SDIV+1],
                 } else { 
                     if(is_tab_eos) {
                         pressure[s][m] = p_at_h(enthalpy[s][m], log_p_tab, 
-                                                log_h_tab, n_tab, &n_nearest);
+                                                log_h_tab, n_tab, n_nearest);
                         energy[s][m] = e_at_p(pressure[s][m], log_e_tab, 
-                                              log_p_tab, n_tab, &n_nearest, is_tab_eos,
+                                              log_p_tab, n_tab, n_nearest, is_tab_eos,
                                               Gamma_P);
                     } else {
                         rho0sm = pow(((Gamma_P-1.0)/Gamma_P)
@@ -1573,14 +1573,14 @@ void spin(double s_gp[SDIV+1],
     /* COMPUTE OMEGA */  
 
     if(is_tab_eos) { 
-         (*Omega) = Omega_h*C/(r_e*sqrt(KAPPA));
+         Omega = Omega_h*C/(r_e*sqrt(KAPPA));
     } else {
-         (*Omega) = Omega_h/r_e;
+         Omega = Omega_h/r_e;
     }
 
     /* UPDATE r_e_new */
 
-    (*r_e_new) = r_e;
+    r_e_new = r_e;
 }
 
 
