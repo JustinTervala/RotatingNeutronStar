@@ -1098,9 +1098,6 @@ void spin(double s_gp[SDIV+1],
     RhoGamaOmega S_metric[SDIV+1][MDIV+1];
     RhoGamaOmega D1_metric[LMAX+2][SDIV+1];
     RhoGamaOmega D2_metric[SDIV+1][LMAX+2];
-    //double D2_rho[SDIV+1][LMAX+2];
-    //double D2_gama[SDIV+1][LMAX+2];
-    //double D2_omega[SDIV+1][LMAX+2];
     std::array<std::array<double, MDIV+1>, SDIV+1> da_dm = {{0.0}};
     std::array<std::array<double, MDIV+1>, SDIV+1> dgds = {{0.0}};
     std::array<std::array<double, MDIV+1>, SDIV+1> dgdm = {{0.0}};
