@@ -5,8 +5,8 @@
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 
 struct Metric {
-    double rho, gama, alpha, omega;
-    Metric() : rho(0.0), gama(0.0), alpha(0.0), omega(0.0) {}
+    double rho, gama, omega, alpha;
+    Metric() : rho(0.0), gama(0.0), omega(0.0), alpha(0.0) {}
     ~Metric() {}
 };
 

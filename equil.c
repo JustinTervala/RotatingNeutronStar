@@ -284,8 +284,8 @@ void mass_radius(double s_gp[SDIV+1],
         s1 = s_gp[s]*(1.0-s_gp[s]);
         s_1 = 1.0-s_gp[s];
         
-        d_gama_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, 1);
         d_rho_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, 1);
+        d_gama_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, 1);
         d_omega_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, 1);
 
         sqrt_v = exp(-2.0*metric[s][1].rho)*r_e*r_e*pow(s_gp[s], 4.0)*pow(d_omega_s,2.0) 
@@ -308,9 +308,9 @@ void mass_radius(double s_gp[SDIV+1],
     /* Kepler angular velocity */
 
     for(s=1; s<=SDIV; ++s) { 
-        d_o_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, 1);
-        d_g_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, 1);
         d_r_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, 1);
+        d_g_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, 1);
+        d_o_e[s] = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, 1);
         d_v_e[s] = deriv_s<double, SDIV+1, MDIV+1>(velocity, s, 1);
         /* Value of omega on the equatorial plane*/
         omega_mu_0[s] = metric[s][1].omega;
@@ -614,14 +614,14 @@ void sphere(double s_gp[SDIV+1],
         metric[s][1].rho = nu_s-lambda_s;
 
         for(m=1; m<=MDIV; ++m) {
-            metric[s][m].gama = metric[s][1].gama;        
             metric[s][m].rho = metric[s][1].rho;
-            metric[s][m].alpha = (metric[s][1].gama-metric[s][1].rho)/2.0;
+            metric[s][m].gama = metric[s][1].gama;        
             metric[s][m].omega = 0.0; 
+            metric[s][m].alpha = (metric[s][1].gama-metric[s][1].rho)/2.0;
         }
  
-        gama_mu_0[s] = metric[s][1].gama;                   /* gama at \mu=0 */
         rho_mu_0[s] = metric[s][1].rho;                     /* rho at \mu=0 */
+        gama_mu_0[s] = metric[s][1].gama;                   /* gama at \mu=0 */
 
     }
 
@@ -1091,10 +1091,10 @@ void spin(double s_gp[SDIV+1],
                     d_omega_s = 0.0;
                     d_omega_m = 0.0;
                 } else {
-                    d_gama_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
-                    d_gama_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
                     d_rho_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
                     d_rho_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
+                    d_gama_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
+                    d_gama_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
                     d_omega_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
                     d_omega_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
                 }      
@@ -1271,7 +1271,7 @@ void spin(double s_gp[SDIV+1],
 
         /* CHECK FOR DIVERGENCE */
 
-        if(fabs(metric[2][1].omega) > 100.0 || fabs(metric[2][1].rho) > 100.0 || fabs(metric[2][1].gama) > 300.0) {
+        if(fabs(metric[2][1].rho) > 100.0 || fabs(metric[2][1].gama) > 300.0 || fabs(metric[2][1].omega) > 100.0) {
             a_check=200; 
             break;
         }
@@ -1336,11 +1336,11 @@ void spin(double s_gp[SDIV+1],
                     d_gama_m = dgdm[s][m];
                     d_rho_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
                     d_rho_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::rho, s, m);
+                    d_gama_sm = deriv_sm<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
                     d_omega_s = deriv_s<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
                     d_omega_m = deriv_m<SDIV+1, MDIV+1>(metric, &Metric::omega, s, m);
                     d_gama_ss = s1*deriv_s<double, SDIV+1, MDIV+1>(dgds, s, m)+(1.0-2.0*sgp)*d_gama_s;
                     d_gama_mm = m1*deriv_m<double, SDIV+1, MDIV+1>(dgdm, s, m)-2.0*mum*d_gama_m;  
-                    d_gama_sm = deriv_sm<SDIV+1, MDIV+1>(metric, &Metric::gama, s, m);
 
                     temp1 = 2.0*SQ(sgp)*(sgp/(1.0-sgp))*m1*d_omega_s*d_omega_m
                             *(1.0+s1*d_gama_s) - (SQ(SQ(sgp)*d_omega_s) - 
