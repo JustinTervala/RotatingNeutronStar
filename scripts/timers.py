@@ -34,14 +34,15 @@ def read_data():
 
 def print_spin_header():
     print "spin():"
-    print "Func".center(9) + "Avg".center(9) + "Min".center(9) + "Max".center(9) + "Std".center(9) + "Calls".ljust(7) + "Percent".ljust(7)
+    print "Func".center(9) + "Avg".center(9) + "Med".center(9) + "Min".center(9) + "Max".center(9) + "Std".center(9) + "Calls".ljust(7) + "Percent".ljust(7)
 
 def print_stats_line(name, data, total):
     stddev = round(np.std(data)/1.e6, 2)
     avg = round(np.average(data)/1.e6,2)
+    med = round(np.median(data)/1.e6,2)
     min_x = round(min(data)/1.e6, 2)
     max_x = round(max(data)/1.e6, 2)
-    print name.rjust(9) + str(avg).center(9) + str(min_x).center(9) \
+    print name.rjust(9) + str(avg).center(9) + str(med).center(9) + str(min_x).center(9) \
         + str(max_x).center(9) + str(stddev).center(9) + str(len(data)).ljust(7) + str(round(np.sum(data)/total*100.0,3)).ljust(7)
 
 def print_spin_table(data):
