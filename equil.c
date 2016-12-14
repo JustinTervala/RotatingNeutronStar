@@ -1096,12 +1096,10 @@ void spin(double s_gp[SDIV+1],
     r_e = r_e_new;
     bool is_tab_eos = (strcmp(eos_type, "tab") == 0);
     RhoGamaOmega S_metric[SDIV+1][MDIV+1];
-    //double S_gama[SDIV+1][MDIV+1];
-    //double S_rho[SDIV+1][MDIV+1];
-    //double S_omega[SDIV+1][MDIV+1];
-    double D1_rho[LMAX+2][SDIV+1];
-    double D1_gama[LMAX+2][SDIV+1];
-    double D1_omega[LMAX+2][SDIV+1];
+    RhoGamaOmega D1_metric[LMAX+2][SDIV+1];
+    //double D1_rho[LMAX+2][SDIV+1];
+    //double D1_gama[LMAX+2][SDIV+1];
+    //double D1_omega[LMAX+2][SDIV+1];
     double D2_rho[SDIV+1][LMAX+2];
     double D2_gama[SDIV+1][LMAX+2];
     double D2_omega[SDIV+1][LMAX+2];
@@ -1297,9 +1295,9 @@ void spin(double s_gp[SDIV+1],
                            + P_2n[m+2][n+1]*S_metric[k][m+2].rho;
             }
 
-            D1_rho[n+1][k] = (DM/3.0)*sum_rho;
-            D1_gama[n+1][k] = 0.0;
-            D1_omega[n+1][k] = 0.0;
+            D1_metric[n+1][k].rho = (DM/3.0)*sum_rho;
+            D1_metric[n+1][k].gama = 0.0;
+            D1_metric[n+1][k].omega = 0.0;
             sum_rho = 0.0;
         }
 
@@ -1319,9 +1317,9 @@ void spin(double s_gp[SDIV+1],
                                  +4.0*sin_theta[m+1]*P1_2n_1_t[n+1][m+1]*S_metric[k][m+1].omega
                                  +sin_theta[m+2]*P1_2n_1_t[n+1][m+2]*S_metric[k][m+2].omega;
                 }
-                D1_rho[n+1][k] = (DM/3.0)*sum_rho;
-                D1_gama[n+1][k] = (DM/3.0)*sum_gama;
-                D1_omega[n+1][k] = (DM/3.0)*sum_omega;
+                D1_metric[n+1][k].rho = (DM/3.0)*sum_rho;
+                D1_metric[n+1][k].gama = (DM/3.0)*sum_gama;
+                D1_metric[n+1][k].omega = (DM/3.0)*sum_omega;
                 sum_rho = 0.0;
                 sum_gama = 0.0;
                 sum_omega = 0.0;
@@ -1339,9 +1337,9 @@ void spin(double s_gp[SDIV+1],
         n = 0;
         for(s=1; s<=SDIV; ++s) {
             for(k=1; k<=SDIV-2; k+=2) { 
-                sum_rho += ( f_rho[s][n+1][k]*D1_rho[n+1][k] 
-                           + 4.0*f_rho[s][n+1][k+1]*D1_rho[n+1][k+1]
-                            + f_rho[s][n+1][k+2]*D1_rho[n+1][k+2]);
+                sum_rho += ( f_rho[s][n+1][k]*D1_metric[n+1][k].rho 
+                           + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].rho
+                            + f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].rho);
             }
             D2_rho[s][n+1] = (DS/3.0)*sum_rho;
             D2_gama[s][n+1] = 0.0;
@@ -1352,27 +1350,27 @@ void spin(double s_gp[SDIV+1],
         for(s=1; s<=SDIV; ++s) {
             for(n=1; n<=LMAX; ++n) {
                 for(k=1; k<=SDIV-2; k+=2) { 
-                    sum_rho += f_rho[s][n+1][k]*D1_rho[n+1][k] 
-                               + 4.0*f_rho[s][n+1][k+1]*D1_rho[n+1][k+1]
-                               + f_rho[s][n+1][k+2]*D1_rho[n+1][k+2];
+                    sum_rho += f_rho[s][n+1][k]*D1_metric[n+1][k].rho 
+                               + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].rho
+                               + f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].rho;
  
-                    sum_gama += f_gama[s][n+1][k]*D1_gama[n+1][k] 
-                                + 4.0*f_gama[s][n+1][k+1]*D1_gama[n+1][k+1]
-                                + f_gama[s][n+1][k+2]*D1_gama[n+1][k+2];
+                    sum_gama += f_gama[s][n+1][k]*D1_metric[n+1][k].gama 
+                                + 4.0*f_gama[s][n+1][k+1]*D1_metric[n+1][k+1].gama
+                                + f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].gama;
      
                     if(k < s && k+2 <= s) {
-                        sum_omega += f_rho[s][n+1][k]*D1_omega[n+1][k] 
-                                     + 4.0*f_rho[s][n+1][k+1]*D1_omega[n+1][k+1]
-                                     + f_rho[s][n+1][k+2]*D1_omega[n+1][k+2];
+                        sum_omega += f_rho[s][n+1][k]*D1_metric[n+1][k].omega 
+                                     + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].omega
+                                     + f_rho[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
                     } else {
                         if(k >= s) {
-                            sum_omega += f_gama[s][n+1][k]*D1_omega[n+1][k] 
-                                         + 4.0*f_gama[s][n+1][k+1]*D1_omega[n+1][k+1]
-                                         + f_gama[s][n+1][k+2]*D1_omega[n+1][k+2];
+                            sum_omega += f_gama[s][n+1][k]*D1_metric[n+1][k].omega 
+                                         + 4.0*f_gama[s][n+1][k+1]*D1_metric[n+1][k+1].omega
+                                         + f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
                         } else {
-                            sum_omega += f_rho[s][n+1][k]*D1_omega[n+1][k] 
-                                         + 4.0*f_rho[s][n+1][k+1]*D1_omega[n+1][k+1]
-                                         + f_gama[s][n+1][k+2]*D1_omega[n+1][k+2];
+                            sum_omega += f_rho[s][n+1][k]*D1_metric[n+1][k].omega 
+                                         + 4.0*f_rho[s][n+1][k+1]*D1_metric[n+1][k+1].omega
+                                         + f_gama[s][n+1][k+2]*D1_metric[n+1][k+2].omega;
                         }
                     }
                 }
