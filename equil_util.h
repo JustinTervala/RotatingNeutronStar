@@ -3,9 +3,24 @@
 #include "consts.h"
 
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
+/*
+template<class T, size_t size, size_t... sizes>
+struct NdArrayImpl {
+    using type = std::array<typename ArrayImpl<T, sizes...>::type, size>;
+};
+
+template<class T, size_t size>
+struct NdArrayImpl<T, size> {
+    using type = std::array<T, size>;
+};
+
+template<class T, size_t...sizes>
+using ndarray = typename NdArrayImpl<T, sizes...>::type;
+*/
 
 template<class T, size_t size_x, size_t size_y>
 using matrix = std::array<std::array<T, size_y>, size_x>;
+//using matrix = ndarray<T, size_x, size_y>;
 
 template<class T, size_t size_x, size_t size_y>
 using native_matrix = T[size_x][size_y];

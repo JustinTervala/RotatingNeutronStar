@@ -235,11 +235,11 @@ int main(int argc,                    /* Number of command line arguments */
 
     /* ALLLOCATE MEMORY */
 
-    std::array<std::array<Metric, MDIV+1>, SDIV+1> metric;
-    std::array<std::array<double, MDIV+1>, SDIV+1> energy = {{0.0}}; 
-    std::array<std::array<double, MDIV+1>, SDIV+1> pressure = {{0.0}}; 
-    std::array<std::array<double, MDIV+1>, SDIV+1> enthalpy = {{0.0}}; 
-    std::array<std::array<double, MDIV+1>, SDIV+1> velocity_sq = {{0.0}}; 
+    matrix<Metric, SDIV+1, MDIV+1> metric;
+    matrix<double, SDIV+1, MDIV+1> energy = {{0.0}};
+    matrix<double, SDIV+1, MDIV+1> pressure = {{0.0}};
+    matrix<double, SDIV+1, MDIV+1> enthalpy = {{0.0}};
+    matrix<double, SDIV+1, MDIV+1> velocity_sq = {{0.0}};
     
 
     std::array<double, SDIV+1> v_plus = {{0.0}};
