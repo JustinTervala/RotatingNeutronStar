@@ -45,6 +45,16 @@ struct RhoGamaOmega {
     ~RhoGamaOmega() {}
 };
 
+struct ControlConsts {
+    const double enthalpy_min;
+    const double accuracy;
+    const double cf;
+    const int a_check;
+    ControlConsts() : enthalpy_min(0.0), accuracy(0.0), cf(1), a_check(0.0) {}
+      
+};
+
+
 template <typename T> int sgn(T val, T& out) {
     out = (T(0) < val) - (val < T(0));
 }
