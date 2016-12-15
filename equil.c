@@ -647,7 +647,6 @@ void spin(const double s_gp[SDIV+1],
           matrix<double, SDIV+1, MDIV+1>& pressure,
           matrix<double, SDIV+1, MDIV+1>& enthalpy,
           matrix<double, SDIV+1, MDIV+1>& velocity_sq,
-          int    a_check, 
           double accuracy,
           double cf,
           double r_ratio,
@@ -662,7 +661,7 @@ void spin(const double s_gp[SDIV+1],
         print_dif = 0,
         i,
         j;
-
+    int a_check = 0;
     double sum_rho = 0.0,         /* intermediate sum in eqn for rho */
            sum_gama = 0.0,        /* intermediate sum in eqn for gama */
            sum_omega=0.0,       /* intermediate sum in eqn for omega */
