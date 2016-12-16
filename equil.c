@@ -647,8 +647,7 @@ void spin(const double s_gp[SDIV+1],
           matrix<double, SDIV+1, MDIV+1>& pressure,
           matrix<double, SDIV+1, MDIV+1>& enthalpy,
           matrix<double, SDIV+1, MDIV+1>& velocity_sq,
-          double accuracy,
-          double cf,
+          const ControlConsts& control,
           double r_ratio,
           double &r_e_new,
           double &Omega) {
@@ -732,7 +731,7 @@ void spin(const double s_gp[SDIV+1],
     matrix<double, SDIV+1, MDIV+1> dgds = {{0.0}};
     matrix<double, SDIV+1, MDIV+1> dgdm = {{0.0}};
 
-    while(dif > accuracy || n_of_it < 2) { 
+    while(dif > control.accuracy || n_of_it < 2) { 
 
         if(print_dif != 0) {
             printf("%4.3e\n", dif);
@@ -1037,9 +1036,9 @@ void spin(const double s_gp[SDIV+1],
                     }
                 }
        
-                metric[s][m].rho = rsm + cf*(sum_rho-rsm);
-                metric[s][m].gama = gsm + cf*(sum_gama-gsm);
-                metric[s][m].omega = omsm + cf*(sum_omega-omsm);
+                metric[s][m].rho = rsm + control.cf*(sum_rho-rsm);
+                metric[s][m].gama = gsm + control.cf*(sum_gama-gsm);
+                metric[s][m].omega = omsm + control.cf*(sum_omega-omsm);
 
                 sum_omega = 0.0;
                 sum_rho = 0.0;

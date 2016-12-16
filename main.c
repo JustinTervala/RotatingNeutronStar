@@ -279,11 +279,11 @@ int main(int argc,                    /* Number of command line arguments */
        TO ONE OF THE POLES TO THE RADIUS OF THE STAR'S EQUATOR. 
        THIS RATIO IS NAMED r_ratio.
        WHEN r_ratio = 1.0, THE STAR IS SPHERICAL */
-
+    ControlConsts control(accuracy, cf);
     clock_gettime(CLOCK_MONOTONIC, &spin_start);
     spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
          metric, energy, pressure, enthalpy, velocity_sq,
-         accuracy, cf,
+         control,
          r_ratio, r_e, Omega);
     clock_gettime(CLOCK_MONOTONIC, &spin_stop);
     printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
@@ -339,7 +339,7 @@ int main(int argc,                    /* Number of command line arguments */
       	clock_gettime(CLOCK_MONOTONIC, &spin_start);
         spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
              metric, energy, pressure, enthalpy, velocity_sq,
-             accuracy, cf,
+             control,
              r_ratio, r_e, Omega);
         clock_gettime(CLOCK_MONOTONIC, &spin_stop);
         printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
@@ -380,7 +380,7 @@ int main(int argc,                    /* Number of command line arguments */
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
             spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
-                 accuracy, cf,
+                 control,
                  r_ratio, r_e, Omega);
             clock_gettime(CLOCK_MONOTONIC, &spin_stop);
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
@@ -412,7 +412,7 @@ int main(int argc,                    /* Number of command line arguments */
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
             spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
-                 accuracy, cf,
+                 control,
                  r_ratio, r_e, Omega);
             clock_gettime(CLOCK_MONOTONIC, &spin_stop);
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));

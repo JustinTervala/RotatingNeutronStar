@@ -46,12 +46,11 @@ struct RhoGamaOmega {
 };
 
 struct ControlConsts {
-    const double enthalpy_min;
     const double accuracy;
     const double cf;
-    const int a_check;
-    ControlConsts() : enthalpy_min(0.0), accuracy(0.0), cf(1), a_check(0.0) {}
-      
+    constexpr ControlConsts() : accuracy(0.0), cf(1) {}
+    constexpr ControlConsts(double _accuracy, double _cf) : accuracy(_accuracy), cf(_cf) {}
+    ~ControlConsts() {} 
 };
 
 
