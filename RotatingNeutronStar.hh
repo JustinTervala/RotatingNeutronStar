@@ -25,7 +25,15 @@ class RotatingNeutronStar {
         void initializeRns();
         void make_grid();
         void make_center(); 
-        void make_surface();
+
+        void TOV(int    i_check, 
+                 double r_is_gp[RDIV+1], 
+                 double lambda_gp[RDIV+1], 
+                 double nu_gp[RDIV+1], 
+                 double &r_is_final, 
+                 double &r_final, 
+                 double &m_final);
+        
         double dm_dr_is(double r_is, 
                         double r, 
                         double m, 
@@ -39,14 +47,6 @@ class RotatingNeutronStar {
                         int    &n_nearest_pt);
 
         double dr_dr_is(double r_is, double r, double m);
-
-        void TOV(int    i_check, 
-                 double r_is_gp[RDIV+1], 
-                 double lambda_gp[RDIV+1], 
-                 double nu_gp[RDIV+1], 
-                 double &r_is_final, 
-                 double &r_final, 
-                 double &m_final);
     public:
         RotatingNeutronStar(const char eos_file[], double central_energy_density);
         RotatingNeutronStar(double gamma_p, double central_energy_density);
