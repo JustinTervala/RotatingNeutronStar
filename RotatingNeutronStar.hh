@@ -13,6 +13,8 @@ class RotatingNeutronStar {
         double Omega_K;
         double Mass; 
         double Mass_0;
+        double J;
+        double r_ratio;
         double ang_mom;
         double R_e;
         double accuracy;
@@ -55,11 +57,13 @@ class RotatingNeutronStar {
     public:
         RotatingNeutronStar(char eos_file[], double central_energy_density);
         RotatingNeutronStar(double gamma_p, double central_energy_density);
+        void sphere();
+        void spin();
+        void mass_radius();
+        void print_state() const;
         void setAccuracy(double accuracy_);
         void setCf(double cf_); 
-        void mass_radius(double r_ratio);
-        
-        void sphere();
-
-        void spin(double r_ratio);
+        void setRRatio(double r_ratio_);
+        double getOmega() const;
+        double getOmegaK() const;
 };

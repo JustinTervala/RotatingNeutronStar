@@ -250,7 +250,9 @@ int main(int argc,                    /* Number of command line arguments */
 
     /* set program defaults */
     cf = 1.0;
-    accuracy = 1e-5;    
+    accuracy = 1e-5; 
+    rns.setAccuracy(accuracy);  
+    rns.setCf(cf); 
     xacc = 1e-4;  
  
     if(strcmp(eos_type, "tab") == 0) {
@@ -273,7 +275,7 @@ int main(int argc,                    /* Number of command line arguments */
            metric, r_e);
 
     r_ratio = 1.0; 
-
+    
     /* THE PROCEDURE SPIN() WILL COMPUTE THE METRIC OF A STAR WITH
        GIVEN OBLATENESS. THE OBLATENESS IS SPECIFIED BY GIVING 
        THE RATIO OF THE LENGTH OF THE AXIS CONNECTING THE CENTRE OF THE STAR 
@@ -282,6 +284,7 @@ int main(int argc,                    /* Number of command line arguments */
        WHEN r_ratio = 1.0, THE STAR IS SPHERICAL */
     ControlConsts control(accuracy, cf);
     clock_gettime(CLOCK_MONOTONIC, &spin_start);
+    rns.spin();
     spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
          metric, energy, pressure, enthalpy, velocity_sq,
          control,
@@ -303,6 +306,7 @@ int main(int argc,                    /* Number of command line arguments */
        AND COUNTER-ROTATING PARTICLES (v_minus) */
 
     clock_gettime(CLOCK_MONOTONIC, &mr_start);
+    rns.mass_radius();
     mass_radius(s_gp, mu, eos, metric, 
                 energy, pressure, enthalpy, velocity_sq,
                 r_ratio, e_surface, r_e, Omega,
@@ -311,7 +315,7 @@ int main(int argc,                    /* Number of command line arguments */
     printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 
     /* PRINT OUT INFORMATION ABOUT THE STELLAR MODEL */
-
+    rns.print_state();
     if(eos.isTabulatedEos()) {
         print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
     } else { 
@@ -334,10 +338,11 @@ int main(int argc,                    /* Number of command line arguments */
         /* Find the interval of r_ratio where the star has the
            correct angular velocity    */
         r_ratio -= dr;
-    
+        rns.setRRatio(r_ratio);
         /* Compute the star with the specified value of r_ratio    */
 
       	clock_gettime(CLOCK_MONOTONIC, &spin_start);
+        rns.spin();
         spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
              metric, energy, pressure, enthalpy, velocity_sq,
              control,
@@ -346,6 +351,7 @@ int main(int argc,                    /* Number of command line arguments */
         printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
    
         clock_gettime(CLOCK_MONOTONIC, &mr_start);
+        rns.mass_radius();
         mass_radius(s_gp, mu, eos, metric, 
                     energy, pressure, enthalpy, velocity_sq,
                     r_ratio, e_surface, r_e, Omega,
@@ -353,6 +359,7 @@ int main(int argc,                    /* Number of command line arguments */
         clock_gettime(CLOCK_MONOTONIC, &mr_stop);
         printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 
+        rns.print_state();
         if(eos.isTabulatedEos()) {
             print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
         } else { 
@@ -377,8 +384,10 @@ int main(int argc,                    /* Number of command line arguments */
         for (j=1; j<=60; j++) {
             xm = 0.5*(xl+xh);
             r_ratio = xm;
+            rns.setRRatio(r_ratio);
 
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
+            rns.spin();
             spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  control,
@@ -387,6 +396,7 @@ int main(int argc,                    /* Number of command line arguments */
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
 
             clock_gettime(CLOCK_MONOTONIC, &mr_start);
+            rns.mass_radius();
             mass_radius(s_gp, mu, eos, metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
@@ -399,18 +409,21 @@ int main(int argc,                    /* Number of command line arguments */
             
             if(sroot == 0.0) {
                 r_ratio = ans;
+                rns.setRRatio(r_ratio);
                 break;
             }
            
             xnew=xm+(xm-xl)*((fl >= fh ? 1.0 : -1.0)*fm/sroot);
             if(fabs(xnew-ans) <= xacc) {
                 r_ratio = ans;
+                rns.setRRatio(r_ratio);
                 break;
             }
             ans = xnew;
             r_ratio = ans;
-
+            rns.setRRatio(r_ratio);
             clock_gettime(CLOCK_MONOTONIC, &spin_start);
+            rns.spin();
             spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
                  metric, energy, pressure, enthalpy, velocity_sq,
                  control,
@@ -419,6 +432,7 @@ int main(int argc,                    /* Number of command line arguments */
             printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
 
             clock_gettime(CLOCK_MONOTONIC, &mr_start);
+            rns.mass_radius();
             mass_radius(s_gp, mu, eos, metric, 
                         energy, pressure, enthalpy, velocity_sq,
                         r_ratio, e_surface, r_e, Omega,
@@ -426,6 +440,7 @@ int main(int argc,                    /* Number of command line arguments */
             clock_gettime(CLOCK_MONOTONIC, &mr_stop);
             printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 
+            rns.print_state();
             if(strcmp(eos_type, "tab") == 0) {
                 print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
             } else { 
@@ -435,6 +450,7 @@ int main(int argc,                    /* Number of command line arguments */
             fnew =  Omega_K - Omega;
             if(fnew == 0.0){
                 r_ratio = ans;
+                rns.setRRatio(r_ratio);
                 break;
             }
            
@@ -454,12 +470,14 @@ int main(int argc,                    /* Number of command line arguments */
             }
             if(fabs(xh-xl) <= xacc) {
                 r_ratio = ans;
+                rns.setRRatio(r_ratio);
                 break;
             }
         }
     } else {
         if(fh == 0.0){
             r_ratio +=dr;
+           rns.setRRatio(r_ratio);
         }
         print_error("root must be bracketed in zriddr.");
     }

@@ -123,6 +123,7 @@ void RotatingNeutronStar::sphere() {
     rho_eq = interp(s_gp, rho_mu_0, SDIV, s_e, n_nearest);   /* rho at equator */
  
     r_e = r_final*exp(0.5*(rho_eq-gama_eq)); 
+    r_ratio = 1.0;
 }
 
 
@@ -337,7 +338,19 @@ void RotatingNeutronStar::setCf(double cf_) {
     cf = cf_;
 }
 
-void RotatingNeutronStar::mass_radius(double r_ratio) {
+void RotatingNeutronStar::setRRatio(double r_ratio_) {
+    r_ratio = r_ratio_;
+}
+
+double RotatingNeutronStar::getOmega() const {
+    return Omega;
+}
+
+double RotatingNeutronStar::getOmegaK() const {
+    return Omega_K;
+}
+
+void RotatingNeutronStar::mass_radius() {
     int s,
         m,
         n_nearest;
@@ -573,7 +586,7 @@ void RotatingNeutronStar::mass_radius(double r_ratio) {
 }
 
 
-void RotatingNeutronStar::spin(double r_ratio) {
+void RotatingNeutronStar::spin() {
     int m,                      /* counter */
         s,                      /* counter */
         n,                      /* counter */
@@ -1122,4 +1135,49 @@ void RotatingNeutronStar::spin(double r_ratio) {
 
     //r_e_new = r_e;
 
+}
+
+void RotatingNeutronStar::print_state() const {
+
+    if (eos.isTabulatedEos()) {
+        double I_45;
+      
+        if(Omega == 0.0) {
+            I_45 = 0.0;
+        } else {
+            I_45 = J/(Omega*1.0e45);
+        }
+
+        printf(
+            "%4.3f \t%4.1f \t%4.3f \t%4.3f \t%4.3f \t%4.1f \t%5.1f \t%4.2f \t%4.3f \n",
+            r_ratio,
+            e_center,
+            Mass/MSUN,
+            Mass_0/MSUN,
+            R_e/1.0e5,
+            Omega,
+            Omega_K,
+            I_45,
+            (C*J/(G*Mass*Mass)));
+    } else {
+        double I;
+      
+        if(Omega == 0.0) {
+            I = 0.0;
+        } else {
+            I = J/(Omega);
+        }
+
+        printf(
+            "%4.3f \t%4.3f \t%4.3f \t%4.3f \t%4.3f \t%4.3f \t%5.3f \t%4.2f \t%4.3f \n",
+            r_ratio,
+            e_center,
+            Mass,
+            Mass_0,
+            R_e,
+            Omega,
+            Omega_K,
+            I,
+            J/(Mass_0*Mass_0));
+    }
 }
