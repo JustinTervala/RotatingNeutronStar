@@ -4,6 +4,7 @@
  * This file contains definitions of constants used in the procedures.
  *
  **************************************************************************/
+#pragma once
 
 #define DM (1.0/(MDIV-1.0))          /* spacing in mu direction */ 
 #define RDIV 900                     /* grid point in RK integration */ 
@@ -35,3 +36,34 @@
 #ifndef DBL_EPSILON
 #define DBL_EPSILON 1e-15
 #endif
+
+namespace Consts {
+
+const float SpeedOfLight = 2.9979e10;
+};
+/*
+namespace Consts {
+
+namespace Physics {
+
+const float C = 2.9979e10;
+const float G = 6.6732e-8;
+const float KAPPA = 1.0e-15*C*C*C;
+const float KSCALE = KAPPA*G/(C*C*C*C);
+const float MSUN = 1.987e33;
+const float MB = 1.66e-24;
+const float RMIN = 1.0e-15;
+
+}
+
+namespace Math {
+const float PI = 3.1415926535;
+}
+
+namespace Grid {
+const double DM = (1.0/(MDIV-1.0));          /* spacing in mu direction */ 
+//const unsigned int RDIV  = 900;                     /* grid point in RK integration */ 
+//const float SMAX = 0.9999;                  /* maximum value of s-coordinate */  
+//const double DS = (SMAX/(SDIV-1.0));         /* spacing in s-direction */
+//}
+

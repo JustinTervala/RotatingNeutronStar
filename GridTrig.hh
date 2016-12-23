@@ -15,6 +15,7 @@ struct GridTrig {
         native_matrix<double, LMAX+1, MDIV+1> sin_2n_1_theta_t;
 
         GridTrig(const double s_gp[SDIV+1], const double mu[MDIV+1]);
+        GridTrig() {}
         ~GridTrig() {}     
     private:
         native_matrix<double, LMAX+2, SDIV+1>  _f2n;

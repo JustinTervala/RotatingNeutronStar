@@ -52,7 +52,7 @@ SIZE=-DMDIV=65 -DSDIV=129
 #*                    SOURCE AND OBJECT MACROS
 #*************************************************************************/
 
-OBJ=main.o equil.o EquationOfState.o GridTrig.o equil_util.o 
+OBJ=main.o equil.o RotatingNeutronStar.o EquationOfState.o GridTrig.o equil_util.o 
 
 #/*************************************************************************
 #*                    MAIN COMPILING INSTRUCTIONS
@@ -62,11 +62,14 @@ kepler: $(OBJ)
 	$(CC) $(COPTS) $(MY_OWN) $(SIZE)  -o kepler $(OBJ) -lm -lrt
 
 
-main.o: equil.h equil_util.h consts.h EquationOfState.hh main.c
+main.o: equil.h equil_util.h consts.h EquationOfState.hh RotatingNeutronStar.hh main.c
 	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.c 
 
 equil.o:equil.h equil_util.h  consts.h equil.c
 	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil.c
+
+RotatingNeutronStar.o: RotatingNeutronStar.hh EquationOfState.hh consts.h equil_util.h GridTrig.hh
+	$(CC) $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  RotatingNeutronStar.cc
 
 EquationOfState.o: EquationOfState.hh consts.h equil_util.h
 	$(CC) $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  EquationOfState.cc

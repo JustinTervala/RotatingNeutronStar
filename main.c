@@ -46,6 +46,7 @@ kepler -f eosA -e 1e15
 #include <stdlib.h>
 #include <array>
 #include "GridTrig.hh"
+#include "RotatingNeutronStar.hh"
 
 /***************************************************************************
  * printing routine  
@@ -234,7 +235,7 @@ int main(int argc,                    /* Number of command line arguments */
     /* SET UP GRID */
     make_grid(s_gp, mu);
     GridTrig trig = GridTrig(s_gp, mu);
-    
+    RotatingNeutronStar rns = (eos.isTabulatedEos()) ? RotatingNeutronStar(eos_file, e_center) : RotatingNeutronStar(Gamma_P, e_center);
     /* ALLLOCATE MEMORY */
 
     matrix<Metric, SDIV+1, MDIV+1> metric;

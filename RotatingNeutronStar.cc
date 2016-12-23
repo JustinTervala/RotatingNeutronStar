@@ -1,17 +1,20 @@
 #include "RotatingNeutronStar.hh"
+#include "consts.h"
+#include "equil.h"
+#include <cmath>
 
 
-RotatingNeutonStar::RotatingNeutronStar(const char eos_file[], double central_energy_density) :
+RotatingNeutronStar::RotatingNeutronStar(char eos_file[], double central_energy_density) :
         eos(eos_file),
         e_center(central_energy_density),
-        e_surface(7.8*C*C*KSCALE),
-        p_surface(1.01e8*KSCALE),
-        enthalpy_min(1.0/(C*C))   
+        e_surface{7.8*C*C*KSCALE},
+        p_surface{1.01e8*KSCALE},
+        enthalpy_min{1.0/(Consts::SpeedOfLight*Consts::SpeedOfLight)}
 {
-    initalizeRns();
+    initializeRns();
 }
 
-RotatingNeutonStar::RotatingNeutronStar(double gamma_p, double central_energy_density) :
+RotatingNeutronStar::RotatingNeutronStar(double gamma_p, double central_energy_density) :
         eos(gamma_p),
         e_center(central_energy_density),
         e_surface(0.0),
@@ -23,6 +26,7 @@ RotatingNeutonStar::RotatingNeutronStar(double gamma_p, double central_energy_de
 
 void RotatingNeutronStar::initializeRns() {
     make_grid();
+    trig = GridTrig(s_gp, mu);
     make_center();
     sphere();
 }
@@ -81,14 +85,11 @@ void RotatingNeutronStar::sphere() {
     /* The function TOV integrates the TOV equations. The function
        can be found in the file equil.c */
 
-    TOV(1, e_center, p_center, p_surface, e_surface, eos, 
-        r_is_gp, lambda_gp, nu_gp, r_is_final, r_final, m_final);
+    TOV(1, r_is_gp, lambda_gp, nu_gp, r_is_final, r_final, m_final);
 
-    TOV(2, e_center, p_center, p_surface, e_surface, eos,
-        r_is_gp, lambda_gp, nu_gp, r_is_final, r_final, m_final);
+    TOV(2, r_is_gp, lambda_gp, nu_gp, r_is_final, r_final, m_final);
 
-    TOV(3, e_center, p_center, p_surface, e_surface, eos, 
-        r_is_gp, lambda_gp, nu_gp, r_is_final, r_final, m_final);
+    TOV(3, r_is_gp, lambda_gp, nu_gp, r_is_final, r_final, m_final);
 
     n_nearest = RDIV/2;
     for(s=1; s<=SDIV; ++s) {
@@ -202,30 +203,26 @@ void RotatingNeutronStar::TOV(int i_check,
         a1 = dr_dr_is(r_is, r, m);
 
         //TODO: Look at how n_nearest changes. May be best to group similar n_nearest together
-        b1 = dm_dr_is(r_is, r, m, p, e_center, p_surface, eos, n_nearest);
-        c1 = dp_dr_is(r_is,r,m,p, e_center, p_surface, eos, n_nearest);
+        b1 = dm_dr_is(r_is, r, m, p, n_nearest);
+        c1 = dp_dr_is(r_is,r,m,p, n_nearest);
 
         a2 = dr_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0);
 
-        b2 = dm_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, e_center, 
-                      p_surface, eos, n_nearest);
+        b2 = dm_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, n_nearest);
 
-        c2 = dp_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, e_center, 
-                      p_surface, eos, n_nearest);  
+        c2 = dp_dr_is(r_is+h/2.0, r+h*a1/2.0, m+h*b1/2.0, p+h*c1/2.0, n_nearest);  
 
         a3 = dr_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0);
 
-        b3 = dm_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, e_center, 
-                      p_surface, eos, n_nearest);
+        b3 = dm_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, n_nearest);
 
-        c3 = dp_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, e_center, 
-                      p_surface, eos, n_nearest); 
+        c3 = dp_dr_is(r_is+h/2.0, r+h*a2/2.0, m+h*b2/2.0, p+h*c2/2.0, n_nearest); 
 
         a4 = dr_dr_is(r_is+h, r+h*a3, m+h*b3);
 
-        b4 = dm_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, e_center, p_surface, eos, n_nearest); 
+        b4 = dm_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, n_nearest); 
 
-        c4 = dp_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, e_center, p_surface, eos, n_nearest); 
+        c4 = dp_dr_is(r_is+h, r+h*a3, m+h*b3, p+h*c3, n_nearest); 
 
         r += (h/6.0)*(a1+2*a2+2*a3+a4);
         m += (h/6.0)*(b1+2*b2+2*b3+b4);
@@ -321,8 +318,10 @@ double RotatingNeutronStar::dp_dr_is(double r_is,
     return dpdr;
 }
 
-double RotatingneutronStar::dr_dr_is(double r_is, double r, double m) {
-    if(r_is < RMIN) {
+double RotatingNeutronStar::dr_dr_is(double r_is, double r, double m) {
+   
+    double drdris;
+     if(r_is < RMIN) {
         drdris=1.0;
     } else {
         drdris=(r/r_is)*sqrt(1.0-2.0*m/r);
@@ -330,6 +329,13 @@ double RotatingneutronStar::dr_dr_is(double r_is, double r, double m) {
     return drdris;
 }
 
+void RotatingNeutronStar::setAccuracy(double accuracy_) {
+    accuracy = accuracy_;
+}
+
+void RotatingNeutronStar::setCf(double cf_) {
+    cf = cf_;
+}
 
 void RotatingNeutronStar::mass_radius(double r_ratio) {
     int s,
@@ -640,7 +646,7 @@ void RotatingNeutronStar::spin(double r_ratio) {
            r_e;
 
   
-    r_e = r_e_new;
+    //r_e = r_e_new;
     native_matrix<RhoGamaOmega, SDIV+1, MDIV+1> S_metric;
     native_matrix<RhoGamaOmega, LMAX+2, SDIV+1> D1_metric;
     native_matrix<RhoGamaOmega, SDIV+1, LMAX+2> D2_metric;
@@ -648,7 +654,7 @@ void RotatingNeutronStar::spin(double r_ratio) {
     matrix<double, SDIV+1, MDIV+1> dgds = {{0.0}};
     matrix<double, SDIV+1, MDIV+1> dgdm = {{0.0}};
 
-    while(dif > control.accuracy || n_of_it < 2) { 
+    while(dif > accuracy || n_of_it < 2) { 
 
         if(print_dif != 0) {
             printf("%4.3e\n", dif);
@@ -953,9 +959,9 @@ void RotatingNeutronStar::spin(double r_ratio) {
                     }
                 }
        
-                metric[s][m].rho = rsm + control.cf*(sum_rho-rsm);
-                metric[s][m].gama = gsm + control.cf*(sum_gama-gsm);
-                metric[s][m].omega = omsm + control.cf*(sum_omega-omsm);
+                metric[s][m].rho = rsm + cf*(sum_rho-rsm);
+                metric[s][m].gama = gsm + cf*(sum_gama-gsm);
+                metric[s][m].omega = omsm + cf*(sum_omega-omsm);
 
                 sum_omega = 0.0;
                 sum_rho = 0.0;
@@ -1114,6 +1120,6 @@ void RotatingNeutronStar::spin(double r_ratio) {
 
     /* UPDATE r_e_new */
 
-    r_e_new = r_e;
+    //r_e_new = r_e;
 
 }
