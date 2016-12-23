@@ -17,7 +17,7 @@
 
 #Linux
 CC=g++
-COPTS=-O3
+COPTS=-Ofast -pipe -march=native -flto -funroll-loops -funsafe-math-optimizations 
 #/*************************************************************************
 #*                     SPECIFY GRID SIZE
 #*************************************************************************/
