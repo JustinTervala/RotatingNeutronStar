@@ -10,18 +10,17 @@
 /* Adapted from Numerical Recipes.                                         */
 /***************************************************************************/
 void hunt(const double xx[], int n, double x, int &jlo) { 
-    int jm, jhi, inc, ascnd;
-
-    ascnd = (xx[n] > xx[1]);
+    unsigned jm, jhi, inc;
+    const bool ascnd = (xx[n] > xx[1]);
     if(jlo <= 0 || jlo > n) {
         jlo = 0;
         jhi = n+1;
     } else {
-        inc = 1;
         if(x >= xx[jlo] == ascnd) {
             if (jlo == n) {
                 return;
             }
+            inc = 1;
             jhi = jlo+1;
             while(x >= xx[jhi] == ascnd) {
                 jlo = jhi;
@@ -37,6 +36,7 @@ void hunt(const double xx[], int n, double x, int &jlo) {
                 jlo = 0;
                 return;
             }
+            inc = 1;
             jhi = jlo;
             jlo -= 1;
             while(x < xx[jlo] == ascnd) {
