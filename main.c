@@ -178,36 +178,8 @@ int main(int argc,                    /* Number of command line arguments */
     xacc = 1e-4;  
  
     r_ratio = 1.0; 
+    rns.recompute(r_ratio);    
     
-    /* THE PROCEDURE SPIN() WILL COMPUTE THE METRIC OF A STAR WITH
-       GIVEN OBLATENESS. THE OBLATENESS IS SPECIFIED BY GIVING 
-       THE RATIO OF THE LENGTH OF THE AXIS CONNECTING THE CENTRE OF THE STAR 
-       TO ONE OF THE POLES TO THE RADIUS OF THE STAR'S EQUATOR. 
-       THIS RATIO IS NAMED r_ratio.
-       WHEN r_ratio = 1.0, THE STAR IS SPHERICAL */
-    clock_gettime(CLOCK_MONOTONIC, &spin_start);
-    rns.spin();
-    clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-    printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-  
-    /* THE METRIC FUNCTIONS ARE STORED IN THE FUNCTIONS 
-       alpha, rho, gama, omega (see user's manual for the definition
-       of the metric */
-
-
-    /* COMPUTE THE VALUES OF VARIOUS EQUILIBRIUM QUANTITIES, SUCH
-       AS MASS (Mass), RADIUS (R_e), BARYON MASS(Mass_0), 
-       ANGULAR MOMENTUM (J), 
-       KEPLERIAN ANGULAR VELOCITY OF PARTICLE ORBITING AT 
-       THE EQUATOR,
-       VELOCITIES OF CO-ROTATING PARTICLES (v_plus),
-       AND COUNTER-ROTATING PARTICLES (v_minus) */
-
-    clock_gettime(CLOCK_MONOTONIC, &mr_start);
-    rns.mass_radius();
-    clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-    printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
-
     /* PRINT OUT INFORMATION ABOUT THE STELLAR MODEL */
     rns.print_state();
     dr = 0.05;
@@ -227,18 +199,7 @@ int main(int argc,                    /* Number of command line arguments */
         /* Find the interval of r_ratio where the star has the
            correct angular velocity    */
         r_ratio -= dr;
-        rns.setRRatio(r_ratio);
-        /* Compute the star with the specified value of r_ratio    */
-
-      	clock_gettime(CLOCK_MONOTONIC, &spin_start);
-        rns.spin();
-        clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-        printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-   
-        clock_gettime(CLOCK_MONOTONIC, &mr_start);
-        rns.mass_radius();
-        clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-        printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
+        rns.recompute(r_ratio);    
 
         rns.print_state();
    
@@ -260,46 +221,24 @@ int main(int argc,                    /* Number of command line arguments */
         for (j=1; j<=60; j++) {
             xm = 0.5*(xl+xh);
             r_ratio = xm;
-            rns.setRRatio(r_ratio);
-
-            clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            rns.spin();
-            clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-            printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-
-            clock_gettime(CLOCK_MONOTONIC, &mr_start);
-            rns.mass_radius();
-            clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-            printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
-
+            rns.recompute(r_ratio);    
+            
             fm = rns.getOmegaK() - rns.getOmega();
             sroot = sqrt(fm*fm-fl*fh);
             
             if(sroot == 0.0) {
                 r_ratio = ans;
-                rns.setRRatio(r_ratio);
                 break;
             }
            
             xnew=xm+(xm-xl)*((fl >= fh ? 1.0 : -1.0)*fm/sroot);
             if(fabs(xnew-ans) <= xacc) {
                 r_ratio = ans;
-                rns.setRRatio(r_ratio);
                 break;
             }
             ans = xnew;
             r_ratio = ans;
-            rns.setRRatio(r_ratio);
-            clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            rns.spin();
-            clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-            printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-
-            clock_gettime(CLOCK_MONOTONIC, &mr_start);
-            rns.mass_radius();
-            clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-            printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
-
+            rns.recompute(r_ratio);    
             rns.print_state();
 
             fnew =  rns.getOmegaK() - rns.getOmega();
