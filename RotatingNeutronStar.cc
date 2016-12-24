@@ -351,12 +351,18 @@ double RotatingNeutronStar::getOmegaK() const {
 }
 
 void RotatingNeutronStar::recompute(double r_ratio_) {
+    struct timespec spin_start, spin_stop, mr_start, mr_stop;
     r_ratio = r_ratio_;
+    clock_gettime(CLOCK_MONOTONIC, &spin_start);
     spin();
+    clock_gettime(CLOCK_MONOTONIC, &spin_stop);
+    printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
+    clock_gettime(CLOCK_MONOTONIC, &mr_start);
     mass_radius();
+    clock_gettime(CLOCK_MONOTONIC, &mr_stop);
+    printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 }
 void RotatingNeutronStar::mass_radius() {
-    printf("CALLING\n");
     int s,
         m,
         n_nearest;
@@ -515,7 +521,6 @@ void RotatingNeutronStar::mass_radius() {
     }
  
     if(r_ratio == 1.0) {
-        printf("HURRR WHY????\n"); 
         J = 0.0; 
     } else {    
         if(eos.isTabulatedEos()) {
@@ -589,8 +594,6 @@ void RotatingNeutronStar::mass_radius() {
     } else { 
         Omega_K = omega_equator + vek*exp(rho_equator)/r_e;
     }
-    printf("!!!Omega_K rns = %f\n", Omega_K);
-    printf("!!!J rns = %f\n", J);
     
 }
 
@@ -1156,7 +1159,6 @@ void RotatingNeutronStar::print_state() const {
         } else {
             I_45 = J/(Omega*1.0e45);
         }
-        printf("J=%f\n", J);
         printf(
             "%4.3f \t%4.1f \t%4.3f \t%4.3f \t%4.3f \t%4.1f \t%5.1f \t%4.2f \t%4.3f \n",
             r_ratio,
