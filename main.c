@@ -48,65 +48,6 @@ kepler -f eosA -e 1e15
 #include "GridTrig.hh"
 #include "RotatingNeutronStar.hh"
 
-/***************************************************************************
- * printing routine  
- ***************************************************************************/
-                                        
-void print(double r_ratio,
-           double e_center, double Mass, double Mass_0, double R_e,
-           double Omega, double Omega_K, double J) {
-
-    double I_45;
-  
-    if(Omega == 0.0) {
-        I_45 = 0.0;
-    } else {
-        I_45 = J/(Omega*1.0e45);
-    }
-
-    printf(
-        "%4.3f \t%4.1f \t%4.3f \t%4.3f \t%4.3f \t%4.1f \t%5.1f \t%4.2f \t%4.3f \n",
-        r_ratio,
-        e_center,
-        Mass/MSUN,
-        Mass_0/MSUN,
-        R_e/1.0e5,
-        Omega,
-        Omega_K,
-        I_45,
-        (C*J/(G*Mass*Mass)));
-}
-
-/***************************************************************************
- * printing routine for polytropic stars
- ***************************************************************************/
-
-void printpoly(double r_ratio,
-               double e_center, double Mass, double Mass_0, double R_e,
-               double Omega, double Omega_K, double J) {
-
-    double I;
-  
-    if(Omega == 0.0) {
-        I = 0.0;
-    } else {
-        I = J/(Omega);
-    }
-
-    printf(
-        "%4.3f \t%4.3f \t%4.3f \t%4.3f \t%4.3f \t%4.3f \t%5.3f \t%4.2f \t%4.3f \n",
-        r_ratio,
-        e_center,
-        Mass,
-        Mass_0,
-        R_e,
-        Omega,
-        Omega_K,
-        I,
-        J/(Mass_0*Mass_0));
-}
-
-
 /*************************************************************************/
 /* Main program.                                                         */
 /*************************************************************************/
@@ -228,99 +169,19 @@ int main(int argc,                    /* Number of command line arguments */
     }
     printf("\n");
 
-    /* LOAD TABULATED EOS */ 
-
-    EquationOfState eos = (strcmp(eos_type, "tab") == 0) ? EquationOfState(eos_file) : EquationOfState(Gamma_P);
-  
-    /* SET UP GRID */
-    make_grid(s_gp, mu);
-    GridTrig trig = GridTrig(s_gp, mu);
-    RotatingNeutronStar rns = (eos.isTabulatedEos()) ? RotatingNeutronStar(eos_file, e_center) : RotatingNeutronStar(Gamma_P, e_center);
+    RotatingNeutronStar rns = (strcmp(eos_type, "tab") == 0) ? RotatingNeutronStar(eos_file, e_center) : RotatingNeutronStar(Gamma_P, e_center);
     /* ALLLOCATE MEMORY */
 
-    matrix<Metric, SDIV+1, MDIV+1> metric;
-    matrix<double, SDIV+1, MDIV+1> energy = {{0.0}};
-    matrix<double, SDIV+1, MDIV+1> pressure = {{0.0}};
-    matrix<double, SDIV+1, MDIV+1> enthalpy = {{0.0}};
-    matrix<double, SDIV+1, MDIV+1> velocity_sq = {{0.0}};
-    
-
-    std::array<double, SDIV+1> v_plus = {{0.0}};
-    std::array<double, SDIV+1> v_minus = {{0.0}};
-
     /* set program defaults */
-    cf = 1.0;
-    accuracy = 1e-5; 
-    rns.setAccuracy(accuracy);  
-    rns.setCf(cf); 
+    rns.setAccuracy(1e-5);  
+    rns.setCf(1.0); 
     xacc = 1e-4;  
  
-    if(strcmp(eos_type, "tab") == 0) {
-        e_surface = 7.8*C*C*KSCALE;
-        p_surface = 1.01e8*KSCALE;
-        enthalpy_min = 1.0/(C*C);
-    } else {
-        e_surface = 0.0;
-        p_surface = 0.0;
-        enthalpy_min = 0.0;
-    }
-
-    /* CALCULATE THE PRESSURE AND ENTHALPY AT THE CENTRE OF THE STAR*/
-
-    make_center(eos, e_center, p_center, h_center);
-
-    /* COMPUTE A SPHERICAL STAR AS A FIRST GUESS FOR THE ROTATING STAR */
-
-    sphere(s_gp, eos, e_center, p_center, h_center, p_surface, e_surface,
-           metric, r_e);
-
     r_ratio = 1.0; 
+    rns.recompute(r_ratio);    
     
-    /* THE PROCEDURE SPIN() WILL COMPUTE THE METRIC OF A STAR WITH
-       GIVEN OBLATENESS. THE OBLATENESS IS SPECIFIED BY GIVING 
-       THE RATIO OF THE LENGTH OF THE AXIS CONNECTING THE CENTRE OF THE STAR 
-       TO ONE OF THE POLES TO THE RADIUS OF THE STAR'S EQUATOR. 
-       THIS RATIO IS NAMED r_ratio.
-       WHEN r_ratio = 1.0, THE STAR IS SPHERICAL */
-    ControlConsts control(accuracy, cf);
-    clock_gettime(CLOCK_MONOTONIC, &spin_start);
-    rns.spin();
-    spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
-         metric, energy, pressure, enthalpy, velocity_sq,
-         control,
-         r_ratio, r_e, Omega);
-    clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-    printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-  
-    /* THE METRIC FUNCTIONS ARE STORED IN THE FUNCTIONS 
-       alpha, rho, gama, omega (see user's manual for the definition
-       of the metric */
-
-
-    /* COMPUTE THE VALUES OF VARIOUS EQUILIBRIUM QUANTITIES, SUCH
-       AS MASS (Mass), RADIUS (R_e), BARYON MASS(Mass_0), 
-       ANGULAR MOMENTUM (J), 
-       KEPLERIAN ANGULAR VELOCITY OF PARTICLE ORBITING AT 
-       THE EQUATOR,
-       VELOCITIES OF CO-ROTATING PARTICLES (v_plus),
-       AND COUNTER-ROTATING PARTICLES (v_minus) */
-
-    clock_gettime(CLOCK_MONOTONIC, &mr_start);
-    rns.mass_radius();
-    mass_radius(s_gp, mu, eos, metric, 
-                energy, pressure, enthalpy, velocity_sq,
-                r_ratio, e_surface, r_e, Omega,
-                Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
-    clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-    printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
-
     /* PRINT OUT INFORMATION ABOUT THE STELLAR MODEL */
     rns.print_state();
-    if(eos.isTabulatedEos()) {
-        print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
-    } else { 
-        printpoly(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
-    }
     dr = 0.05;
  
 
@@ -331,43 +192,19 @@ int main(int argc,                    /* Number of command line arguments */
        THE ANGULAR VELOCITY OF A PARTICLE ORBITING THE STAR
        AT THE EQUATOR, (Omega_K), THE LOOP STOPS */
     
-    diff_Omega = Omega_K - Omega;
+    diff_Omega = rns.getOmegaK() - rns.getOmega();
     old_diff_Omega = diff_Omega;
   
     while(diff_Omega > 0) {
         /* Find the interval of r_ratio where the star has the
            correct angular velocity    */
         r_ratio -= dr;
-        rns.setRRatio(r_ratio);
-        /* Compute the star with the specified value of r_ratio    */
-
-      	clock_gettime(CLOCK_MONOTONIC, &spin_start);
-        rns.spin();
-        spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
-             metric, energy, pressure, enthalpy, velocity_sq,
-             control,
-             r_ratio, r_e, Omega);
-        clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-        printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-   
-        clock_gettime(CLOCK_MONOTONIC, &mr_start);
-        rns.mass_radius();
-        mass_radius(s_gp, mu, eos, metric, 
-                    energy, pressure, enthalpy, velocity_sq,
-                    r_ratio, e_surface, r_e, Omega,
-                    Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
-        clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-        printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
+        rns.recompute(r_ratio);    
 
         rns.print_state();
-        if(eos.isTabulatedEos()) {
-            print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
-        } else { 
-            printpoly(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
-        }
    
         old_diff_Omega = diff_Omega;
-        diff_Omega = Omega_K - Omega;
+        diff_Omega = rns.getOmegaK() - rns.getOmega();
     } 
 
     /* The correct star lies between r_ratio and r_ratio + dr */
@@ -384,70 +221,27 @@ int main(int argc,                    /* Number of command line arguments */
         for (j=1; j<=60; j++) {
             xm = 0.5*(xl+xh);
             r_ratio = xm;
-            rns.setRRatio(r_ratio);
-
-            clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            rns.spin();
-            spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
-                 metric, energy, pressure, enthalpy, velocity_sq,
-                 control,
-                 r_ratio, r_e, Omega);
-            clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-            printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-
-            clock_gettime(CLOCK_MONOTONIC, &mr_start);
-            rns.mass_radius();
-            mass_radius(s_gp, mu, eos, metric, 
-                        energy, pressure, enthalpy, velocity_sq,
-                        r_ratio, e_surface, r_e, Omega,
-                        Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
-            clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-            printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
-
-            fm = Omega_K - Omega;
+            rns.recompute(r_ratio);    
+            
+            fm = rns.getOmegaK() - rns.getOmega();
             sroot = sqrt(fm*fm-fl*fh);
             
             if(sroot == 0.0) {
                 r_ratio = ans;
-                rns.setRRatio(r_ratio);
                 break;
             }
            
             xnew=xm+(xm-xl)*((fl >= fh ? 1.0 : -1.0)*fm/sroot);
             if(fabs(xnew-ans) <= xacc) {
                 r_ratio = ans;
-                rns.setRRatio(r_ratio);
                 break;
             }
             ans = xnew;
             r_ratio = ans;
-            rns.setRRatio(r_ratio);
-            clock_gettime(CLOCK_MONOTONIC, &spin_start);
-            rns.spin();
-            spin(s_gp, mu, trig, eos, h_center, enthalpy_min,
-                 metric, energy, pressure, enthalpy, velocity_sq,
-                 control,
-                 r_ratio, r_e, Omega);
-            clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-            printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-
-            clock_gettime(CLOCK_MONOTONIC, &mr_start);
-            rns.mass_radius();
-            mass_radius(s_gp, mu, eos, metric, 
-                        energy, pressure, enthalpy, velocity_sq,
-                        r_ratio, e_surface, r_e, Omega,
-                        Mass, Mass_0, J, R_e, v_plus, v_minus, Omega_K);
-            clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-            printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
-
+            rns.recompute(r_ratio);    
             rns.print_state();
-            if(strcmp(eos_type, "tab") == 0) {
-                print(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
-            } else { 
-                printpoly(r_ratio, e_center, Mass, Mass_0, R_e, Omega, Omega_K, J);
-            }
 
-            fnew =  Omega_K - Omega;
+            fnew =  rns.getOmegaK() - rns.getOmega();
             if(fnew == 0.0){
                 r_ratio = ans;
                 rns.setRRatio(r_ratio);
