@@ -338,6 +338,8 @@ void mass_radius(const double s_gp[SDIV+1],
     } else { 
         Omega_K = omega_equator + vek*exp(rho_equator)/r_e;
     }
+    printf("!!!Omega_K equ = %f\n", Omega_K);
+    printf("!!!J equ = %f\n", J);
 }
 
 /**************************************************************************/

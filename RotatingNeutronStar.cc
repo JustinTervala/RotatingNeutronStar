@@ -350,7 +350,13 @@ double RotatingNeutronStar::getOmegaK() const {
     return Omega_K;
 }
 
+void RotatingNeutronStar::recompute(double r_ratio_) {
+    r_ratio = r_ratio_;
+    spin();
+    mass_radius();
+}
 void RotatingNeutronStar::mass_radius() {
+    printf("CALLING\n");
     int s,
         m,
         n_nearest;
@@ -383,7 +389,6 @@ void RotatingNeutronStar::mass_radius() {
            gama_mu_0[SDIV+1],                   
            rho_mu_0[SDIV+1],                    
            omega_mu_0[SDIV+1],
-           J,
            r_p,
            s_p;                 
         
@@ -509,7 +514,8 @@ void RotatingNeutronStar::mass_radius() {
         Mass_0 *= 4*PI*pow(r_e, 3.0);
     }
  
-    if(r_ratio == 1.0) { 
+    if(r_ratio == 1.0) {
+        printf("HURRR WHY????\n"); 
         J = 0.0; 
     } else {    
         if(eos.isTabulatedEos()) {
@@ -583,6 +589,9 @@ void RotatingNeutronStar::mass_radius() {
     } else { 
         Omega_K = omega_equator + vek*exp(rho_equator)/r_e;
     }
+    printf("!!!Omega_K rns = %f\n", Omega_K);
+    printf("!!!J rns = %f\n", J);
+    
 }
 
 
@@ -656,10 +665,10 @@ void RotatingNeutronStar::spin() {
            sj,
            sk1,
            sj1,
-           r_e;
+           r_e_new;
 
   
-    //r_e = r_e_new;
+    r_e_new = r_e;
     native_matrix<RhoGamaOmega, SDIV+1, MDIV+1> S_metric;
     native_matrix<RhoGamaOmega, LMAX+2, SDIV+1> D1_metric;
     native_matrix<RhoGamaOmega, SDIV+1, LMAX+2> D2_metric;
@@ -679,10 +688,10 @@ void RotatingNeutronStar::spin() {
 
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
-                metric[s][m].rho /= SQ(r_e);
-                metric[s][m].gama /= SQ(r_e); 
-                metric[s][m].alpha /= SQ(r_e);
-                metric[s][m].omega *= r_e;
+                metric[s][m].rho /= SQ(r_e_new);
+                metric[s][m].gama /= SQ(r_e_new); 
+                metric[s][m].alpha /= SQ(r_e_new);
+                metric[s][m].omega *= r_e_new;
             }
             rho_mu_0[s] = metric[s][1].rho;     
             gama_mu_0[s] = metric[s][1].gama;   
@@ -691,11 +700,11 @@ void RotatingNeutronStar::spin() {
             gama_mu_1[s] = metric[s][MDIV].gama;
         }
  
-        /* Compute new r_e. */ 
+        /* Compute new r_e_new. */ 
 
-        r_e_old = r_e;
-        r_p = r_ratio*r_e;                          
-        s_p = r_p/(r_p+r_e);                        
+        r_e_old = r_e_new;
+        r_p = r_ratio*r_e_new;                          
+        s_p = r_p/(r_p+r_e_new);                        
   
         n_nearest = SDIV/2;
         gama_pole_h = interp(s_gp, gama_mu_1, SDIV, s_p, n_nearest); 
@@ -706,7 +715,7 @@ void RotatingNeutronStar::spin() {
         rho_equator_h = interp(s_gp, rho_mu_0, SDIV, s_e, n_nearest);
         rho_center_h = metric[1][1].rho;                      
  
-        r_e = sqrt(2*h_center/(gama_pole_h+rho_pole_h-gama_center_h-rho_center_h));
+        r_e_new = sqrt(2*h_center/(gama_pole_h+rho_pole_h-gama_center_h-rho_center_h));
 
         /* Compute angular velocity Omega. */
  
@@ -715,10 +724,10 @@ void RotatingNeutronStar::spin() {
             omega_equator_h = 0.0;
         } else {
             omega_equator_h = interp(s_gp, omega_mu_0, SDIV, s_e, n_nearest);
-            term_in_Omega_h = 1.0-exp(SQ(r_e)*(gama_pole_h+rho_pole_h
+            term_in_Omega_h = 1.0-exp(SQ(r_e_new)*(gama_pole_h+rho_pole_h
                                               -gama_equator_h-rho_equator_h));
             if(term_in_Omega_h >= 0.0) { 
-               Omega_h = omega_equator_h + exp(SQ(r_e)*rho_equator_h)
+               Omega_h = omega_equator_h + exp(SQ(r_e_new)*rho_equator_h)
                                             *sqrt(term_in_Omega_h);
             } else {
                Omega_h = 0.0;
@@ -739,14 +748,14 @@ void RotatingNeutronStar::spin() {
             
                 if(r_ratio != 1.0) { 
                     velocity_sq[s][m] = SQ((Omega_h-metric[s][m].omega)*(sgp/(1.0-sgp))
-                                           *trig.sin_theta[m]*exp(-rsm*SQ(r_e)));
+                                           *trig.sin_theta[m]*exp(-rsm*SQ(r_e_new)));
                 } else {
                     velocity_sq[s][m] = 0.0;
 		}
                 if(velocity_sq[s][m] >= 1.0) { 
                     velocity_sq[s][m] = 0.0;
                 }
-                enthalpy[s][m] = enthalpy_min + 0.5*(SQ(r_e)*(gama_pole_h+rho_pole_h
+                enthalpy[s][m] = enthalpy_min + 0.5*(SQ(r_e_new)*(gama_pole_h+rho_pole_h
                                  -metric[s][m].gama-rsm)-log(1.0-velocity_sq[s][m]));
   
                 if((enthalpy[s][m] <= enthalpy_min) || (sgp > s_e)) {
@@ -768,9 +777,9 @@ void RotatingNeutronStar::spin() {
 
                 /* Rescale back metric potentials (except omega) */
 
-                metric[s][m].rho *= SQ(r_e);
-                metric[s][m].gama *= SQ(r_e);
-                metric[s][m].alpha *= SQ(r_e);
+                metric[s][m].rho *= SQ(r_e_new);
+                metric[s][m].gama *= SQ(r_e_new);
+                metric[s][m].alpha *= SQ(r_e_new);
             }
         }
         clock_gettime(CLOCK_MONOTONIC, &vep_stop);
@@ -797,7 +806,7 @@ void RotatingNeutronStar::spin() {
                 s1 = sgp*s_1;
                 s2 = SQ(sgp/s_1);  
 
-                ea = 16.0*PI*exp(2.0*metric[s][m].alpha)*SQ(r_e);
+                ea = 16.0*PI*exp(2.0*metric[s][m].alpha)*SQ(r_e_new);
  
                 if(s == 1) {
                     d_gama_s = 0.0;
@@ -1100,7 +1109,7 @@ void RotatingNeutronStar::spin() {
                     a_check = 200; 
                     break;
                 }
-                metric[s][m].omega /= r_e;
+                metric[s][m].omega /= r_e_new;
             }
         } 
 
@@ -1116,7 +1125,7 @@ void RotatingNeutronStar::spin() {
             break;
         }
 
-        dif = fabs(r_e_old-r_e)/r_e;
+        dif = fabs(r_e_old-r_e_new)/r_e_new;
         n_of_it++;
 
     }   /* end while */
@@ -1126,14 +1135,14 @@ void RotatingNeutronStar::spin() {
     /* COMPUTE OMEGA */  
 
     if(eos.isTabulatedEos()) { 
-         Omega = Omega_h*C/(r_e*sqrt(KAPPA));
+         Omega = Omega_h*C/(r_e_new*sqrt(KAPPA));
     } else {
-         Omega = Omega_h/r_e;
+         Omega = Omega_h/r_e_new;
     }
 
     /* UPDATE r_e_new */
 
-    //r_e_new = r_e;
+    r_e = r_e_new;
 
 }
 
@@ -1147,7 +1156,7 @@ void RotatingNeutronStar::print_state() const {
         } else {
             I_45 = J/(Omega*1.0e45);
         }
-
+        printf("J=%f\n", J);
         printf(
             "%4.3f \t%4.1f \t%4.3f \t%4.3f \t%4.3f \t%4.1f \t%5.1f \t%4.2f \t%4.3f \n",
             r_ratio,

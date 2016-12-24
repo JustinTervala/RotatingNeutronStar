@@ -2,6 +2,8 @@
 #include "EquationOfState.hh"
 #include "equil_util.h"
 
+
+//TODO: Use static polymorphism to do a polymorphic and a tabulated RNS
 class RotatingNeutronStar {
     private:
         EquationOfState eos;
@@ -60,6 +62,7 @@ class RotatingNeutronStar {
         void sphere();
         void spin();
         void mass_radius();
+        void recompute(double r_ratio_);
         void print_state() const;
         void setAccuracy(double accuracy_);
         void setCf(double cf_); 
