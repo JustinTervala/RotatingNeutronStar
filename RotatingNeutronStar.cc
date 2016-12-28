@@ -672,6 +672,7 @@ void RotatingNeutronStar::spin() {
 
   
     r_e_new = r_e;
+    double r_e_new_sq = square(r_e_new);
     native_matrix<RhoGamaOmega, SDIV+1, MDIV+1> S_metric;
     native_matrix<RhoGamaOmega, math::l_poly_max+2, SDIV+1> D1_metric;
     native_matrix<RhoGamaOmega, SDIV+1, math::l_poly_max+2> D2_metric;
@@ -691,9 +692,9 @@ void RotatingNeutronStar::spin() {
 
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
-                metric[s][m].rho /= square(r_e_new);
-                metric[s][m].gama /= square(r_e_new); 
-                metric[s][m].alpha /= square(r_e_new);
+                metric[s][m].rho /= r_e_new_sq;
+                metric[s][m].gama /= r_e_new_sq; 
+                metric[s][m].alpha /= r_e_new_sq;
                 metric[s][m].omega *= r_e_new;
             }
             rho_mu_0[s] = metric[s][1].rho;     
@@ -719,7 +720,7 @@ void RotatingNeutronStar::spin() {
         rho_center_h = metric[1][1].rho;                      
  
         r_e_new = sqrt(2*h_center/(gama_pole_h+rho_pole_h-gama_center_h-rho_center_h));
-
+        r_e_new_sq = square(r_e_new);
         /* Compute angular velocity Omega. */
  
         if(r_ratio == 1.0) {
@@ -727,10 +728,9 @@ void RotatingNeutronStar::spin() {
             omega_equator_h = 0.0;
         } else {
             omega_equator_h = interp(s_gp, omega_mu_0, SDIV, s_e, n_nearest);
-            term_in_Omega_h = 1.0-exp(square(r_e_new)*(gama_pole_h + rho_pole_h - gama_equator_h - rho_equator_h));
+            term_in_Omega_h = 1.0-exp(r_e_new_sq*(gama_pole_h + rho_pole_h - gama_equator_h - rho_equator_h));
             if(term_in_Omega_h >= 0.0) { 
-               Omega_h = omega_equator_h + exp(square(r_e_new)*rho_equator_h)
-                                            *sqrt(term_in_Omega_h);
+               Omega_h = omega_equator_h + exp(r_e_new_sq*rho_equator_h)*sqrt(term_in_Omega_h);
             } else {
                Omega_h = 0.0;
             }
@@ -750,14 +750,14 @@ void RotatingNeutronStar::spin() {
             
                 if(r_ratio != 1.0) { 
                     velocity_sq[s][m] = square((Omega_h-metric[s][m].omega)*(sgp/(1.0-sgp))
-                                           *trig.sin_theta[m]*exp(-rsm*square(r_e_new)));
+                                           *trig.sin_theta[m]*exp(-rsm*r_e_new_sq));
                 } else {
                     velocity_sq[s][m] = 0.0;
 		}
                 if(velocity_sq[s][m] >= 1.0) { 
                     velocity_sq[s][m] = 0.0;
                 }
-                enthalpy[s][m] = enthalpy_min + 0.5*(square(r_e_new)*(gama_pole_h+rho_pole_h
+                enthalpy[s][m] = enthalpy_min + 0.5*(r_e_new_sq*(gama_pole_h+rho_pole_h
                                  -metric[s][m].gama-rsm)-log(1.0-velocity_sq[s][m]));
   
                 if((enthalpy[s][m] <= enthalpy_min) || (sgp > s_e)) {
@@ -779,9 +779,9 @@ void RotatingNeutronStar::spin() {
 
                 /* Rescale back metric potentials (except omega) */
 
-                metric[s][m].rho *= square(r_e_new);
-                metric[s][m].gama *= square(r_e_new);
-                metric[s][m].alpha *= square(r_e_new);
+                metric[s][m].rho *= r_e_new_sq;
+                metric[s][m].gama *= r_e_new_sq;
+                metric[s][m].alpha *= r_e_new_sq;
             }
         }
         clock_gettime(CLOCK_MONOTONIC, &vep_stop);
@@ -808,7 +808,7 @@ void RotatingNeutronStar::spin() {
                 s1 = sgp*s_1;
                 s2 = square(sgp/s_1);  
 
-                ea = 4.0*math::FourPi*exp(2.0*metric[s][m].alpha)*square(r_e_new);
+                ea = 4.0*math::FourPi*exp(2.0*metric[s][m].alpha)*r_e_new_sq;
  
                 if(s == 1) {
                     d_gama_s = 0.0;
@@ -974,7 +974,7 @@ void RotatingNeutronStar::spin() {
                 e_rsm = exp(rsm);
                 temp1 = trig.sin_theta[m];
 
-                sum_rho += -e_gsm*trig.P_2n[m][0+1]*D2_metric[s][0+1].rho; 
+                sum_rho += -e_gsm*trig.P_2n[m][1]*D2_metric[s][1].rho; 
 
                 for(n=1; n<=math::l_poly_max; ++n) {
 

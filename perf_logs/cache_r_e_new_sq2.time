@@ -1,0 +1,34 @@
+Timing for 100 iterations of kepler
+Execution Time in Milliseconds
+spin():
+   Func     Avg      Med      Min      Max      Std   Calls  Percent
+    total  55.57     50.6     15.3    314.73   26.25  1200   100.0  
+      vep   1.38     1.39     1.0      5.25     0.12  16900  35.073 
+    coeff   0.99     0.98     0.94     4.35     0.07  16900  25.134 
+   metric   0.62     0.61     0.58    164.61    1.26  16900  15.749 
+    alpha   0.41     0.41     0.04     1.8      0.09  16900  10.34  
+      rad   0.38     0.36     0.36     2.87     0.06  16900  9.664  
+      ang   0.13     0.12     0.12     1.59     0.02  16900  3.312  
+mass_radius():
+  min: 0.980602
+  max: 1.920138
+  avg: 1.1433551875
+  std: 0.0522762207937
+
+ Performance counter stats for '../kepler -f ../eos/eosA -e 1e15':
+
+     2,233,128,648 cycles                    #    3.114 GHz                     [40.18%]
+        717.153681 cpu-clock (msec)                                            
+        717.159951 task-clock (msec)         #    0.976 CPUs utilized          
+       307,696,953 branches                  #  429.049 M/sec                   [40.33%]
+         1,386,268 branch-misses             #    0.45% of all branches         [40.38%]
+     1,093,404,460 L1-dcache-loads           # 1524.631 M/sec                   [40.31%]
+        33,961,447 L1-dcache-load-misses     #    3.11% of all L1-dcache hits   [39.84%]
+       311,045,606 L1-dcache-stores          #  433.719 M/sec                   [39.94%]
+         5,762,998 L1-dcache-store-misses    #    8.036 M/sec                   [41.13%]
+       312,856,730 branch-loads              #  436.244 M/sec                   [40.70%]
+         1,357,652 branch-load-misses        #    1.893 M/sec                   [40.31%]
+           144,547 cache-misses              #    0.202 M/sec                   [39.94%]
+
+       0.734616693 seconds time elapsed
+
