@@ -4,6 +4,13 @@
 #include <string>
 #include "consts.h"
 
+constexpr double square(double x) { 
+    return x*x; 
+};
+
+
+long getElapsedTimeNs(struct timespec start, struct timespec stop);
+
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 /*
 template<class T, size_t size, size_t... sizes>

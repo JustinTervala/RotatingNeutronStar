@@ -24,7 +24,6 @@
 #ifndef PI
 #define PI 3.1415926535              /* what else */
 #endif
-
 #define M_MAX 6         /* Maximum l=m mode considered */
 #define BOUND 1         /* Excludes last grid point, since we set everything
                            to zero there */
@@ -37,10 +36,41 @@
 #define DBL_EPSILON 1e-15
 #endif
 
-namespace Consts {
+#include <limits>
 
-const float SpeedOfLight = 2.9979e10;
+namespace consts {
+
+namespace phys {
+const constexpr float SpeedOfLight = 2.9979e10;
+const constexpr double SpeedOfLightSq = SpeedOfLight * SpeedOfLight;
+const constexpr float gravity = 6.6732e-8;
+const constexpr double mass_sun = 1.987e33;
+const constexpr double mass_baryon = 1.66e-24;
+const constexpr double tov_rmin = 1.0e-15;
+const constexpr double kappa = 1.0e-15*SpeedOfLightSq/gravity;
+const constexpr double kscale = kappa*gravity/(SpeedOfLightSq*SpeedOfLightSq);
 };
+
+namespace math {
+const constexpr float Pi = 3.1415928535;
+const constexpr float FourPi = 4.0*Pi;
+const constexpr float TwoOverPi = 2.0/Pi;
+const constexpr int rdiv = 900;
+const constexpr int l_poly_max = 10;
+const constexpr double dbl_epsilon = std::numeric_limits<double>::epsilon();
+const constexpr int max_iter = 30;
+};
+
+namespace grid {
+const constexpr float dm = 1.0/(MDIV-1.0);
+const constexpr float smax = 0.9999;
+const constexpr float ds = smax/(SDIV-1.0);
+}
+};
+
+
+
+
 /*
 namespace Consts {
 

@@ -4,6 +4,15 @@
 #include <iostream>
 #include "consts.h"
 #include "equil_util.h"
+#include <time.h>
+
+long getElapsedTimeNs(struct timespec start, struct timespec stop) {
+    return (stop.tv_sec - start.tv_sec)*1e9 + stop.tv_nsec - start.tv_nsec;
+}
+
+
+using namespace consts;
+
 
 /***************************************************************************/
 /* Routine that locates nearest grid point for a given value.              */
@@ -72,25 +81,25 @@ double interp(const double xp[],
     int k,        /* index of 1st point */
         m = 4;      /* degree of interpolation */ 
  
-    double y;     /* intermediate value */
-
     hunt(xp, np, xb, n_nearest_pt);
 
     k = std::min(std::max(n_nearest_pt-(m-1)/2, 1), np+1-m);
 
     if(xb == xp[k] || xb == xp[k+1] || xb == xp[k+2] || xb == xp[k+3]) {
-        xb += DBL_EPSILON;
+        xb += math::dbl_epsilon;
     }
-    y = (xb-xp[k+1])*(xb-xp[k+2])*(xb-xp[k+3])*yp[k]/
+    double tmp = xb-xp[k];
+    
+    double y = (xb-xp[k+1])*(xb-xp[k+2])*(xb-xp[k+3])*yp[k]/
         ((xp[k]-xp[k+1])*(xp[k]-xp[k+2])*(xp[k]-xp[k+3]))
  
-        +(xb-xp[k])*(xb-xp[k+2])*(xb-xp[k+3])*yp[k+1]/
+        +tmp*(xb-xp[k+2])*(xb-xp[k+3])*yp[k+1]/
          ((xp[k+1]-xp[k])*(xp[k+1]-xp[k+2])*(xp[k+1]-xp[k+3]))
  
-        +(xb-xp[k])*(xb-xp[k+1])*(xb-xp[k+3])*yp[k+2]/
+        +tmp*(xb-xp[k+1])*(xb-xp[k+3])*yp[k+2]/
          ((xp[k+2]-xp[k])*(xp[k+2]-xp[k+1])*(xp[k+2]-xp[k+3]))
  
-        +(xb-xp[k])*(xb-xp[k+1])*(xb-xp[k+2])*yp[k+3]/
+        +tmp*(xb-xp[k+1])*(xb-xp[k+2])*yp[k+3]/
          ((xp[k+3]-xp[k])*(xp[k+3]-xp[k+1])*(xp[k+3]-xp[k+2]));
 
     return y;
@@ -103,13 +112,13 @@ double deriv_s(double **f, int s, int m) {
     double d_temp;
 
     switch(s) { 
-        case 1: d_temp = (f[s+1][m]-f[s][m])/DS;
+        case 1: d_temp = (f[s+1][m]-f[s][m])/grid::ds;
                 break;
 
-        case SDIV: d_temp = (f[s][m]-f[s-1][m])/DS;
+        case SDIV: d_temp = (f[s][m]-f[s-1][m])/grid::ds;
                    break;
       
-        default: d_temp = (f[s+1][m]-f[s-1][m])/(2.0*DS);
+        default: d_temp = (f[s+1][m]-f[s-1][m])/(2.0*grid::ds);
                  break; 
     } 
     return d_temp;
@@ -123,26 +132,26 @@ double deriv_ss(double **f, int s, int m) {
 
     switch(s) { 
         case 1: s = 4;
-                d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*SQ(DS));
+                d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*square(grid::ds));
                 break;
 
            case 2: s = 4;
-                   d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*SQ(DS));
+                   d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*square(grid::ds));
                    break;
 
            case 3: s = 4;
-                   d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*SQ(DS));
+                   d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*square(grid::ds));
                    break;
 
            case SDIV-1: s = SDIV-2;
-                        d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*SQ(DS));
+                        d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*square(grid::ds));
                         break;
 
            case SDIV: s = SDIV-2;
-                      d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*SQ(DS));
+                      d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*square(grid::ds));
                       break;
       
-           default: d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*SQ(DS));
+           default: d_temp = (f[s+2][m]-2.0*f[s][m]+f[s-2][m])/(4.0*square(grid::ds));
                     break; 
 
 
@@ -157,13 +166,13 @@ double deriv_m(double **f, int s, int m) {
     double d_temp;
 
     switch(m) { 
-        case 1: d_temp = (f[s][m+1]-f[s][m])/DM;
+        case 1: d_temp = (f[s][m+1]-f[s][m])/grid::dm;
                 break; 
 
-        case MDIV: d_temp = (f[s][m]-f[s][m-1])/DM;
+        case MDIV: d_temp = (f[s][m]-f[s][m-1])/grid::dm;
                    break;
       
-        default: d_temp = (f[s][m+1]-f[s][m-1])/(2.0*DM);
+        default: d_temp = (f[s][m+1]-f[s][m-1])/(2.0*grid::dm);
                  break; 
     } 
     return d_temp;
@@ -177,14 +186,14 @@ double deriv_mm(double **f, int s, int m) {
 
     switch(m) { 
         case 1: m = 2;
-                d_temp = (f[s][m+1]-2.0*f[s][m]+f[s][m-1])/SQ(DM);
+                d_temp = (f[s][m+1]-2.0*f[s][m]+f[s][m-1])/square(grid::dm);
                 break;
 
         case MDIV: m = MDIV-1;
-                   d_temp = (f[s][m+1]-2.0*f[s][m]+f[s][m-1])/SQ(DM);
+                   d_temp = (f[s][m+1]-2.0*f[s][m]+f[s][m-1])/square(grid::dm);
                    break;
 
-        default: d_temp = (f[s][m+1]-2.0*f[s][m]+f[s][m-1])/SQ(DM);
+        default: d_temp = (f[s][m+1]-2.0*f[s][m]+f[s][m-1])/square(grid::dm);
                  break; 
     } 
     return d_temp;
@@ -199,36 +208,36 @@ double deriv_sm(double **f, int s, int m) {
     switch(s) {
         case 1: 
             if(m == 1) {   
-                d_temp = (f[s+1][m+1]-f[s][m+1]-f[s+1][m]+f[s][m])/(DM*DS);
+                d_temp = (f[s+1][m+1]-f[s][m+1]-f[s+1][m]+f[s][m])/(grid::dm*grid::ds);
             } else {
                 if(m == MDIV) {
-                    d_temp = (f[s+1][m]-f[s][m]-f[s+1][m-1]+f[s][m-1])/(DM*DS);
+                    d_temp = (f[s+1][m]-f[s][m]-f[s+1][m-1]+f[s][m-1])/(grid::dm*grid::ds);
                 } else {         
-                    d_temp = (f[s+1][m+1]-f[s+1][m-1]-f[s][m+1]+f[s][m-1])/(2.0*DM*DS);
+                    d_temp = (f[s+1][m+1]-f[s+1][m-1]-f[s][m+1]+f[s][m-1])/(2.0*grid::dm*grid::ds);
                 }
             }
             break;
 
         case SDIV: 
             if(m == 1) {   
-                d_temp = (f[s][m+1]-f[s][m]-f[s-1][m+1]+f[s-1][m])/(DM*DS);
+                d_temp = (f[s][m+1]-f[s][m]-f[s-1][m+1]+f[s-1][m])/(grid::dm*grid::ds);
             } else {
                 if(m == MDIV) {
-                    d_temp = (f[s][m]-f[s-1][m]-f[s][m-1]+f[s-1][m-1])/(DM*DS);
+                    d_temp = (f[s][m]-f[s-1][m]-f[s][m-1]+f[s-1][m-1])/(grid::dm*grid::ds);
                 } else {         
-                    d_temp = (f[s][m+1]-f[s][m-1]-f[s-1][m+1]+f[s-1][m-1])/(2.0*DM*DS);
+                    d_temp = (f[s][m+1]-f[s][m-1]-f[s-1][m+1]+f[s-1][m-1])/(2.0*grid::dm*grid::ds);
                 }
             }
             break;
   
         default: 
             if(m == 1) {   
-                d_temp = (f[s+1][m+1]-f[s-1][m+1]-f[s+1][m]+f[s-1][m])/(2.0*DM*DS);
+                d_temp = (f[s+1][m+1]-f[s-1][m+1]-f[s+1][m]+f[s-1][m])/(2.0*grid::dm*grid::ds);
             } else {
                 if(m == MDIV) {
-                    d_temp = (f[s+1][m]-f[s-1][m]-f[s+1][m-1]+f[s-1][m-1])/(2.0*DM*DS);
+                    d_temp = (f[s+1][m]-f[s-1][m]-f[s+1][m-1]+f[s-1][m-1])/(2.0*grid::dm*grid::ds);
                 } else {         
-                  d_temp = (f[s+1][m+1]-f[s-1][m+1]-f[s+1][m-1]+f[s-1][m-1])/(4.0*DM*DS);
+                  d_temp = (f[s+1][m+1]-f[s-1][m+1]-f[s+1][m-1]+f[s-1][m-1])/(4.0*grid::dm*grid::ds);
                 }
             }
             break;
@@ -330,7 +339,7 @@ double rtsec_G(double (*func)(double, double),
     }
 
  
-    for(j=1; j<=MAXIT; ++j) {
+    for(j=1; j<=math::max_iter; ++j) {
         dx = (xl-rts)*f/(f-fl);
         xl = rts;
         fl = f;
