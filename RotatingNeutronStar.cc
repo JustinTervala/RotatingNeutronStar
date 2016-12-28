@@ -1,6 +1,5 @@
 #include "RotatingNeutronStar.hh"
 #include "consts.h"
-#include "equil.h"
 #include <cmath>
 
 using namespace consts;

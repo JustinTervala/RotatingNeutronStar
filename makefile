@@ -16,7 +16,7 @@
 #CC=cc -std1
 
 #Linux
-CC=g++
+CC=g++ --std=c++11
 COPTS=-Ofast -pipe -march=native -flto -funroll-loops -funsafe-math-optimizations -fno-omit-frame-pointer 
 #/*************************************************************************
 #*                     SPECIFY GRID SIZE
@@ -63,19 +63,16 @@ kepler: $(OBJ)
 
 
 main.o: consts.h equil_util.h EquationOfState.hh RotatingNeutronStar.hh main.c
-	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.c 
-
-#equil.o:equil.h equil_util.h  consts.h equil.c
-#	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil.c
+	$(CC)  $(COPTS) -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.c 
 
 RotatingNeutronStar.o: RotatingNeutronStar.hh EquationOfState.hh consts.h equil_util.h GridTrig.hh
-	$(CC) $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  RotatingNeutronStar.cc
+	$(CC) $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  RotatingNeutronStar.cc
 
 EquationOfState.o: EquationOfState.hh consts.h equil_util.h
-	$(CC) $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  EquationOfState.cc
+	$(CC) $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  EquationOfState.cc
 
 equil_util.o:equil_util.h  consts.h equil_util.c
-	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.c
+	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.c
 
 GridTrig.o: GridTrig.hh consts.h equil_util.h
-	$(CC)  $(COPTS) --std=c++11 -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   GridTrig.cc
+	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   GridTrig.cc

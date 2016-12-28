@@ -38,7 +38,6 @@ kepler -f eosA -e 1e15
 *                                                                         *
 **************************************************************************/
 #include "consts.h"
-#include "equil.h"
 #include <stdio.h>
 #include <string.h> 
 #include <math.h>
