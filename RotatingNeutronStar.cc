@@ -353,14 +353,8 @@ double RotatingNeutronStar::getOmegaK() const {
 void RotatingNeutronStar::recompute(double r_ratio_) {
     struct timespec spin_start, spin_stop, mr_start, mr_stop;
     r_ratio = r_ratio_;
-    clock_gettime(CLOCK_MONOTONIC, &spin_start);
     spin();
-    clock_gettime(CLOCK_MONOTONIC, &spin_stop);
-    printf("spin(): %ld\n", getElapsedTimeNs(spin_start, spin_stop));
-    clock_gettime(CLOCK_MONOTONIC, &mr_start);
     mass_radius();
-    clock_gettime(CLOCK_MONOTONIC, &mr_stop);
-    printf("mass_radius(): %ld\n", getElapsedTimeNs(mr_start, mr_stop));
 }
 void RotatingNeutronStar::mass_radius() {
     int s,
@@ -737,9 +731,6 @@ void RotatingNeutronStar::spin() {
         }
  
         /* Compute velocity, energy density and pressure. */
-        struct timespec vep_start, vep_stop;
-        clock_gettime(CLOCK_MONOTONIC, &vep_start);
- 
         n_nearest = eos.getNumTab()/2; 
 
         for(s=1; s<=SDIV; ++s) {
@@ -784,13 +775,8 @@ void RotatingNeutronStar::spin() {
                 metric[s][m].alpha *= r_e_new_sq;
             }
         }
-        clock_gettime(CLOCK_MONOTONIC, &vep_stop);
-        printf("spin(), vep: %ld\n", getElapsedTimeNs(vep_start, vep_stop));
 
         /* Compute metric potentials */
-        struct timespec metric_start, metric_stop;
-        clock_gettime(CLOCK_MONOTONIC, &metric_start);
-
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
                 rsm = metric[s][m].rho;
@@ -855,12 +841,7 @@ void RotatingNeutronStar::spin() {
             }
         }
 
-        clock_gettime(CLOCK_MONOTONIC, &metric_stop);
-        printf("spin(), metric: %ld\n", getElapsedTimeNs(metric_start, metric_stop));
         /* ANGULAR INTEGRATION */
-        struct timespec ang_start, ang_stop;
-        clock_gettime(CLOCK_MONOTONIC, &ang_start);
-   
         n = 0;
         for(k=1; k<=SDIV; ++k) {      
             for(m=1; m<=MDIV-2; m+=2) {
@@ -900,13 +881,7 @@ void RotatingNeutronStar::spin() {
             }
         }
 
-        clock_gettime(CLOCK_MONOTONIC, &ang_stop);
-        printf("spin(), ang: %ld\n", getElapsedTimeNs(ang_start, ang_stop));
         /* RADIAL INTEGRATION */
-        struct timespec rad_start, rad_stop;
-        clock_gettime(CLOCK_MONOTONIC, &rad_start);
-
-
 
         n = 0;
         for(s=1; s<=SDIV; ++s) {
@@ -957,12 +932,7 @@ void RotatingNeutronStar::spin() {
             }
         }   
  
-        clock_gettime(CLOCK_MONOTONIC, &rad_stop);
-        printf("spin(), rad: %ld\n", getElapsedTimeNs(rad_start, rad_stop));
-
         /* SUMMATION OF COEFFICIENTS */
-        struct timespec coeff_start, coeff_stop;
-        clock_gettime(CLOCK_MONOTONIC, &coeff_start);
 
         for(s=1; s<=SDIV; ++s) {
             for(m=1; m<=MDIV; ++m) {
@@ -1001,9 +971,6 @@ void RotatingNeutronStar::spin() {
             }
         }
 
-        clock_gettime(CLOCK_MONOTONIC, &coeff_stop);
-        printf("spin(), coeff: %ld\n", getElapsedTimeNs(coeff_start, coeff_stop));
-
         /* CHECK FOR DIVERGENCE */
 
         if(fabs(metric[2][1].rho) > 100.0 || fabs(metric[2][1].gama) > 300.0 || fabs(metric[2][1].omega) > 100.0) {
@@ -1036,9 +1003,6 @@ void RotatingNeutronStar::spin() {
         } 
       
         /* COMPUTE FIRST ORDER DERIVATIVES OF GAMA */ 
-        struct timespec alpha_start, alpha_stop;
-        clock_gettime(CLOCK_MONOTONIC, &alpha_start);
-
  
         for(s=1;s<=SDIV;++s) {
             for(m=1; m<=MDIV; ++m) {
@@ -1134,8 +1098,6 @@ void RotatingNeutronStar::spin() {
                 metric[SDIV][m].alpha = 0.0;
             }
         }
-        clock_gettime(CLOCK_MONOTONIC, &alpha_stop);
-        printf("spin(), alpha: %ld\n", getElapsedTimeNs(alpha_start, alpha_stop));
 
         if(a_check == 200) {
             break;
