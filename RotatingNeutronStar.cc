@@ -1,5 +1,5 @@
 #include "RotatingNeutronStar.hh"
-#include "consts.h"
+#include "consts.hh"
 #include <cmath>
 
 using namespace consts;

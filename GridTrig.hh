@@ -1,6 +1,6 @@
 #pragma once
 
-#include "equil_util.h"
+#include "equil_util.hh"
 
 struct GridTrig {
     public:

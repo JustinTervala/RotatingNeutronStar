@@ -2,8 +2,8 @@
 #include <string.h> 
 #include <math.h>
 #include <iostream>
-#include "consts.h"
-#include "equil_util.h"
+#include "consts.hh"
+#include "equil_util.hh"
 #include <time.h>
 
 long getElapsedTimeNs(struct timespec start, struct timespec stop) {

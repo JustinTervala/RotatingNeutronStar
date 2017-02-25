@@ -2,7 +2,7 @@
 
 #include <array>
 #include <string>
-#include "consts.h"
+#include "consts.hh"
 
 constexpr double square(double x) { 
     return x*x; 

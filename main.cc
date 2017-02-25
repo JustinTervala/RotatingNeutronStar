@@ -37,7 +37,7 @@ kepler -f eosA -e 1e15
 * requires about 2.7 MBytes of RAM and took about 2 minutes to run.
 *                                                                         *
 **************************************************************************/
-#include "consts.h"
+#include "consts.hh"
 #include <stdio.h>
 #include <string.h> 
 #include <math.h>

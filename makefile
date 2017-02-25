@@ -62,17 +62,17 @@ kepler: $(OBJ)
 	$(CC) $(COPTS) $(MY_OWN) $(SIZE)  -o kepler $(OBJ) -lm -lrt
 
 
-main.o: consts.h equil_util.h EquationOfState.hh RotatingNeutronStar.hh main.c
-	$(CC)  $(COPTS) -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.c 
+main.o: consts.hh equil_util.hh EquationOfState.hh RotatingNeutronStar.hh main.cc
+	$(CC)  $(COPTS) -c $(MY_OWN) $(CFLAGS) $(COPTFLAGS) $(SIZE)  main.cc 
 
-RotatingNeutronStar.o: RotatingNeutronStar.hh EquationOfState.hh consts.h equil_util.h GridTrig.hh
+RotatingNeutronStar.o: RotatingNeutronStar.hh EquationOfState.hh consts.hh equil_util.hh GridTrig.hh
 	$(CC) $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  RotatingNeutronStar.cc
 
-EquationOfState.o: EquationOfState.hh consts.h equil_util.h
+EquationOfState.o: EquationOfState.hh consts.hh equil_util.hh
 	$(CC) $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)  EquationOfState.cc
 
-equil_util.o:equil_util.h  consts.h equil_util.c
-	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.c
+equil_util.o:equil_util.hh  consts.hh equil_util.cc
+	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   equil_util.cc
 
-GridTrig.o: GridTrig.hh consts.h equil_util.h
+GridTrig.o: GridTrig.hh consts.hh equil_util.hh
 	$(CC)  $(COPTS) -c $(MY_OWN) $(COPTFLAGS) $(SIZE)   GridTrig.cc

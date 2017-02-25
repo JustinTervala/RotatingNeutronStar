@@ -1,6 +1,6 @@
 #include "EquationOfState.hh"
-#include "consts.h"
-#include "equil_util.h"
+#include "consts.hh"
+#include "equil_util.hh"
 #include <cmath>
 #include <cstdio>
 #include <stdlib.h>

@@ -1,5 +1,5 @@
 #include "GridTrig.hh"
-#include "consts.h"
+#include "consts.hh"
 #include <cmath>
 
 GridTrig::GridTrig(const double s_gp[SDIV+1], const double mu[MDIV+1]) {

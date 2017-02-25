@@ -1,6 +1,6 @@
 #include "GridTrig.hh"
 #include "EquationOfState.hh"
-#include "equil_util.h"
+#include "equil_util.hh"
 
 
 //TODO: Use static polymorphism to do a polymorphic and a tabulated RNS
